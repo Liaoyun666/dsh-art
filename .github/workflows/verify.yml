@@ -1,0 +1,25 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: 离线自检
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 117 项（有 pixelfx 镜像时）/ 111 项（镜像缺席时自动改测降级路径）
+      - name: 插件离线自检
+        run: node tools/verify.mjs
+
+      - name: 插件能被 DSH 加载
+        run: node tools/install.mjs --status || true

@@ -1,0 +1,21 @@
+# dsh-anim-pack：把 341 种代码动画风格提示词 + 244 条像素特效做成常驻的本地素材包。
+#
+# 宿主侧插件（无 client 代码）：启动时挂 18 个 anim_* 工具。
+#   7 个管本地素材库（本包 assets/library/，换库改 config.libraryPath）；
+#   4 个管第二个数据源——自建美术参考图库（anim_ref_sources / anim_ref_search /
+#     anim_ref_show / anim_ref_pick）。地址按 config.refBase → 环境变量 DSH_REF_BASE →
+#     占位 http://127.0.0.1:8080 取；下载落盘 config.refCacheDir；超时 config.refTimeoutMs。
+#     没有自建库时这四条工具会如实说「没连上」，不影响本地 341 条素材。
+#   7 个管第三个数据源——pixelfx 的 244 条像素特效（源码镜像在 pixelfx/，
+#     换路径改 config.fxPath；导出缺省目录 config.fxExportDir；
+#     索引重建 node tools/build-fx.mjs --previews）。
+#
+# 安装（建 junction + 把本文件登记进 profile 补丁层）：
+#   node tools/install.mjs            # 默认 desktop profile
+#   node tools/install.mjs <profile>  # 指定 profile
+#   node tools/install.mjs --status   # 看现状（含模块加载自检）
+# 卸载：
+#   node tools/install.mjs --uninstall
+- insert:
+    - id: anim-pack
+      name: dsh-anim-pack
