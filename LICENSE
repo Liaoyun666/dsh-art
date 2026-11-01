@@ -19,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This LICENSE covers the plugin code in lib/, tools/, docs/ and the configuration
-files (package.json, cordis.patch.yml).
-
-It does NOT cover:
-
-  * assets/library/  — the prompt library, covered by assets/library/许可与来源.md
-                       (free to use and share; not to be resold as a course or
-                       paid skill pack).
-  * assets/fx/       — the pixel-art effects index and previews, MIT via
-                       patch-gg/pixelfx; see NOTICE.md for the upstream credits.
-
-See NOTICE.md for the full breakdown.

@@ -6,6 +6,8 @@
 
 `lib/`、`tools/`、`docs/`、`package.json`、`cordis.patch.yml`：MIT，© 2026 Liaoyun666，全文见 [LICENSE](LICENSE)。
 
+> `LICENSE` 里是标准 MIT 全文，只针对上面这些代码文件；`assets/` 下的两类素材各按本文件第 2、3 节处理。
+
 ## 2. 风格提示词素材 —— 原条款
 
 `assets/library/`（341 条风格提示词、193 张参考静帧、示例视频与截图）：
