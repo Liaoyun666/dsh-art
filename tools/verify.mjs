@@ -389,8 +389,13 @@ const fxSourceOut = await callTool('anim_fx_show', { id: 'fire/torch', source: t
 check('anim_fx_show source=true 附源码', fxSourceOut.includes('## 源码') && fxSourceOut.length > fxShowOut.length, `${fxSourceOut.length} / ${fxShowOut.length}`)
 
 const fxPreviewOut = await callTool('anim_fx_preview', { id: 'fire/torch' })
-const fxPreviewMatch = fxPreviewOut.match(/([A-Za-z]:[\\/][^\r\n]+?\.png)/)
-check('anim_fx_preview 给出存在的 PNG 路径', Boolean(fxPreviewMatch) && existsSync(fxPreviewMatch[1]), fxPreviewOut.slice(0, 160))
+// 别用「盘符」正则认路径：CI 跑在 Linux 上，只有 /home/... 这种；直接拿拼好的绝对路径比对更稳。
+const fxPreviewAbs = resolve(ROOT, 'assets', 'fx', 'previews', 'fire', 'torch', 'contact.png')
+check(
+  'anim_fx_preview 给出存在的 PNG 路径',
+  fxPreviewOut.includes(fxPreviewAbs) && existsSync(fxPreviewAbs),
+  fxPreviewOut.slice(0, 160),
+)
 check('anim_fx_preview 没给 id 时给提示', (await callTool('anim_fx_preview', {})).includes('给一个 id'))
 
 const fxToolDir = mkdtempSync(join(tmpdir(), 'anim-pack-fxtool-'))
