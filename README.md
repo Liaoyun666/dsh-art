@@ -1,5 +1,11 @@
 # dsh-art
 
+[![verify](https://github.com/Liaoyun666/dsh-art/actions/workflows/verify.yml/badge.svg)](https://github.com/Liaoyun666/dsh-art/actions/workflows/verify.yml)
+[![license](https://img.shields.io/github/license/Liaoyun666/dsh-art)](https://github.com/Liaoyun666/dsh-art/blob/main/LICENSE)
+[![node](https://img.shields.io/badge/node-%E2%89%A522-informational)](https://github.com/Liaoyun666/dsh-art)
+
+> 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
+>
 > 给 DeepSeek Harness（DSH）用的美术素材包插件。**18 个工具、三个数据源**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
 > 244 条带源码与预览的像素特效。零运行时依赖，装完直接在会话里用。
