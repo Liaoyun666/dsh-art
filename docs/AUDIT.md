@@ -285,3 +285,5 @@ CI：`.github/workflows/verify.yml` 在 ubuntu-latest + node 22 上跑无镜像�
 - **图里每个数字与每句话都来自那一次真实提取的输出**（背景 80.2%、前景 20%、地平线 57%、5 个元素、7 色、
   `#40526e` / `#a84d3c` 这些 hex、fxPrompt 的 7 行），没有为了好看编一个数；README 的图注也写明「这是排版图，不是截图」。
 - 这张图同时也是一份回归样本：`scene.png` 留在仓库里，谁都能重跑 `node tools/extract.mjs assets/extract/scene.png` 对上号。
+- 老实说：排版用的那个 PIL 脚本是一次性的，没随仓库发（插件要求零依赖，不往里塞 python）。图本身和源图都在，
+  要改字改色得重写一遍排版；要重新提取数据则是上面那条命令。
