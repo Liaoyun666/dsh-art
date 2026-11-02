@@ -8,6 +8,17 @@
 
 > `LICENSE` 里是标准 MIT 全文，只针对上面这些代码文件；`assets/` 下的两类素材各按本文件第 2、3 节处理。
 
+### 第三方解码器（`lib/vendor/`，不在 MIT 覆盖内）
+
+`anim_extract` 读 JPEG 用的是 [jpeg-js](https://github.com/jpeg-js/jpeg-js) 0.4.4 的 `lib/decoder.js`
+原文（只加了一行 `export { decode }`）：
+
+- jpeg-js —— **BSD-3-Clause**，© 2014 Eugene Ware，原文见 `lib/vendor/LICENSE-jpeg-js.txt`。
+- 其解码核心来自 notmasteryet 的 JPEGDecoder —— **Apache-2.0**，© 2011 notmasteryet，
+  原文见 `lib/vendor/LICENSE-apache-2.0.txt`。
+
+PNG / GIF / BMP / TGA 的解码与编码、全部分析算法都是本仓库自写，随 MIT 代码发布。
+
 ## 2. 风格提示词素材 —— 原条款
 
 `assets/library/`（341 条风格提示词、193 张参考静帧、示例视频与截图）：

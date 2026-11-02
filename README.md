@@ -6,15 +6,17 @@
 
 > 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
 >
-> 给 DeepSeek Harness（DSH）用的美术素材包插件。**18 个工具、三个数据源**：
+> 给 DeepSeek Harness（DSH）用的美术素材包插件。**20 个工具、四个数据源**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
-> 244 条带源码与预览的像素特效。零运行时依赖，装完直接在会话里用。
+> 244 条带源码与预览的像素特效，外加**把你自己那张图拆成元素块、配色和提示词**的本地提取器。
+> 零运行时依赖，装完直接在会话里用。
 
 | | 内容 | 工具 |
 |---|---|---|
 | **① 本地素材库** | 341 条风格提示词 / 193 张静帧 / 10 个系列 / 3 个示例视频 | `anim_list_series` `anim_search` `anim_show` `anim_still` `anim_export` `anim_random` `anim_guide` |
 | **② 参考图库**（可选） | 8,496 张参考图（自建的只读 JSON API，地址自己配） | `anim_ref_sources` `anim_ref_search` `anim_ref_show` `anim_ref_pick` |
 | **③ pixelfx 特效** | 244 条像素特效 / 21 个分类 / 244 张预览 / 源码可导出 | `anim_fx_stats` `anim_fx_search` `anim_fx_show` `anim_fx_preview` `anim_fx_export` `anim_fx_random` `anim_fx_guide` |
+| **④ 元素提取**（本机跑） | 你手里那一张图 → 元素块 / 调色板 / 构图 / 两段提示词 | `anim_extract` `anim_extract_guide` |
 
 ![像素特效：史莱姆](assets/fx/previews/critters/slime/contact.png)
 ![像素特效：暴雨](assets/fx/previews/weather/storm/contact.png)
@@ -31,8 +33,8 @@ git clone https://github.com/Liaoyun666/dsh-art.git
 cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
-node tools/install.mjs --status   # 自检：模块能不能加载、三个数据源各有多少条
-node tools/verify.mjs             # 117 项检查（纯离线，不用联网）
+node tools/install.mjs --status   # 自检：模块能不能加载、四个数据源各有多少条
+node tools/verify.mjs             # 148 项检查（纯离线，不用联网）
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -43,7 +45,7 @@ node tools/verify.mjs             # 117 项检查（纯离线，不用联网）
 - 要求 Node ≥ 22；DSH 桌面端自带的 node 也能跑。
 - 插件本体零依赖 —— 没有 `dependencies`，`npm install` 都不用跑。
 
-## 2. 十八个工具
+## 2. 二十个工具
 
 ### 本地素材库（7）
 
@@ -82,6 +84,16 @@ node tools/verify.mjs             # 117 项检查（纯离线，不用联网）
 | `anim_fx_random` | 随机抽一条（可限定分类 / 循环 / 角色） |
 | `anim_fx_guide` | 完整指南：七条工具怎么串、导出目录树、游戏里怎么接、精灵表怎么给非 JS 引擎 |
 
+### 元素提取（2，纯本地 CPU）
+
+| 工具 | 作用 |
+|---|---|
+| `anim_extract` | 把一张图拆开：`crops/` 元素块、`palette.png`、`contact.png` 接触表、`brief.json`、`report.md`，并在会话里给一张卡片（类型、构图、地平线、元素表、两段提示词） |
+| `anim_extract_guide` | 完整说明：到底量了什么、四类图（场景 / 装裱 / 无缝贴图 / 精灵表）怎么用、八个参数、输出树、「别当真的事」 |
+
+支持 PNG / JPEG / GIF / BMP / TGA；WebP / HEIC 不解码，要用户先另存 PNG。
+像素画会先认出倍率（4×/8×…）再按真实尺寸分析，裁剪块按整数倍放大，不会糊。
+
 ## 3. 三条典型流程
 
 ### 流程一：一句话 → 一段过场动画
@@ -113,6 +125,20 @@ node tools/render.mjs melee/sword-slash --sheet         # 精灵表 PNG + JSON
 精灵表的 JSON 里带 `meta.pixelfx.act`：蓄力时长、每个打击点的时间/顿帧/震屏/击退/换皮时刻
 ——**非 JS 引擎（Unity / Godot / 自研）照着这个时间轴接就行，不用读 JS。**
 
+### 流程四：手里只有一张图
+
+~~~text
+你：这张截图感觉不错，照着它做一段
+→ anim_extract C:\art\scene.png     （拆元素、出 crops/ 与 brief.json）
+→ 看一眼 contact.png                （切得对不对，一目了然）
+→ 要出图：把「生图提示词」交给图像模型
+→ 要代码：把「特效提示词」(canvas + palette) 喂给 anim_fx_search，找相近特效改写
+→ 要贴图：直接用 crops/NN-<role>.png（透明背景，可当精灵或底图）
+~~~
+
+它做的是**按颜色与轮廓分割**，不是物体识别：角色可能被拆成头／身／腿，
+也可能和背景并成一块。角色标签是启发式的，报告里已如实写明。
+
 ### 流程三：自己扩库
 
 - **加风格**：在 `assets/library/风格提示词/<系列>/` 下放一对文件（`X9_名称.md` + `X9_名称.jpg`），
@@ -132,10 +158,15 @@ dsh-art/
 ├── package.json              # DSH bundle 声明（dsh.bundle.patch）
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
-│   ├── index.js              # 插件入口：18 个工具注册、配置规范化、渲染成文本卡片（900 行）
+│   ├── index.js              # 插件入口：20 个工具注册、配置规范化、渲染成文本卡片（1,071 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
-│   └── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
+│   ├── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
+│   ├── image.js              # 图片解码 / 编码：PNG / GIF / BMP / TGA 自写，JPEG 用 vendored jpeg-js（716 行）
+│   ├── vision.js             # 分割与测量：像素画倍率、调色板、背景、元素、构图（1,579 行）
+│   ├── prompt.js             # 把测量结果写成生图提示词 / 特效提示词 / 检索建议（229 行）
+│   ├── extract.js            # 裁剪、接触表、色板图、report.md 与 brief.json（375 行）
+│   └── vendor/               # jpeg-js 解码器（BSD-3 / Apache-2.0）+ 两份许可原文
 ├── assets/
 │   ├── catalog.json          # 341 条风格索引（脚本生成，别手改）
 │   ├── library/              # 341 条提示词 md + 193 张静帧 + 示例 + 第三方许可
@@ -149,10 +180,12 @@ dsh-art/
 │       └── previews/         # 244 张接触表 PNG（每条一张）
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（有镜像 117 项，无镜像 111 项；--refs 再加 12 项联网）
-│   └── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
+│   ├── verify.mjs            # 自检（有镜像 148 项，无镜像 142 项；--refs 再加 12 项联网）
+│   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
+│   └── extract.mjs           # 命令行版提取器：node tools/extract.mjs <图片> [--json]
 ├── docs/
 │   ├── fx.md                 # 特效库指南（导出后怎么用、怎么给非 JS 引擎）
+│   ├── extract.md            # 元素提取指南（量了什么、四类图、参数、局限）
 │   ├── SKILL.md              # 给 Claude Code / Codex 一类 agent 的技能描述
 │   ├── attribution.md        # 素材与第三方致谢明细
 │   ├── rendering.md          # 代码动画的时间接口与录 MP4
@@ -160,7 +193,7 @@ dsh-art/
 └── .github/workflows/verify.yml
 ~~~
 
-仓库现实：**819 个文件 / 98.8 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
+仓库现实：**830 个文件 / 99.0 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
 clone 慢是这个原因，不是代码。
 
 ## 5. 配置（七个键）
@@ -187,11 +220,11 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：有镜像 117 项 / 无镜像 111 项
+node tools/verify.mjs                                      # 离线：有镜像 148 项 / 无镜像 142 项
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
-覆盖：18 个工具是否都注册、每个工具是否真能跑、341/193/10 与 244/21/244 的计数与磁盘文件是否一致、
+覆盖：20 个工具是否都注册、每个工具是否真能跑、341/193/10 与 244/21/244 的计数与磁盘文件是否一致、
 索引里的 id 是否都能查到源文件、检索排序、导出是否拒绝写进库内、特效能否在临时目录里真的渲出图，
 以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 
@@ -202,6 +235,7 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 | **代码**（`lib/` `tools/` `docs/` `package.json` `cordis.patch.yml`） | **MIT**，见 [LICENSE](LICENSE) |
 | **素材**（`assets/library/`：341 条提示词与 193 张静帧） | 原条款：可免费使用、可免费转发；**禁止包装成课程 / 付费 skills 或其他收费物出售**；来自开源项目的部分保留原许可与署名 |
 | **pixelfx**（`assets/fx/`，上游 `patch-gg/pixelfx`） | **MIT**；其中 `sim.js` 与约 180 个特效改编自 Sprite Fusion（© 2026 Hugo Duprez），`act.js` 改编自 Hollow Crown —— 署名见 [NOTICE.md](NOTICE.md) |
+| **图片解码器**（`lib/vendor/`） | jpeg-js 的 **BSD-3-Clause**（© 2014 Eugene Ware）＋ 其解码核心的 **Apache-2.0**（© 2011 notmasteryet）；原文在 `lib/vendor/LICENSE-jpeg-js.txt`、`lib/vendor/LICENSE-apache-2.0.txt` |
 
 注意：pixelfx 上游 `gallery/` 里那个 `PatchPixel` 网页字体**不是 MIT**（© Patch，保留所有权利）；
 本仓库**不包含**该字体文件，244 张预览图里的字是渲染工具内置的点阵字体画的。
@@ -212,10 +246,14 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 
 - **能用、可维护**：模块边界清楚（catalog / refs / fx 各管一个数据源）、零依赖、错误信息是人话、
   导出有防呆（拒绝往库内写）、服务地址不写死。
-- **测试是真的**：117 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，不只是断言文件存在。
-- **风险**：① `lib/index.js` 900 行，单文件偏大；② 没有 lint / 类型检查；
-  ③ 仓库 98.8 MB（三个示例 MP4 占 59.9 MB）；④ 特效索引依赖外部 pixelfx 镜像；
-  ⑤ 特效按 24×38 的人物尺度画，放大会糊。
+- **测试是真的**：148 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
+- **元素提取是本机算的**：一张 720p 图约 0.2–1.1 s，纯 CPU、不联网、零依赖；
+  像素画会先认倍率再分析，裁剪按整数倍放大。
+- **风险**：① `lib/index.js` 1,071 行、`lib/vision.js` 1,579 行，单文件偏大；② 没有 lint / 类型检查；
+  ③ 仓库约 100 MB（三个示例 MP4 占 59.9 MB）；④ 特效索引依赖外部 pixelfx 镜像；
+  ⑤ 特效按 24×38 的人物尺度画，放大会糊；⑥ 元素提取是**分割不是识别**，
+  角色可能被拆开或与背景合并，标签只是启发式；⑦ JPEG 解码是 vendored 的第三方代码（BSD-3 / Apache-2.0），得跟着它的许可走；
+  ⑧ 不支持 WebP / HEIC / AVIF，要用户先另存 PNG。
 - 改进建议与验收记录都在 AUDIT 里。
 
 ## 9. 致谢
@@ -225,20 +263,23 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 - 角色表演层：**Hollow Crown**（`rehan-remade/hollow-crown`，MIT）。
 - 风格提示词里来自开源项目的部分：**code-video**（© 2026 Bae-ChangHyun）、
   **Lemo-Opuscar**（© 2026 LemoLab）、**mg-styles-15**（© 2026 Vincentwei1021），均 MIT。
+- JPEG 解码：**jpeg-js**（© 2014 Eugene Ware，BSD-3-Clause）与其解码核心 **notmasteryet JPEGDecoder**
+  （© 2011 notmasteryet，Apache-2.0），vendored 在 `lib/vendor/`。
 - 宿主平台：**DeepSeek Harness**。
 
 ---
 
 ## English
 
-**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **18 `anim_*` tools** over three
+**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **20 `anim_*` tools** over four
 data sources: 341 code-animation style prompts (with 193 reference stills), an optional art-reference library
-client, and 244 pixel-art effects with source and rendered previews. Zero runtime dependencies.
+client, 244 pixel-art effects with source and rendered previews, and a local image extractor that turns one
+picture into element crops, a palette and ready-to-paste prompts. Zero runtime dependencies.
 
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art
 node tools/install.mjs        # junction into the DSH profile + patch entry
-node tools/verify.mjs         # 117 offline checks (111 without the pixelfx mirror)
+node tools/verify.mjs         # 148 offline checks (142 without the pixelfx mirror)
 ~~~
 
 Code is MIT. The prompt library under `assets/library/` keeps its own terms (free to use and share, not to be

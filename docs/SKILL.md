@@ -1,6 +1,6 @@
 ---
 name: code-animation-prompts
-description: 使用 341 种风格提示词和参考静帧制作代码动画、HTML 动效或视频。适用于按风格编号选型、组合视觉风格、把内容转成可编辑动画并渲染成片。
+description: 使用 341 种风格提示词、参考静帧、8,496 张参考图与 244 条像素特效制作代码动画，并能从一张图反推元素、配色与提示词。适用于按风格编号选型、组合视觉风格、找像素特效、拆解参考图，把内容转成可编辑动画并渲染成片。
 ---
 
 # Code Animation Prompts
@@ -49,6 +49,27 @@ python "<技能目录>/scripts/styles.py" list --series Z
 
 做像素风、游戏内动效、精灵表时优先用它；它同时也是「同样的效果用代码怎么算」的参考实现，可以照着改写。
 注意它是 24×38 小人的尺度，放大用整数倍。
+
+## 从一张图反推素材
+
+第四个数据源就在本机：`anim_extract` 把一张图拆成元素块、配色、构图数据和两段提示词。用户丢来截图、参考图、别人的素材，说「照这个做」时先用它，比凭空描述准。
+
+- `anim_extract`：传图片的绝对路径（PNG / JPEG / GIF / BMP / TGA），落盘 `crops/`（每个元素一块，像素画按整数倍放大）、`palette.png`、`contact.png`、`brief.json`、`report.md`，并在会话里直接给一张 Markdown 卡片。
+- `anim_extract_guide`：完整说明与参数（`top` 取几个元素、`cropSize` 裁块长边、`colors` 调色板色数、`crops/palette/contact` 开关）。
+
+拿到结果后按用途分流：
+
+- 要**重新生成一张同调的图**：用 `brief.imagePrompt`（已含主体、构图、配色与像素画口径）。
+- 要**写成代码特效**：用 `brief.fxPrompt`（`canvas: WxH` + `palette: #…`，pixelfx 口径），再 `anim_fx_search` 找相近特效改写。
+- 要**现成素材**：`crops/` 里的元素块就是透明背景 PNG，可当精灵或贴图；`palette.png` 可直接当色板。
+- 要**继续找同类参考图**：`brief.searches.zh / en` 喂给 `anim_search` 与 `anim_ref_search`。
+
+必须提醒用户的事（别当成识别结果吹）：
+
+- 它是**按颜色与轮廓分割**，不是物体识别：角色可能被拆成头/身/腿几块，也可能和背景并成一块；`role` 只是启发式标签。
+- 无缝贴图（`kind: texture`）不裁元素，只给配色；精灵表（`sprite-sheet`）不会自动切行切列。
+- 地平线是「背景色突变」的产物，不是语义；**WebP / HEIC / AVIF 不解码**，要用户先另存 PNG。
+- 透明通道会被当成背景统计，透明底图的「背景占比」指透明区域。
 
 ## 从提示词到可编辑动画
 

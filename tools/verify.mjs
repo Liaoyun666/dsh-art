@@ -6,8 +6,9 @@
  *
  * 检查项：素材库完整性（341 条索引 / 341 个提示词文件 / 193 张静帧真的在磁盘上）、
  * 编号查找、关键词与系列检索、读提示词、导出到临时目录、拒绝写进库内部，
- * 第二个数据源（自建美术素材库）客户端的离线单测，以及第三个数据源
- * （镜像进来的 patch-gg/pixelfx：244 个特效）的索引、查找、导出与真渲染。
+ * 第二个数据源（自建美术素材库）客户端的离线单测，第三个数据源
+ * （镜像进来的 patch-gg/pixelfx：244 个特效）的索引、查找、导出与真渲染，
+ * 以及第四个数据源（本地元素提取）的解码、分割、裁剪、提示词与工具入口。
  * 全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
  *
  *   node tools/verify.mjs --refs     额外跑联网检查：真的去素材库搜图、取详情、下载一张图。
@@ -15,7 +16,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -52,6 +53,23 @@ import {
   searchFx,
   summarizeFx,
 } from '../lib/fx.js'
+
+import {
+  decodeImage,
+  encodePng,
+  loadImage,
+} from '../lib/image.js'
+
+import { describeColor } from '../lib/vision.js'
+
+import { buildBrief } from '../lib/prompt.js'
+
+import {
+  canvas,
+  contactSheet,
+  extract,
+  upscaleNearest,
+} from '../lib/extract.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const EXPECTED_TOTAL = 341
@@ -309,7 +327,7 @@ try {
   rmSync(fxWorkDir, { recursive: true, force: true })
 }
 
-// ── 插件注册：用假 ctx 跑一遍 apply()，18 个工具都得能真的执行 ─────────────
+// ── 插件注册：用假 ctx 跑一遍 apply()，20 个工具都得能真的执行 ─────────────
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
@@ -319,9 +337,10 @@ const TOOL_NAMES = [
   'anim_list_series', 'anim_search', 'anim_show', 'anim_still', 'anim_export', 'anim_random', 'anim_guide',
   'anim_ref_sources', 'anim_ref_search', 'anim_ref_show', 'anim_ref_pick',
   'anim_fx_stats', 'anim_fx_search', 'anim_fx_show', 'anim_fx_preview', 'anim_fx_export', 'anim_fx_random', 'anim_fx_guide',
+  'anim_extract', 'anim_extract_guide',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 18 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 20 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -420,6 +439,136 @@ check('anim_fx_random 限定分类', fxRandomOut.startsWith('# ui/'), fxRandomOu
 const fxGuideOut = await callTool('anim_fx_guide')
 check('anim_fx_guide 读到特效指南', fxGuideOut.length > 2000 && fxGuideOut.includes('anim_fx_search'), `${fxGuideOut.length} 字符`)
 
+// ── 第四个数据源：元素提取（解码 / 分析 / 裁剪 / 提示词 / 工具）──────────────
+const exDir = mkdtempSync(join(tmpdir(), 'anim-pack-extract-'))
+try {
+  // 1) 编码 → 解码往返：PNG 这条路要是错的，后面全错
+  const scene = canvas(96, 54, [52, 64, 94, 255])
+  for (let y = 0; y < 54; y++) {
+    for (let x = 0; x < 96; x++) {
+      const o = (y * 96 + x) * 4
+      if (y >= 32) {
+        // 地面：暗绿，压暗一点让它和天空分开
+        scene.data[o] = 46; scene.data[o + 1] = 62; scene.data[o + 2] = 40; scene.data[o + 3] = 255
+      }
+    }
+  }
+  // 主体：靠下的红色竖块（12% 画布左右的「角色」）
+  for (let y = 14; y < 50; y++) {
+    for (let x = 38; x < 56; x++) {
+      const o = (y * 96 + x) * 4
+      scene.data[o] = 196; scene.data[o + 1] = 62; scene.data[o + 2] = 44; scene.data[o + 3] = 255
+    }
+  }
+  // 文字条：左上角三条白线
+  for (let i = 0; i < 3; i++) {
+    for (let x = 5; x < 34 - i * 6; x++) {
+      const o = ((5 + i * 4) * 96 + x) * 4
+      scene.data[o] = 238; scene.data[o + 1] = 242; scene.data[o + 2] = 250; scene.data[o + 3] = 255
+    }
+  }
+  const pngBytes = encodePng(scene, { level: 6 })
+  const decoded = decodeImage(pngBytes, 'png')
+  check('encodePng → decodeImage 往返尺寸一致', decoded.width === 96 && decoded.height === 54, decoded.width + 'x' + decoded.height)
+  let worst = 0
+  for (let i = 0; i < 96 * 54; i++) {
+    for (let c = 0; c < 4; c++) {
+      worst = Math.max(worst, Math.abs(scene.data[i * 4 + c] - decoded.data[i * 4 + c]))
+    }
+  }
+  check('encodePng → decodeImage 往返像素无损', worst === 0, 'worst=' + worst)
+
+  // 2) 颜色命名：不能把「橙」拼成「灰橙」（zh 初值泄漏的老 bug）
+  const orange = describeColor(164, 127, 71)
+  check('describeColor 的色相名不带多余「灰」', orange.zh === '橙', orange.zh)
+  check('describeColor 灰阶仍叫「灰」', describeColor(128, 128, 128).zh.startsWith('灰'))
+  check('describeColor 低饱和带「灰调」前缀', describeColor(96, 104, 120).zh.startsWith('灰调'), describeColor(96, 104, 120).zh)
+
+  // 3) 合成场景 → extract()
+  const scenePath = join(exDir, 'scene.png')
+  writeFileSync(scenePath, pngBytes)
+  const sceneResult = extract(scenePath, { out: join(exDir, 'out-scene'), top: 4 })
+  check('extract 认出这是场景图', sceneResult.kind === 'scene', sceneResult.kind)
+  check('extract 算出背景占比（55%~98%）', sceneResult.background.share > 0.55 && sceneResult.background.share < 0.98, String(sceneResult.background.share))
+  check('extract 分出至少 2 个元素', sceneResult.elements.length >= 2, String(sceneResult.elements.length))
+  const hero = sceneResult.elements.find((e) => e.role === 'character')
+  check('extract 把红色竖块认成主体', Boolean(hero), JSON.stringify(sceneResult.elements.map((e) => e.role)))
+  check('主体的 bbox 落在画布中间偏下', hero ? hero.bbox.x >= 34 && hero.bbox.x <= 42 && hero.bbox.y + hero.bbox.h >= 40 : false, JSON.stringify(hero?.bbox ?? null))
+  check('extract 落盘 report.md / brief.json / palette.png', ['report.md', 'brief.json', 'palette.png'].every((f) => existsSync(join(exDir, 'out-scene', f))))
+  check('extract 裁剪块真的写出来了', sceneResult.crops.length >= 2 && sceneResult.crops.every((c) => existsSync(c.file)), String(sceneResult.crops.length))
+  check('extract 有接触表', existsSync(join(exDir, 'out-scene', 'contact.png')))
+  check('调色板 hex 都是 6 位', sceneResult.palette.every((p) => /^#[0-9a-f]{6}$/.test(p.hex)), JSON.stringify(sceneResult.palette.slice(0, 3)))
+  check('调色板背景排最后', sceneResult.palette.at(-1)?.from === 'background', String(sceneResult.palette.at(-1)?.from))
+  const reportText = readFileSync(join(exDir, 'out-scene', 'report.md'), 'utf8')
+  const fgLine = reportText.match(/前景 \/ 背景：([\d.]+)% \/ ([\d.]+)%/)
+  check('报告里前景 + 背景 = 100%', fgLine ? Math.abs(Number(fgLine[1]) + Number(fgLine[2]) - 100) < 0.4 : false, fgLine?.[0] ?? '')
+  const fenceText = String.fromCharCode(96, 96, 96) + 'text'
+  const fenceCount = reportText.split(fenceText).length - 1
+  check('报告里有提示词段与两段代码块', reportText.includes('## 提示词') && fenceCount >= 2, String(fenceCount))
+  check('生图提示词不是空壳', sceneResult.brief.imagePrompt.length > 60, String(sceneResult.brief.imagePrompt.length))
+  check('特效提示词带 canvas 与 palette', /canvas: \d+x\d+/.test(sceneResult.brief.fxPrompt) && /palette: #/.test(sceneResult.brief.fxPrompt), sceneResult.brief.fxPrompt.split('\n').slice(0, 3).join(' | '))
+  check('brief 里的元素不超过 top', sceneResult.brief.elements.length <= 4, String(sceneResult.brief.elements.length))
+
+  // 4) 像素画：4 倍放大后应认出倍率 ×4 并按缩小后的尺寸分析
+  // 源图要先有逐像素的细微差异：整片纯色的话，8×8 块也「同色」，倍率会判成 8。
+  const artBase = canvas(96, 54, [0, 0, 0, 255])
+  for (let i = 0; i < 96 * 54; i++) {
+    const n = ((i * 37) % 7) - 3
+    artBase.data[i * 4] = Math.max(0, Math.min(255, scene.data[i * 4] + n))
+    artBase.data[i * 4 + 1] = Math.max(0, Math.min(255, scene.data[i * 4 + 1] + n))
+    artBase.data[i * 4 + 2] = Math.max(0, Math.min(255, scene.data[i * 4 + 2] + n))
+    artBase.data[i * 4 + 3] = 255
+  }
+  const big = upscaleNearest(artBase, 4)
+  const artPath = join(exDir, 'scene-4x.png')
+  writeFileSync(artPath, encodePng(big, { level: 6 }))
+  const artResult = extract(artPath, { out: join(exDir, 'out-art'), top: 3 })
+  check('像素画检测认出 ×4 倍率', Math.round(1 / artResult.scale) === 4, String(artResult.scale))
+  check('像素画按原尺寸 / 4 分析', artResult.analysis.width === 96 && artResult.analysis.height === 54, artResult.analysis.width + 'x' + artResult.analysis.height)
+  check('像素画也分得出主体', artResult.elements.some((e) => e.role === 'character'), JSON.stringify(artResult.elements.map((e) => e.role)))
+
+  // 5) 无缝贴图：不裁元素块（整张都是「元素」，裁了没意义）
+  const tile = canvas(48, 48, [40, 70, 48, 255])
+  for (let y = 0; y < 48; y++) {
+    for (let x = 0; x < 48; x++) {
+      const o = (y * 48 + x) * 4
+      const v = ((x * 7 + y * 13) % 17) * 6
+      tile.data[o] = 40 + v; tile.data[o + 1] = 70 + v; tile.data[o + 2] = 48 + v; tile.data[o + 3] = 255
+    }
+  }
+  // 把右边一列抄成左边一列、下边一行抄成上边一行，接缝才会是 0 → 判成可平铺
+  for (let y = 0; y < 48; y++) {
+    const l = (y * 48) * 4, r = (y * 48 + 47) * 4
+    tile.data[l] = tile.data[r]; tile.data[l + 1] = tile.data[r + 1]; tile.data[l + 2] = tile.data[r + 2]
+  }
+  for (let x = 0; x < 48; x++) {
+    const t0 = x * 4, b = (47 * 48 + x) * 4
+    tile.data[t0] = tile.data[b]; tile.data[t0 + 1] = tile.data[b + 1]; tile.data[t0 + 2] = tile.data[b + 2]
+  }
+  const tilePath = join(exDir, 'tile.png')
+  writeFileSync(tilePath, encodePng(tile, { level: 6 }))
+  const tileResult = extract(tilePath, { out: join(exDir, 'out-tile') })
+  if (tileResult.kind === 'texture') {
+    check('贴图不裁元素块', tileResult.crops.length === 0, String(tileResult.crops.length))
+    check('贴图不生成接触表（没东西可拼）', !existsSync(join(exDir, 'out-tile', 'contact.png')))
+  } else {
+    check('非贴图图仍按元素处理（合成贴图没被判成 texture，跳过裁剪断言）', true)
+  }
+
+  // 6) 工具层：anim_extract 走一遍完整路径，anim_extract_guide 读得到文档
+  const extractCard = await callTool('anim_extract', { path: scenePath, out: join(exDir, 'out-tool'), top: 3 }, { agent: { session: { cwd: exDir } } })
+  check('anim_extract 给出类型与落盘清单', extractCard.includes('类型：**scene**') && extractCard.includes('落盘文件'), extractCard.slice(0, 60))
+  check('anim_extract 的卡片里有元素表', /\| # \| 角色 \|/.test(extractCard))
+  check('anim_extract 的卡片带生图提示词', extractCard.includes('## 生图提示词'))
+  check('anim_extract 把文件真的写进指定目录', existsSync(join(exDir, 'out-tool', 'report.md')) && existsSync(join(exDir, 'out-tool', 'crops')))
+  const missingCard = await callTool('anim_extract', { path: join(exDir, 'no-such-file.png') }, {})
+  check('anim_extract 路径不存在时给人话', missingCard.includes('找不到这张图'), missingCard.slice(0, 60))
+  const toolGuide = await callTool('anim_extract_guide')
+  check('anim_extract_guide 读到提取指南', toolGuide.length > 2000 && toolGuide.includes('anim_extract'), String(toolGuide.length))
+} finally {
+  rmSync(exDir, { recursive: true, force: true })
+}
+
 // ── 联网检查（node tools/verify.mjs --refs）：真的搜图、看详情、下载一张 ────
 // 只有 --refs 且地址不是占位时才跑：DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs
 const LIVE = process.argv.includes('--refs') && !/^(127[.]0[.]0[.]1|localhost)$/.test(new URL(refDefaults.base).hostname)
@@ -468,4 +617,4 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  · ${failure}`)
   process.exit(1)
 }
-console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 18 个工具${LIVE ? ' / 素材库联网已验' : ''}）`)
+console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}）`)

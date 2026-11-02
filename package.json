@@ -1,14 +1,26 @@
 {
   "name": "dsh-anim-pack",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
-  "description": "代码动画素材包：341 种风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）+ 远端美术参考图库，共 18 个 anim_* 工具，检索、看图、导出、接入游戏一次到位。",
+  "description": "代码动画素材包：341 种风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）/ 远端美术参考图库 + 本地元素提取（把一张图拆成素材、配色与提示词），共 20 个 anim_* 工具。",
+  "keywords": [
+    "dsh",
+    "animation",
+    "pixel-art",
+    "sprite",
+    "extract",
+    "image"
+  ],
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./catalog": "./lib/catalog.js",
     "./fx": "./lib/fx.js",
+    "./image": "./lib/image.js",
+    "./vision": "./lib/vision.js",
+    "./prompt": "./lib/prompt.js",
+    "./extract": "./lib/extract.js",
     "./package.json": "./package.json"
   },
   "files": [
