@@ -4,6 +4,8 @@
 
 纯本地 CPU，不联网，不需要 Python、ImageMagick 或任何 npm 依赖：PNG / JPEG / GIF / BMP / TGA 的解码器与全部分析算法都在本包 `lib/` 里（vendored 的 jpeg-js 与许可见 `lib/vendor/`）。
 
+一张图看明白它吐出什么：`assets/extract/preview.png`（README 里那张）。左边是原图上的元素框与地平线，右边是同一张图的类型／构图指标、调色板、`crops/` 裁剪块，底下是 `fxPrompt`。原图 `assets/extract/scene.png` 也在包里，`node tools/extract.mjs assets/extract/scene.png` 可以自己复现（800×450，约 0.35 s）。
+
 ## 两个工具
 
 | 工具 | 作用 |

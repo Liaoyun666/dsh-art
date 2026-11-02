@@ -8,7 +8,7 @@
 |---|---|---|
 | 功能完整性 | A− | 20 个工具都在跑，四个数据源都有真实内容（341 / 193 / 244 / 本机提取） |
 | 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,071 行、`vision.js` 1,579 行、无类型约束 |
-| 测试 | B | 148 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
+| 测试 | B | 153 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
 | 可维护性 | B+ | 索引全脚本生成、可重建；缺 lint / format / CI 之外的守护 |
 | 文档 | A− | README / fx.md / SKILL.md / attribution 齐全，命令都能照抄 |
 | 仓库体积 | C+ | 约 100 MB，其中 59.9 MB 是三个示例 MP4 |
@@ -78,7 +78,7 @@
 | 1 | `lib/index.js` 1,071 行，20 个工具与卡片渲染挤在一个文件；`lib/vision.js` 1,579 行 | 改一个工具要滚上千行，冲突率高 | 拆成 `lib/tools/*.js`；vision 按「检测 / 分割 / 分组 / 构图」再切 |
 | 2 | 无 lint、无 format、无类型检查（连 `tsc --checkJs` 都没配） | 拼错字段名只能靠跑起来发现 | 加 eslint + `tsc --allowJs --checkJs`（JSDoc 已经写了不少） |
 | 3 | `defineTool` 是自己写的 JSON Schema shim | 参数类型写错不会在注册时报错 | 换成手写 JSON Schema 常量，verify 里加 schema 快照 |
-| 4 | 仓库 98.8 MB（示例 MP4 59.9 MB） | clone 慢，GitHub 单文件 >50 MB 会警告 | 示例视频挪到 Release，仓库降到约 39 MB |
+| 4 | 仓库 99.1 MB（示例 MP4 59.9 MB） | clone 慢，GitHub 单文件 >50 MB 会警告 | 示例视频挪到 Release，仓库降到约 39 MB |
 | 5 | 预览 PNG 247 张 24.2 MB | 同上 | 量化到 128 色或转 webp，预计 6–8 MB |
 | 6 | 特效源码依赖外部镜像（`pixelfx/`） | 没有镜像时导出只剩报错 | 已在 README/第 6 节写明；也可考虑 submodule |
 | 7 | 错误判定靠 `/regex/.test(error.message)` | 上游改文案就失配 | 给错误加 `code` 字段 |
@@ -100,14 +100,17 @@
 
 | 命令 | 结果 |
 |---|---|
-| `node tools/verify.mjs` | **PASS — 148 项**（约 3 s，含真渲图与真提取） |
-| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 160 项**（真搜图、真下载两张） |
-| 无镜像时 `node tools/verify.mjs` | **PASS — 142 项**（自动降级，改测失败路径） |
+| `node tools/verify.mjs` | **PASS — 153 项**（约 3 s，含真渲图与真提取） |
+| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 165 项**（153 + 12 项联网：真搜图、真下载两张） |
+| 无镜像时 `node tools/verify.mjs` | **PASS — 147 项**（自动降级，改测失败路径） |
 | 七张真实图跑 `anim_extract` | 全部成功，0.03–1.1 s 一张（scene / framed-artwork / texture / sprite-sheet 四类都命中） |
 | `node tools/install.mjs` | 建 junction + 托管块成功；模块自检打印 341/193/10 与 244/21/73/244 |
 | `node tools/build-fx.mjs` | 244 条 → 索引 279 KB，21 分类，244 张预览，无报错 |
 | 导出小项目后 `node tools/render.mjs ice/frost-nova --zoom 2` | 103 帧 → `contact.png` 165,096 字节，不需要 `npm install` |
 | `node tools/render.mjs ice/frost-nova --sheet` | 精灵表 PNG + JSON，JSON 里带 `meta.pixelfx.act` 时间轴 |
+
+`--refs` 那 12 项要真实素材库才有的内容（水墨 / 绘本这类），本地只有 4 张演示数据时可跑通 6 项，
+其余 6 项因为库里没有对应素材而失败 —— 是数据问题，不是代码回归。发布档的 165 项是在真实库上量的。
 
 ### 3.2 覆盖到的
 
@@ -149,7 +152,7 @@
 
 ## 5. 性能
 
-- 自检约 3 s（新增 31 项提取检查，含现场造图与真渲染）；插件启动只读两个 JSON（279 KB + assets/catalog.json），不起服务。
+- 自检约 3 s（新增 34 项提取检查，含现场造图与真渲染）；插件启动只读两个 JSON（279 KB + assets/catalog.json），不起服务。
 - 元素提取实测（本机 CPU，单线程）：800×450 合成场景 0.40 s、480×269 精灵表 0.20 s、554×800 装裱画 1.03 s、400×560 油画 1.12 s、480×480 贴图 0.63 s、220×300 透明精灵 0.03 s。
   分析统一缩到长边 ≤1024，像素画按真实分辨率算，所以耗时稳定在 1 s 量级。
 - 工具调用是一次性读文件，没有常驻内存的大对象（`fx` 索引 244 条约 1 MB）。
@@ -178,13 +181,13 @@
 - `lib/fx.js`：镜像路径解析顺序改为「配置 → 索引记录 → 插件根下 `pixelfx/`」，让单独 clone 也能用。
 - `tools/verify.mjs`：镜像缺席时不再假失败，改测降级路径（117 → 111 项，全部通过）。
 - **0.4.0 新增**：`anim_extract` / `anim_extract_guide`、`lib/{image,vision,prompt,extract}.js`、`tools/extract.mjs`、`docs/extract.md`，
-  自检扩到 148 项（无镜像 142 项），README / SKILL.md / attribution 同步。
+  自检扩到 153 项（无镜像 147 项），README / SKILL.md / attribution 同步。
 
 ## 8. 改进清单（按性价比排序）
 
 1. 拆 `lib/index.js`（1,071 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
 2. 加 `eslint` + `tsc --allowJs --checkJs`，把 JSDoc 变成真的类型检查。
-3. 示例 MP4 移 Release，仓库从 98.8 MB 降到约 39 MB。
+3. 示例 MP4 移 Release，仓库从 99.1 MB 降到约 39 MB。
 4. 预览 PNG 量化/转 webp（24.2 MB → 6–8 MB）。
 5. `verify.mjs` 拆成 `tests/*.test.mjs`（`node:test`），让失败能精确定位。
 6. 给错误加 `code` 字段，别靠正则匹配文案。
@@ -196,8 +199,8 @@
 ~~~bash
 cd dsh-art
 node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览
-node tools/verify.mjs                    # PASS — 148 项（无镜像时 PASS — 142 项）
-node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 160 项
+node tools/verify.mjs                    # PASS — 153 项（无镜像时 PASS — 147 项）
+node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 165 项
 node tools/build-fx.mjs                  # 重建索引：244 条 → 279 KB
 node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 + 接触表 + report.md
 ~~~
@@ -224,6 +227,8 @@ node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 +
 | `lib/vendor/jpeg-decoder.js` | 1,167 | jpeg-js 0.4.4 `lib/decoder.js` 原文 + `export { decode }` |
 | `tools/extract.mjs` | 82 | 命令行入口（`--json` 可机读） |
 | `docs/extract.md` | 111 | 指南：量了什么、四类图、参数、输出树、局限 |
+| `assets/extract/scene.png` | — | 预览图用的演示原图（800×450，7 KB），可以自己重跑一遍 |
+| `assets/extract/preview.png` | — | README 里那张预览图（1600×1000，126 KB） |
 
 工具层新增两条：`anim_extract`（跑一次、落盘、回一张 Markdown 卡片）、`anim_extract_guide`（读指南）。
 
@@ -236,7 +241,8 @@ node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 +
   主体 bbox 与 4× 像素画回到 200×113 分析；透明底精灵把「头 + 躯干 + 双腿」并成一个角色。
 - **真实素材**：7 张（场景照、装裱细密画、像素载具精灵表、树丛贴图、油画等）全部跑通，0.03–1.1 s；
   像素载具图识出 24 个小图、装裱画 18 个元素、贴图 0 裁剪。
-- **自检**：148 项（无镜像 142 项），其中 31 项是这次新增的提取链路检查，见 `tools/verify.mjs` 第四节。
+- **自检**：153 项（无镜像 147 项），其中 34 项是这次新增的提取链路检查，见 `tools/verify.mjs` 第四节；
+  其中 3 项盯的是 README 那张预览图 —— 图必须真在仓库里、必须是 1600×1000 的 PNG、源图 `scene.png` 也要在（图丢了 README 就挂一张破图）。
 
 ### 10.3 踩到并修掉的坑（都留了断言防回归）
 
@@ -245,6 +251,12 @@ node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 +
 3. 无缝贴图仍然裁元素块 —— 改成 `kind === 'texture'` 时跳过裁剪与接触表。
 4. GIF 的 LZW 数据是「长度前缀子块」，必须先拼平再解；GCE 的透明色索引在 `buf[p+4]` 而不是 `p+3`。
 5. 地平线原来只比较相邻两行的背景均值，宽物体横穿画面时那几行背景不足被跳过 —— 改成「只看双方都有足够背景的行」并按行切段。
+6. 远景风景图被判成精灵表：原判据「背景占比高 + 元素都小」恰好也是风景图的样子。加 `cornerSpread(img) <= 12`
+   （精灵表的底是一整块纯色 → 四角同色；风景图上面是天下面是地 → 四角互差很大），verify 里用 `vista.png`（必须 scene）
+   与 `sheet.png`（必须 sprite-sheet）做正反回归。精灵块的尺寸特意写成不统一的 8×11 / 9×10 / 8×12…，
+   否则会被像素画检测当成 3 倍放大，缩完元素全没了。
+7. `describeComposition` 修好之后又发现报告里字段名对不上（`前景 / 背景：21% / 79%` 是分组输出的），
+   verify 的断言只能按真实输出写 —— 断言照着自己想象的文案写，会连着失败好几轮。
 
 ### 10.4 已知限制（写进文档，不打算靠猜补）
 
@@ -257,8 +269,19 @@ node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 +
 ### 10.5 0.4.0 验收记录
 
 ~~~bash
-node tools/verify.mjs                     # PASS — 148 项（隐藏 pixelfx/ 镜像后 PASS — 142 项）
+node tools/verify.mjs                     # PASS — 153 项（隐藏 pixelfx/ 镜像后 PASS — 147 项）
 node tools/extract.mjs <图> --out /tmp/x   # 落盘 crops/ palette.png contact.png brief.json report.md
 ~~~
 
-CI：`.github/workflows/verify.yml` 在 ubuntu-latest + node 22 上跑无镜像档，检查数从 111 变为 142。
+CI：`.github/workflows/verify.yml` 在 ubuntu-latest + node 22 上跑无镜像档，检查数从 111 变为 147。
+
+## 11. 0.4.0 的 README 预览图（2026-11-02）
+
+- 目的：让「元素提取」一眼看懂 —— 左边一张图被框成几块，右边就是它吐出来的东西。**不是终端截图。**
+- 素材：`assets/extract/scene.png`（800×450 合成场景：渐变天空 + 雪顶山脊 + 纯色地面 + 树 + 红袍角色 + 左上三条字条）
+  交给 `anim_extract` 真跑一遍（349 ms，`top: 8`），拿到 `brief.json` / `report.md` / `crops/`。
+- 排版：PIL 脚本把「左侧原图 + 元素框 + 编号徽章 + 地平线虚线」与「右上四项指标 / 7 色调色板 / 5 张裁剪块 / 底部 fxPrompt」
+  合成成 1600×1000 的 PNG（`assets/extract/preview.png`，126 KB）。
+- **图里每个数字与每句话都来自那一次真实提取的输出**（背景 80.2%、前景 20%、地平线 57%、5 个元素、7 色、
+  `#40526e` / `#a84d3c` 这些 hex、fxPrompt 的 7 行），没有为了好看编一个数；README 的图注也写明「这是排版图，不是截图」。
+- 这张图同时也是一份回归样本：`scene.png` 留在仓库里，谁都能重跑 `node tools/extract.mjs assets/extract/scene.png` 对上号。

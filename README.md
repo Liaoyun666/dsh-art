@@ -34,7 +34,7 @@ cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
 node tools/install.mjs --status   # 自检：模块能不能加载、四个数据源各有多少条
-node tools/verify.mjs             # 148 项检查（纯离线，不用联网）
+node tools/verify.mjs             # 150 项检查（纯离线，不用联网）
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -94,7 +94,11 @@ node tools/verify.mjs             # 148 项检查（纯离线，不用联网）
 支持 PNG / JPEG / GIF / BMP / TGA；WebP / HEIC 不解码，要用户先另存 PNG。
 像素画会先认出倍率（4×/8×…）再按真实尺寸分析，裁剪块按整数倍放大，不会糊。
 
-## 3. 三条典型流程
+![元素提取：一张图 → 元素块 / 调色板 / 构图 / 提示词](assets/extract/preview.png)
+
+<p align="center"><sub>上面这张是按同一次提取结果排版的设计图（不是终端截图）：左图上的 5 个元素框与地平线、右上的类型／前景背景／地平线／元素数、右上 7 色调色板、右下的 <code>crops/</code> 裁剪块、底部的 <code>fxPrompt</code>，全部来自 <code>anim_extract</code> 对 <code>assets/extract/scene.png</code> 的真实输出（800×450，349 ms）。原图也在这个目录里，可以拿去自己跑一遍。</sub></p>
+
+## 3. 四条典型流程
 
 ### 流程一：一句话 → 一段过场动画
 
@@ -125,6 +129,18 @@ node tools/render.mjs melee/sword-slash --sheet         # 精灵表 PNG + JSON
 精灵表的 JSON 里带 `meta.pixelfx.act`：蓄力时长、每个打击点的时间/顿帧/震屏/击退/换皮时刻
 ——**非 JS 引擎（Unity / Godot / 自研）照着这个时间轴接就行，不用读 JS。**
 
+### 流程三：自己扩库
+
+- **加风格**：在 `assets/library/风格提示词/<系列>/` 下放一对文件（`X9_名称.md` + `X9_名称.jpg`），
+  同步 `assets/library/_统计.json`，然后 `node tools/verify.mjs` 会把对不上的地方指出来。
+- **加特效**：特效源码不在本仓库，在 `pixelfx/` 镜像里：
+
+~~~bash
+git clone https://github.com/patch-gg/pixelfx.git pixelfx   # 放在本仓库根下即可被自动找到
+node tools/build-fx.mjs --previews                          # 重建索引 + 预览
+node tools/verify.mjs                                       # 这次会多跑 6 项源码检查
+~~~
+
 ### 流程四：手里只有一张图
 
 ~~~text
@@ -138,18 +154,6 @@ node tools/render.mjs melee/sword-slash --sheet         # 精灵表 PNG + JSON
 
 它做的是**按颜色与轮廓分割**，不是物体识别：角色可能被拆成头／身／腿，
 也可能和背景并成一块。角色标签是启发式的，报告里已如实写明。
-
-### 流程三：自己扩库
-
-- **加风格**：在 `assets/library/风格提示词/<系列>/` 下放一对文件（`X9_名称.md` + `X9_名称.jpg`），
-  同步 `assets/library/_统计.json`，然后 `node tools/verify.mjs` 会把对不上的地方指出来。
-- **加特效**：特效源码不在本仓库，在 `pixelfx/` 镜像里：
-
-~~~bash
-git clone https://github.com/patch-gg/pixelfx.git pixelfx   # 放在本仓库根下即可被自动找到
-node tools/build-fx.mjs --previews                          # 重建索引 + 预览
-node tools/verify.mjs                                       # 这次会多跑 6 项源码检查
-~~~
 
 ## 4. 目录结构
 
@@ -178,9 +182,12 @@ dsh-art/
 │   └── fx/
 │       ├── catalog.json      # 244 条特效索引（tools/build-fx.mjs 生成）
 │       └── previews/         # 244 张接触表 PNG（每条一张）
+│   └── extract/
+│       ├── preview.png       #   README 里那张预览图（1600×1000）
+│       └── scene.png         #   预览图用的演示原图，可自己重跑一遍
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（有镜像 148 项，无镜像 142 项；--refs 再加 12 项联网）
+│   ├── verify.mjs            # 自检（有镜像 153 项，无镜像 147 项；--refs 再加 12 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
 │   └── extract.mjs           # 命令行版提取器：node tools/extract.mjs <图片> [--json]
 ├── docs/
@@ -193,7 +200,7 @@ dsh-art/
 └── .github/workflows/verify.yml
 ~~~
 
-仓库现实：**830 个文件 / 99.0 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
+仓库现实：**831 个文件 / 99.1 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
 clone 慢是这个原因，不是代码。
 
 ## 5. 配置（七个键）
@@ -220,7 +227,7 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：有镜像 148 项 / 无镜像 142 项
+node tools/verify.mjs                                      # 离线：有镜像 153 项 / 无镜像 147 项
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
@@ -246,7 +253,7 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 
 - **能用、可维护**：模块边界清楚（catalog / refs / fx 各管一个数据源）、零依赖、错误信息是人话、
   导出有防呆（拒绝往库内写）、服务地址不写死。
-- **测试是真的**：148 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
+- **测试是真的**：153 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
 - **元素提取是本机算的**：一张 720p 图约 0.2–1.1 s，纯 CPU、不联网、零依赖；
   像素画会先认倍率再分析，裁剪按整数倍放大。
 - **风险**：① `lib/index.js` 1,071 行、`lib/vision.js` 1,579 行，单文件偏大；② 没有 lint / 类型检查；
@@ -279,7 +286,7 @@ picture into element crops, a palette and ready-to-paste prompts. Zero runtime d
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art
 node tools/install.mjs        # junction into the DSH profile + patch entry
-node tools/verify.mjs         # 148 offline checks (142 without the pixelfx mirror)
+node tools/verify.mjs         # 153 offline checks (147 without the pixelfx mirror)
 ~~~
 
 Code is MIT. The prompt library under `assets/library/` keeps its own terms (free to use and share, not to be

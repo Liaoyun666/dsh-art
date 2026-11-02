@@ -555,6 +555,51 @@ try {
     check('非贴图图仍按元素处理（合成贴图没被判成 texture，跳过裁剪断言）', true)
   }
 
+  // 5b) 图片类型不能只看「背景占比高 + 元素都小」：远景风景图也是这付样子，
+  //     曾经被判成精灵表，连带把角色改叫 sprite。精灵表的判据是「背景是一整块纯色」——
+  //     四个角同色；风景图上面是天、下面是地，四角互差很大。
+  const vista = canvas(96, 54, [86, 122, 166, 255])
+  for (let y = 0; y < 54; y++) {
+    for (let x = 0; x < 96; x++) {
+      const o = (y * 96 + x) * 4
+      if (y >= 30) { vista.data[o] = 78; vista.data[o + 1] = 102; vista.data[o + 2] = 56 }
+      else if (y >= 22) { vista.data[o] = 52; vista.data[o + 1] = 74; vista.data[o + 2] = 62 }
+    }
+  }
+  // 五块小石头：让「元素都小、数量又够」这条也成立，专门喂给老判据
+  const rocks = [[6, 44, 170, 96, 60], [24, 47, 150, 84, 52], [48, 42, 196, 120, 70], [66, 46, 120, 96, 64], [82, 43, 210, 150, 90]]
+  for (const [rx, ry, rr, rg, rb] of rocks) {
+    for (let y = ry; y < ry + 6; y++) {
+      for (let x = rx; x < rx + 8; x++) {
+        const o = (y * 96 + x) * 4
+        vista.data[o] = rr; vista.data[o + 1] = rg; vista.data[o + 2] = rb
+      }
+    }
+  }
+  const vistaPath = join(exDir, 'vista.png')
+  writeFileSync(vistaPath, encodePng(vista, { level: 6 }))
+  const vistaResult = extract(vistaPath, { out: join(exDir, 'out-vista'), top: 4 })
+  check('远景风景图不会误判成精灵表（四角不同色）', vistaResult.kind === 'scene', vistaResult.kind)
+
+  // 反过来：真正的精灵表是「一整块纯色底 + 一堆差不多大的小图」，必须还是 sprite-sheet
+  // 尺寸特意不统一（8×11 / 9×10 / 8×12…）：整整齐齐的 6×8 会被像素画检测当成「3 倍放大」，
+  // 一缩小元素就没了。每只在画布上约 1.7~1.9%，正好落在精灵表那档。
+  const sheet = canvas(96, 54, [30, 34, 44, 255])
+  const sprites = [[6, 8, 8, 11, 220, 60, 50], [26, 7, 9, 10, 60, 180, 220], [46, 9, 8, 12, 230, 200, 80],
+    [6, 30, 7, 12, 140, 90, 220], [24, 31, 9, 11, 80, 210, 120], [46, 30, 8, 11, 240, 140, 60]]
+  for (const [sx, sy, sw, sh, sr, sg, sb] of sprites) {
+    for (let y = sy; y < sy + sh; y++) {
+      for (let x = sx; x < sx + sw; x++) {
+        const o = (y * 96 + x) * 4
+        sheet.data[o] = sr; sheet.data[o + 1] = sg; sheet.data[o + 2] = sb
+      }
+    }
+  }
+  const sheetPath = join(exDir, 'sheet.png')
+  writeFileSync(sheetPath, encodePng(sheet, { level: 6 }))
+  const sheetResult = extract(sheetPath, { out: join(exDir, 'out-sheet'), top: 4 })
+  check('纯色底 + 一群小图仍判成精灵表', sheetResult.kind === 'sprite-sheet', sheetResult.kind)
+
   // 6) 工具层：anim_extract 走一遍完整路径，anim_extract_guide 读得到文档
   const extractCard = await callTool('anim_extract', { path: scenePath, out: join(exDir, 'out-tool'), top: 3 }, { agent: { session: { cwd: exDir } } })
   check('anim_extract 给出类型与落盘清单', extractCard.includes('类型：**scene**') && extractCard.includes('落盘文件'), extractCard.slice(0, 60))
@@ -565,6 +610,15 @@ try {
   check('anim_extract 路径不存在时给人话', missingCard.includes('找不到这张图'), missingCard.slice(0, 60))
   const toolGuide = await callTool('anim_extract_guide')
   check('anim_extract_guide 读到提取指南', toolGuide.length > 2000 && toolGuide.includes('anim_extract'), String(toolGuide.length))
+
+  // 5c) README 里那张预览图必须真在仓库里：图丢了 README 就挂一张破图
+  const previewPath = join(ROOT, 'assets', 'extract', 'preview.png')
+  const sourceScene = join(ROOT, 'assets', 'extract', 'scene.png')
+  check('assets/extract/preview.png 在仓库里（README 引用它）', existsSync(previewPath), previewPath)
+  const previewImg = existsSync(previewPath) ? decodeImage(readFileSync(previewPath)) : null
+  check('README 预览图是 1600×1000 的 PNG', previewImg?.width === 1600 && previewImg?.height === 1000,
+    previewImg ? previewImg.width + 'x' + previewImg.height : 'missing')
+  check('预览图的源图 scene.png 也在（可以自己重跑一遍）', existsSync(sourceScene), sourceScene)
 } finally {
   rmSync(exDir, { recursive: true, force: true })
 }
