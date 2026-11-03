@@ -1,16 +1,16 @@
 # 审查报告 · dsh-art（dsh-anim-pack）
 
-审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
+审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02；0.5.0 镜头卡更新：2026-11-03）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
 
 ## 结论
 
 | 维度 | 评分 | 依据 |
 |---|---|---|
-| 功能完整性 | A− | 20 个工具都在跑，四个数据源都有真实内容（341 / 193 / 244 / 本机提取） |
-| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,071 行、`vision.js` 1,579 行、无类型约束 |
-| 测试 | B | 153 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
+| 功能完整性 | A− | 27 个工具都在跑，五个数据源都有真实内容（341 / 193 / 244 / 本机提取 / 124 张镜头卡） |
+| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,401 行、`vision.js` 1,579 行、无类型约束 |
+| 测试 | B | 201 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
 | 可维护性 | B+ | 索引全脚本生成、可重建；缺 lint / format / CI 之外的守护 |
-| 文档 | A− | README / fx.md / SKILL.md / attribution 齐全，命令都能照抄 |
+| 文档 | A− | README / shots.md / SKILL.md / attribution 齐全，命令都能照抄 |
 | 仓库体积 | C+ | 约 100 MB，其中 59.9 MB 是三个示例 MP4 |
 | 合规 | B+ | 三种许可分得清、字体例外写清楚；素材条款是「禁止付费包装」而非标准开源许可 |
 
@@ -18,7 +18,7 @@
 
 ## 1. 它到底是什么
 
-一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 20 个 `anim_*` 工具，背后接四个数据源：
+一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 27 个 `anim_*` 工具，背后接五个数据源：
 
 | 数据源 | 规模 | 实现 |
 |---|---|---|
@@ -26,6 +26,7 @@
 | 参考图库（可选） | 8,496 张图 / 17 来源 / 18 分类 | `lib/refs.js`，只读 JSON API 客户端 |
 | pixelfx 特效 | 244 条 / 21 分类 / 244 张预览 | `lib/fx.js` + `assets/fx/catalog.json` |
 | 元素提取（本机） | 一张图 → 元素块 / 调色板 / 构图 / 提示词 | `lib/image.js` + `vision.js` + `prompt.js` + `extract.js` |
+| 镜头配方卡 | 124 张 / 10 分类 / 54 张海报（上游 150 个镜头风格） | `lib/shots.js` + `assets/shots/index.json` |
 
 设计上有一处值得表扬：**索引与源码分离**。插件从不 `import` 任何特效模块，只读 JSON、源码文本和预渲染的 PNG。
 所以 244 条特效哪怕有语法错误，也不会把插件带崩；代价是索引可能过期（已用 `fxSourcePath()` + 自检兜住）。
@@ -36,7 +37,8 @@
 
 | 文件 | 行数 | 职责 |
 |---|---|---|
-| `lib/index.js` | 1,071 | 插件入口：20 个工具注册、配置规范化、卡片渲染 |
+| `lib/index.js` | 1,401 | 插件入口：27 个工具注册、配置规范化、卡片渲染 |
+| `lib/shots.js` | 419 | 镜头卡库：加载索引 / frontmatter 解析 / 检索（含正文）/ 导出 |
 | `lib/catalog.js` | 164 | 本地素材库：加载 / 检索 / 抽读 / 导出 |
 | `lib/refs.js` | 289 | 参考图库 HTTP 客户端：搜索 / 详情 / 下载 |
 | `lib/fx.js` | 403 | 特效库：加载 / 检索 / 源码 / 导出小项目 |
@@ -100,11 +102,11 @@
 
 | 命令 | 结果 |
 |---|---|
-| `node tools/verify.mjs` | **PASS — 153 项**（约 3 s，含真渲图与真提取） |
-| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 165 项**（153 + 12 项联网：真搜图、真下载两张） |
-| 无镜像时 `node tools/verify.mjs` | **PASS — 147 项**（自动降级，改测失败路径） |
+| `node tools/verify.mjs` | **PASS — 201 项**（约 3 s，含真渲图、真提取与 124 张镜头卡） |
+| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 213 项**（201 + 12 项联网：真搜图、真下载两张） |
+| 无镜像时 `node tools/verify.mjs` | **PASS — 195 项**（自动降级，改测失败路径） |
 | 七张真实图跑 `anim_extract` | 全部成功，0.03–1.1 s 一张（scene / framed-artwork / texture / sprite-sheet 四类都命中） |
-| `node tools/install.mjs` | 建 junction + 托管块成功；模块自检打印 341/193/10 与 244/21/73/244 |
+| `node tools/install.mjs` | 建 junction + 托管块成功；模块自检打印 341/193/10、244/21/73/244、124 张镜头卡 / 10 分类 / 54 海报 |
 | `node tools/build-fx.mjs` | 244 条 → 索引 279 KB，21 分类，244 张预览，无报错 |
 | 导出小项目后 `node tools/render.mjs ice/frost-nova --zoom 2` | 103 帧 → `contact.png` 165,096 字节，不需要 `npm install` |
 | `node tools/render.mjs ice/frost-nova --sheet` | 精灵表 PNG + JSON，JSON 里带 `meta.pixelfx.act` 时间轴 |
@@ -114,7 +116,7 @@
 
 ### 3.2 覆盖到的
 
-- 20 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
+- 27 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
 - 计数一致性：341 / 193 / 10、244 / 21 / 244 与磁盘文件逐个对得上。
 - 索引里每条 id 都能在镜像里找到源文件。
 - 检索：精确 id 优先、分类 / 循环 / 角色过滤、未知过滤条件返回空而不是乱给。
@@ -182,10 +184,14 @@
 - `tools/verify.mjs`：镜像缺席时不再假失败，改测降级路径（117 → 111 项，全部通过）。
 - **0.4.0 新增**：`anim_extract` / `anim_extract_guide`、`lib/{image,vision,prompt,extract}.js`、`tools/extract.mjs`、`docs/extract.md`，
   自检扩到 153 项（无镜像 147 项），README / SKILL.md / attribution 同步。
+- **0.5.0 新增**：第五个数据源 video-shotcraft 镜头配方卡 —— `anim_shot_stats` / `anim_shot_search` / `anim_shot_show` /
+  `anim_shot_preview` / `anim_shot_export` / `anim_shot_random` / `anim_shot_guide`（共 27 个工具）、`lib/shots.js`、
+  `tools/build-shots.mjs`、`docs/shots.md`、`assets/shots/`（124 张卡 + 54 张海报 + 80 KB 索引），
+  自检扩到 201 项（无镜像 195 项），README / SKILL.md / NOTICE（Apache-2.0 署名）同步。
 
 ## 8. 改进清单（按性价比排序）
 
-1. 拆 `lib/index.js`（1,071 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
+1. 拆 `lib/index.js`（1,401 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
 2. 加 `eslint` + `tsc --allowJs --checkJs`，把 JSDoc 变成真的类型检查。
 3. 示例 MP4 移 Release，仓库从 99.1 MB 降到约 39 MB。
 4. 预览 PNG 量化/转 webp（24.2 MB → 6–8 MB）。
@@ -198,9 +204,9 @@
 
 ~~~bash
 cd dsh-art
-node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览
-node tools/verify.mjs                    # PASS — 153 项（无镜像时 PASS — 147 项）
-node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 165 项
+node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览；124 张镜头卡 / 10 分类 / 54 海报
+node tools/verify.mjs                    # PASS — 201 项（无镜像时 PASS — 195 项）
+node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 213 项
 node tools/build-fx.mjs                  # 重建索引：244 条 → 279 KB
 node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 + 接触表 + report.md
 ~~~

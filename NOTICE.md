@@ -61,7 +61,16 @@ pixelfx 上游的 `gallery/fonts/PatchPixel-Regular.woff2` 是 Patch 自己的�
 **© 2026 Patch，保留所有权利，不是 MIT**。本仓库不包含该字体文件；
 `assets/fx/previews/` 里的字是渲染工具内置的点阵字体（`src/core/font.js`）画的。
 
-## 4. 参考图库（可选，不在本仓库内）
+## 4. 镜头配方卡 —— Apache-2.0
+
+`assets/shots/cards/`（124 张镜头配方卡）与 `assets/shots/posters/`（54 张 gallery 海报）
+来自 [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)，
+**Apache-2.0**，© 2026 Vincentwei1021。卡片正文按原文收录，未改写；
+索引 `assets/shots/index.json` 由 `tools/build-shots.mjs` 从卡片重新生成，同样随上游许可发布。
+本仓库不包含上游的 Remotion 工程、样片视频、音效与 BGM；卡片「参考实现」里写的是
+去上游取代码的相对路径。上游许可原文见其仓库 `LICENSE`。
+
+## 5. 参考图库（可选，不在本仓库内）
 
 `anim_ref_*` 四条工具连接的是**使用者自己部署的**参考图库（只读 JSON API），
 图片版权归各自来源（Met、SafeBooru、V&A、Iconify、ambientCG、NASA、Wellcome 等），

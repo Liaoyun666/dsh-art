@@ -2,7 +2,8 @@
 /**
  * dsh-anim-pack 安装器 / 卸载器。
  *
- * 素材库（76MB / 346 个 md / 193 张 jpg）就放在本包的 assets/ 里，安装只做三件轻事：
+ * 素材库（76MB / 346 个 md / 193 张 jpg，外加 124 张镜头配方卡与 54 张海报）就放在本包的
+ * assets/ 里，安装只做三件轻事：
  *   1. 在 profile 的 node_modules 建 junction（Loader 靠它把 `dsh-anim-pack` 解析到本包）；
  *   2. 把托管块追加进 profile 自己的 cordis.patch.yml（默认 patch 方式）；
  *   3. 或者写进 package.json 的 dependencies + dsh.profile.bundles（--bundle 方式）。
@@ -49,6 +50,10 @@ const BLOCK = `${BLOCK_BEGIN}
 # 代码里不写死；没有自建库时这四条工具会如实说「没连上」，不影响本地素材。
 # 特效：pixelfx 的 244 条像素特效（anim_fx_stats / search / show / preview / export /
 # random / guide）。镜像路径 config.fxPath，导出缺省目录 config.fxExportDir。
+# 提取：本机那张图（anim_extract / anim_extract_guide），纯本地 CPU、无配置项。
+# 镜头：video-shotcraft 的 124 张镜头配方卡 + 54 张海报（anim_shot_stats / search /
+# show / preview / export / random / guide）。索引路径 config.shotsPath，
+# 导出缺省目录 config.shotsExportDir。
 - insert:
     - id: ${ROW_ID}
       name: ${packageName}
@@ -143,6 +148,13 @@ async function selfCheck() {
     lines.push(`  特效库    : ${stats.total} 条 / ${stats.categories.length} 个分类 / ${stats.acted} 条带角色 / ${stats.withPreview} 张预览`)
   } catch (error) {
     lines.push(`  特效库失败: ${error?.message ?? error}`)
+  }
+  try {
+    const { loadShotCatalog, shotStats } = await import(pathToFileURL(join(pluginDir, 'lib', 'shots.js')).href)
+    const shots = shotStats(loadShotCatalog(pluginDir))
+    lines.push(`  镜头卡    : ${shots.cards} 张 / ${shots.categories.length} 个分类 / ${shots.withPoster} 张海报 / 上游 ${shots.styles} 个镜头风格`)
+  } catch (error) {
+    lines.push(`  镜头卡失败: ${error?.message ?? error}`)
   }
   return lines.join('\n')
 }

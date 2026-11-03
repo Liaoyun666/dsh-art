@@ -39,3 +39,15 @@
 
 没有引入其他运行时依赖：不联网、不装包，其余格式的解码器（PNG 的 zlib 展开、GIF 的 LZW、
 BMP / TGA 的位深与 RLE）都是本仓库自己实现的。
+## video-shotcraft 镜头配方卡（第五个数据源）
+
+124 张镜头配方卡与 54 张 gallery 海报收录自
+[Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)（Copyright (c) 2026 Vincentwei1021），
+**Apache-2.0** 许可，原文见 [NOTICE.md](../NOTICE.md) 第 4 节。
+
+- 收的是**卡片正文**（Markdown）与海报（JPG），不是它的 Remotion 工程：仓库里没有该项目的 `template/`、`demos/`、
+  样片 MP4、音效与 BGM，也没有改写过卡片文字。
+- 每张卡里的「参考实现」路径指向上游仓库内的文件位置，只作线索；本地没有这些源码。
+- 索引 `assets/shots/index.json` 由本仓库的 `tools/build-shots.mjs` 从卡片 frontmatter 生成，可随时重建。
+- 上游 4 张海报用的是「镜头风格名」而不是卡片名，本仓库按 `tools/build-shots.mjs` 里的 `POSTER_ALIAS`
+  对到卡片上，并在注释里写明映射关系。

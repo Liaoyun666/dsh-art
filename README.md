@@ -6,10 +6,10 @@
 
 > 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
 >
-> 给 DeepSeek Harness（DSH）用的美术素材包插件。**20 个工具、四个数据源**：
+> 给 DeepSeek Harness（DSH）用的美术素材包插件。**27 个工具、五个数据源**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
-> 244 条带源码与预览的像素特效，外加**把你自己那张图拆成元素块、配色和提示词**的本地提取器。
-> 零运行时依赖，装完直接在会话里用。
+> 244 条带源码与预览的像素特效、**把你自己那张图拆成元素块、配色和提示词**的本地提取器，
+> 外加 124 张视频镜头配方卡（video-shotcraft，含 54 张海报）。零运行时依赖，装完直接在会话里用。
 
 | | 内容 | 工具 |
 |---|---|---|
@@ -17,6 +17,7 @@
 | **② 参考图库**（可选） | 8,496 张参考图（自建的只读 JSON API，地址自己配） | `anim_ref_sources` `anim_ref_search` `anim_ref_show` `anim_ref_pick` |
 | **③ pixelfx 特效** | 244 条像素特效 / 21 个分类 / 244 张预览 / 源码可导出 | `anim_fx_stats` `anim_fx_search` `anim_fx_show` `anim_fx_preview` `anim_fx_export` `anim_fx_random` `anim_fx_guide` |
 | **④ 元素提取**（本机跑） | 你手里那一张图 → 元素块 / 调色板 / 构图 / 两段提示词 | `anim_extract` `anim_extract_guide` |
+| **⑤ 镜头配方卡** | 124 张卡 / 10 分类 / 150 个镜头风格 / 54 张海报（video-shotcraft，Apache-2.0） | `anim_shot_stats` `anim_shot_search` `anim_shot_show` `anim_shot_preview` `anim_shot_export` `anim_shot_random` `anim_shot_guide` |
 
 ![像素特效：史莱姆](assets/fx/previews/critters/slime/contact.png)
 ![像素特效：暴雨](assets/fx/previews/weather/storm/contact.png)
@@ -33,8 +34,8 @@ git clone https://github.com/Liaoyun666/dsh-art.git
 cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
-node tools/install.mjs --status   # 自检：模块能不能加载、四个数据源各有多少条
-node tools/verify.mjs             # 150 项检查（纯离线，不用联网）
+node tools/install.mjs --status   # 自检：模块能不能加载、五个数据源各有多少条
+node tools/verify.mjs             # 201 项检查（纯离线，不用联网）
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -45,7 +46,7 @@ node tools/verify.mjs             # 150 项检查（纯离线，不用联网）
 - 要求 Node ≥ 22；DSH 桌面端自带的 node 也能跑。
 - 插件本体零依赖 —— 没有 `dependencies`，`npm install` 都不用跑。
 
-## 2. 二十个工具
+## 2. 二十七个工具
 
 ### 本地素材库（7）
 
@@ -69,7 +70,7 @@ node tools/verify.mjs             # 150 项检查（纯离线，不用联网）
 | `anim_ref_pick` | 随机抽几张参考图，带回本地路径 |
 
 地址按 **`config.refBase` → 环境变量 `DSH_REF_BASE` → 占位地址 `http://127.0.0.1:8080`** 取，代码里不写死。
-**没有自建库时这四条会如实说「没连上」，不影响其余 14 个工具。**
+**没有自建库时这四条会如实说「没连上」，不影响其余 23 个工具。**
 参考图库本身是另一个项目（纯静态站 + 一个只读 JSON API），不在本仓库里。
 
 ### pixelfx 像素特效（7）
@@ -98,7 +99,28 @@ node tools/verify.mjs             # 150 项检查（纯离线，不用联网）
 
 <p align="center"><sub>上面这张是按同一次提取结果排版的设计图（不是终端截图）：左图上的 5 个元素框与地平线、右上的类型／前景背景／地平线／元素数、右上 7 色调色板、右下的 <code>crops/</code> 裁剪块、底部的 <code>fxPrompt</code>，全部来自 <code>anim_extract</code> 对 <code>assets/extract/scene.png</code> 的真实输出（800×450，349 ms）。原图也在这个目录里，可以拿去自己跑一遍。</sub></p>
 
-## 3. 四条典型流程
+### 镜头配方卡（7）
+
+来自 [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft)（Apache-2.0）：
+不是视频生成模型，而是 **124 张「这一幕怎么动」的施工图**——意图、动效核心、参数表、声音、已知坑，
+外加去上游取 Remotion 实现的路径。
+
+| 工具 | 作用 |
+|---|---|
+| `anim_shot_stats` | 124 张卡的家底：10 分类各多少张 / 多少风格 / 多少海报，能量分布，上游与在线样片地址 |
+| `anim_shot_search` | 按关键词 / 分类 / 标签 / 能量 / 有无海报检索；关键词默认进正文（`deep: false` 只搜元信息） |
+| `anim_shot_show` | 一张卡的全文：摘要 + 意图 / 动效核心 / 参数表 / 声音 / 已知坑 / 参考实现 |
+| `anim_shot_preview` | 给出海报 JPG 的本地路径（一次最多 12 张），没配图的卡如实说明 |
+| `anim_shot_export` | 把卡 + 海报复制成 `<卡名>/` 目录（md + jpg + README），再写一份 `index.md` 总表 |
+| `anim_shot_random` | 随机抽一张（可限定分类 / 标签 / 能量 / 有海报） |
+| `anim_shot_guide` | 完整指南：卡里有什么、十类怎么分工、从挑卡到成片、和另外四组怎么搭、许可与维护 |
+
+十类：`opening` 开场与品牌 11、`camera` 运镜与空间 10、`transition` 转场 15、
+`typography` 文字与字卡 22、`ui-entrance` 界面登场 21、`interaction` 交互演示 11、
+`data` 数据与指标 5、`effects` 光效与强调 15、`rhythm` 节奏与蒙太奇 8、`outro` 收尾 6。
+本插件只带卡与海报，**不带 Remotion 工程、样片、音效与 BGM**；卡里的「参考实现」写着去上游取代码的相对路径。
+
+## 3. 五条典型流程
 
 ### 流程一：一句话 → 一段过场动画
 
@@ -155,6 +177,19 @@ node tools/verify.mjs                                       # 这次会多跑 6 
 它做的是**按颜色与轮廓分割**，不是物体识别：角色可能被拆成头／身／腿，
 也可能和背景并成一块。角色标签是启发式的，报告里已如实写明。
 
+### 流程五：照着镜头卡拍一条产品片
+
+~~~text
+你：给这个 App 做一条 20 秒的宣传片，先出分镜
+→ anim_shot_stats                        （124 张卡 / 10 分类，先看有哪些）
+→ anim_shot_search category="opening"     （开场候选，看一句话与时长）
+→ anim_shot_preview ids=[…]              （海报挑 2~3 张，确认观感）
+→ anim_shot_show opening/brand-ink-open  （读意图、动效核心、参数表、已知坑）
+→ anim_shot_export ids=[…] dir="storyboards/1113"   （每张卡一个目录 + index.md）
+→ 要代码：照卡里「参考实现」的路径去 video-shotcraft 的 demos/ 取 Remotion 组件
+→ 要美术：把卡的关键词丢给 anim_search / anim_ref_search 找风格与参考图
+~~~
+
 ## 4. 目录结构
 
 ~~~text
@@ -162,7 +197,7 @@ dsh-art/
 ├── package.json              # DSH bundle 声明（dsh.bundle.patch）
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
-│   ├── index.js              # 插件入口：20 个工具注册、配置规范化、渲染成文本卡片（1,071 行）
+│   ├── index.js              # 插件入口：27 个工具注册、配置规范化、渲染成文本卡片（1,401 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
 │   ├── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
@@ -170,6 +205,7 @@ dsh-art/
 │   ├── vision.js             # 分割与测量：像素画倍率、调色板、背景、元素、构图（1,579 行）
 │   ├── prompt.js             # 把测量结果写成生图提示词 / 特效提示词 / 检索建议（229 行）
 │   ├── extract.js            # 裁剪、接触表、色板图、report.md 与 brief.json（375 行）
+│   ├── shots.js              # 镜头配方卡：索引加载 / 检索 / 抽读 / 导出（video-shotcraft，400 行）
 │   └── vendor/               # jpeg-js 解码器（BSD-3 / Apache-2.0）+ 两份许可原文
 ├── assets/
 │   ├── catalog.json          # 341 条风格索引（脚本生成，别手改）
@@ -182,17 +218,23 @@ dsh-art/
 │   └── fx/
 │       ├── catalog.json      # 244 条特效索引（tools/build-fx.mjs 生成）
 │       └── previews/         # 244 张接触表 PNG（每条一张）
-│   └── extract/
-│       ├── preview.png       #   README 里那张预览图（1600×1000）
-│       └── scene.png         #   预览图用的演示原图，可自己重跑一遍
+│   ├── extract/
+│   │   ├── preview.png       #   README 里那张预览图（1600×1000）
+│   │   └── scene.png         #   预览图用的演示原图，可自己重跑一遍
+│   └── shots/
+│       ├── index.json        # 124 条卡片索引（tools/build-shots.mjs 生成）
+│       ├── cards/            # 124 张镜头配方卡，按 10 个分类分目录
+│       └── posters/          # 54 张 gallery 海报 JPG
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
 │   ├── verify.mjs            # 自检（有镜像 153 项，无镜像 147 项；--refs 再加 12 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
+│   ├── build-shots.mjs       # 从 assets/shots/cards 重建镜头卡索引（--check 校验）
 │   └── extract.mjs           # 命令行版提取器：node tools/extract.mjs <图片> [--json]
 ├── docs/
 │   ├── fx.md                 # 特效库指南（导出后怎么用、怎么给非 JS 引擎）
 │   ├── extract.md            # 元素提取指南（量了什么、四类图、参数、局限）
+│   ├── shots.md              # 镜头卡指南（卡里有什么、十类分工、挑卡到成片、许可）
 │   ├── SKILL.md              # 给 Claude Code / Codex 一类 agent 的技能描述
 │   ├── attribution.md        # 素材与第三方致谢明细
 │   ├── rendering.md          # 代码动画的时间接口与录 MP4
@@ -203,7 +245,7 @@ dsh-art/
 仓库现实：**831 个文件 / 99.1 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
 clone 慢是这个原因，不是代码。
 
-## 5. 配置（七个键）
+## 5. 配置（九个键）
 
 写在 profile 的 `cordis.patch.yml` 里 `dsh-anim-pack` 那一行下面：
 
@@ -219,21 +261,23 @@ clone 慢是这个原因，不是代码。
         refTimeoutMs: 20000
         fxPath: <pixelfx 镜像位置>
         fxExportDir: <默认 <cwd>/pixelfx-fx>
+        shotsPath: <换成别的镜头卡索引目录>
+        shotsExportDir: <默认 <cwd>/shot-cards>
 ~~~
 
-七个键全部可选，不填走缺省。`fxPath` 的解析顺序是：配置值 → 索引里记的相对路径 → 插件根下的 `pixelfx/`。
+九个键全部可选，不填走缺省。`fxPath` 的解析顺序是：配置值 → 索引里记的相对路径 → 插件根下的 `pixelfx/`。
 改完刷新页面生效。
 
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：有镜像 153 项 / 无镜像 147 项
+node tools/verify.mjs                                      # 离线：201 项（纯逻辑，不联网；隐藏 pixelfx 镜像后 195 项）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
-覆盖：20 个工具是否都注册、每个工具是否真能跑、341/193/10 与 244/21/244 的计数与磁盘文件是否一致、
-索引里的 id 是否都能查到源文件、检索排序、导出是否拒绝写进库内、特效能否在临时目录里真的渲出图，
-以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
+覆盖：27 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150 的计数与磁盘文件是否一致、
+索引里的 id 是否都能查到源文件、检索排序（含镜头卡的正文检索与多词 AND）、导出是否拒绝写进库内、
+特效能否在临时目录里真的渲出图，以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 
 ## 7. 许可（三种，别混）
 
@@ -242,6 +286,7 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 | **代码**（`lib/` `tools/` `docs/` `package.json` `cordis.patch.yml`） | **MIT**，见 [LICENSE](LICENSE) |
 | **素材**（`assets/library/`：341 条提示词与 193 张静帧） | 原条款：可免费使用、可免费转发；**禁止包装成课程 / 付费 skills 或其他收费物出售**；来自开源项目的部分保留原许可与署名 |
 | **pixelfx**（`assets/fx/`，上游 `patch-gg/pixelfx`） | **MIT**；其中 `sim.js` 与约 180 个特效改编自 Sprite Fusion（© 2026 Hugo Duprez），`act.js` 改编自 Hollow Crown —— 署名见 [NOTICE.md](NOTICE.md) |
+| **镜头卡**（`assets/shots/`，上游 `Vincentwei1021/video-shotcraft`） | **Apache-2.0**，© 2026 Vincentwei1021；卡片正文按原文收录，索引脚本生成，署名见 [NOTICE.md](NOTICE.md) |
 | **图片解码器**（`lib/vendor/`） | jpeg-js 的 **BSD-3-Clause**（© 2014 Eugene Ware）＋ 其解码核心的 **Apache-2.0**（© 2011 notmasteryet）；原文在 `lib/vendor/LICENSE-jpeg-js.txt`、`lib/vendor/LICENSE-apache-2.0.txt` |
 
 注意：pixelfx 上游 `gallery/` 里那个 `PatchPixel` 网页字体**不是 MIT**（© Patch，保留所有权利）；
@@ -278,10 +323,11 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 
 ## English
 
-**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **20 `anim_*` tools** over four
+**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **27 `anim_*` tools** over five
 data sources: 341 code-animation style prompts (with 193 reference stills), an optional art-reference library
-client, 244 pixel-art effects with source and rendered previews, and a local image extractor that turns one
-picture into element crops, a palette and ready-to-paste prompts. Zero runtime dependencies.
+client, 244 pixel-art effects with source and rendered previews, a local image extractor that turns one
+picture into element crops, a palette and ready-to-paste prompts, and 124 storyboard shot cards from
+video-shotcraft (with 54 posters). Zero runtime dependencies.
 
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art

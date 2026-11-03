@@ -65,6 +65,18 @@ import { describeColor } from '../lib/vision.js'
 import { buildBrief } from '../lib/prompt.js'
 
 import {
+  SHOT_CATEGORIES,
+  exportShots,
+  loadShotCatalog,
+  parseShotCard,
+  readShotCard,
+  resolveShot,
+  searchShots,
+  shotPreviewPath,
+  shotStats,
+} from '../lib/shots.js'
+
+import {
   canvas,
   contactSheet,
   extract,
@@ -327,7 +339,7 @@ try {
   rmSync(fxWorkDir, { recursive: true, force: true })
 }
 
-// ── 插件注册：用假 ctx 跑一遍 apply()，20 个工具都得能真的执行 ─────────────
+// ── 插件注册：用假 ctx 跑一遍 apply()，27 个工具都得能真的执行 ─────────────
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
@@ -338,9 +350,11 @@ const TOOL_NAMES = [
   'anim_ref_sources', 'anim_ref_search', 'anim_ref_show', 'anim_ref_pick',
   'anim_fx_stats', 'anim_fx_search', 'anim_fx_show', 'anim_fx_preview', 'anim_fx_export', 'anim_fx_random', 'anim_fx_guide',
   'anim_extract', 'anim_extract_guide',
+  'anim_shot_stats', 'anim_shot_search', 'anim_shot_show', 'anim_shot_preview',
+  'anim_shot_export', 'anim_shot_random', 'anim_shot_guide',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 20 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 27 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -623,6 +637,128 @@ try {
   rmSync(exDir, { recursive: true, force: true })
 }
 
+// ── 第五个数据源：video-shotcraft 镜头配方卡（124 张 / 10 分类 / 54 张海报）──
+// 卡片与海报随包发在 assets/shots/，索引由 tools/build-shots.mjs 生成。
+// 这里验证：索引与磁盘一致、索引不是旧的、查找与检索（含正文命中）、
+// 读卡、海报路径、导出（含拒绝写进插件目录）、以及七个工具真的能跑。
+const EXPECTED_SHOTS = 124
+const EXPECTED_SHOT_POSTERS = 54
+const EXPECTED_SHOT_STYLES = 150
+const EXPECTED_SHOT_CATEGORIES = 10
+
+const shots = loadShotCatalog(ROOT)
+check('镜头卡数 = 124', shots.cards === EXPECTED_SHOTS && shots.entries.length === EXPECTED_SHOTS, '实际 ' + shots.cards + ' / ' + shots.entries.length)
+check('镜头卡分类 = 10', shots.categories.length === EXPECTED_SHOT_CATEGORIES, '实际 ' + shots.categories.length)
+check('上游风格数 = 150', shots.styles === EXPECTED_SHOT_STYLES, '实际 ' + shots.styles)
+check('每类卡数之和 = 124', shots.categories.reduce((sum, row) => sum + row.cards, 0) === EXPECTED_SHOTS,
+  shots.categories.map((row) => row.id + ':' + row.cards).join(' '))
+check('分类名齐全（没有 misc）', shots.categories.every((row) => SHOT_CATEGORIES.some((def) => def.id === row.id && def.name === row.name)))
+
+const missingCards = shots.entries.filter((entry) => !entry.filePath || !existsSync(entry.filePath))
+check('124 张卡片文件都在磁盘上', missingCards.length === 0, '缺 ' + missingCards.length + ' 张：' + missingCards.slice(0, 5).map((e) => e.id).join(', '))
+const posters = shots.entries.filter((entry) => shotPreviewPath(entry))
+check('海报数 = 54', posters.length === EXPECTED_SHOT_POSTERS, '实际 ' + posters.length)
+const brokenPosters = shots.entries.filter((entry) => entry.previewPath && !existsSync(entry.previewPath))
+check('索引里的海报路径都真实存在', brokenPosters.length === 0, brokenPosters.slice(0, 5).map((e) => e.id).join(', '))
+check('没有海报的卡不给假路径', shots.entries.filter((entry) => !entry.preview).every((entry) => shotPreviewPath(entry) === ''))
+
+// 索引不能是旧的：拿构建脚本的 --check 再对一遍（它会解析全部 124 张卡）
+let indexFresh = true
+try {
+  execFileSync(process.execPath, [join(ROOT, 'tools', 'build-shots.mjs'), '--check'], { stdio: 'pipe' })
+} catch {
+  indexFresh = false
+}
+check('index.json 与 124 张卡片一致（build-shots.mjs --check）', indexFresh)
+
+// 单张读 + frontmatter
+const firstShot = shots.entries[0]
+const firstText = readShotCard(shots, firstShot)
+const firstParsed = parseShotCard(firstText)
+check('parseShotCard 取到六个字段', Boolean(firstParsed.meta.name && firstParsed.title && firstParsed.fit && firstParsed.duration && firstParsed.energy), JSON.stringify(firstParsed.meta).slice(0, 80))
+check('parseShotCard 把 frontmatter 从正文里切掉', !firstParsed.body.startsWith('---') && firstParsed.body.includes('##'))
+check('readShotCard 命中缓存', readShotCard(shots, firstShot) === firstText)
+const withTags = shots.entries.filter((entry) => entry.tags.length > 0)
+check('50 张卡带标签', withTags.length === 50, '实际 ' + withTags.length)
+const withDemo = shots.entries.filter((entry) => entry.demo && /demos\//.test(entry.demo))
+check('参考实现指向 demos/ 的卡 ≥ 100 张', withDemo.length >= 100, '实际 ' + withDemo.length)
+
+// 查找
+check('resolveShot 精确命中', resolveShot(shots, firstShot.id).entry?.id === firstShot.id)
+check('resolveShot 容忍卡片名', resolveShot(shots, firstShot.card).entry?.id === firstShot.id)
+check('resolveShot 容忍 .md 后缀与空格', resolveShot(shots, ' ' + firstShot.id + '.md ').entry?.id === firstShot.id)
+check('resolveShot 未知 id 返回 missing', resolveShot(shots, 'opening/no-such-card').kind === 'missing')
+
+// 检索：分类 / 标签 / 能量 / 海报 / 正文 / deep
+const openingRows = searchShots(shots, { category: 'opening', limit: 200 }).map((row) => row.entry)
+check('category=opening 返回 11 张', openingRows.length === 11, '实际 ' + openingRows.length)
+check('category 也认中文名', searchShots(shots, { category: '开场与品牌', limit: 200 }).length === 11)
+const lowRows = searchShots(shots, { energy: '低', limit: 200 }).map((row) => row.entry)
+check('energy=低 只返回低能量卡', lowRows.length > 0 && lowRows.every((entry) => entry.energy.includes('低')), '实际 ' + lowRows.length)
+const posterRows = searchShots(shots, { preview: true, limit: 200 }).map((row) => row.entry)
+check('preview=true 只返回有海报的卡', posterRows.length === EXPECTED_SHOT_POSTERS, '实际 ' + posterRows.length)
+
+// dashoffset 只出现在 brand-ink-open 的正文（动效核心）里，用来证「正文检索」真的进正文。
+const bodyHit = searchShots(shots, { query: 'dashoffset', limit: 10 })
+check('正文检索命中 brand-ink-open', bodyHit.some((row) => row.entry.card === 'brand-ink-open'), JSON.stringify(bodyHit.map((row) => row.entry.id)))
+check('正文命中带命中行', (bodyHit.find((row) => row.entry.card === 'brand-ink-open')?.hits ?? []).length > 0)
+const metaOnly = searchShots(shots, { query: 'dashoffset', deep: false, limit: 10 })
+check('deep=false 时不进正文', metaOnly.length === 0, JSON.stringify(metaOnly.map((row) => row.entry.id)))
+// 一词在标题、一词在正文：AND 仍然成立
+const multiTerm = searchShots(shots, { query: '墨线 dashoffset', limit: 20 })
+check('多词是 AND 关系（可跨元信息与正文）', multiTerm.length > 0 && multiTerm.every((row) => {
+  const body = readShotCard(shots, row.entry)
+  return (JSON.stringify(row.entry) + body).includes('墨线') && body.includes('dashoffset')
+}), multiTerm.map((row) => row.entry.id).join(', '))
+check('未知关键词返回空数组', searchShots(shots, { query: '这个词库里绝对没有出现过吧' }).length === 0)
+
+// 统计
+const stats = shotStats(shots)
+check('shotStats 合计与索引一致', stats.cards === EXPECTED_SHOTS && stats.categories.length === EXPECTED_SHOT_CATEGORIES && stats.withPoster === EXPECTED_SHOT_POSTERS)
+check('shotStats 给出上游与许可', stats.upstream.includes('video-shotcraft') && stats.license === 'Apache-2.0')
+
+// 导出：临时目录，写卡 + 海报 + README + index.md
+const shotWorkDir = mkdtempSync(join(tmpdir(), 'anim-pack-shots-'))
+try {
+  const pick = [
+    shots.entries.find((entry) => entry.card === 'brand-ink-open'),
+    shots.entries.find((entry) => entry.id === 'data/chart-live-moves'),
+  ].filter(Boolean)
+  check('挑到用于导出的两张卡', pick.length === 2)
+  const exported = exportShots(shots, pick, { dir: join(shotWorkDir, 'out') })
+  check('exportShots 返回文件清单', !exported.error && exported.files.length >= 5, JSON.stringify(exported).slice(0, 120))
+  check('导出目录里有卡片 md', existsSync(join(shotWorkDir, 'out', 'brand-ink-open', 'brand-ink-open.md')))
+  check('导出目录里有 README', existsSync(join(shotWorkDir, 'out', 'brand-ink-open', 'README.md')))
+  check('导出目录里有海报 jpg', existsSync(join(shotWorkDir, 'out', 'chart-live-moves', 'chart-live-moves.jpg')))
+  check('导出目录里有 index.md', existsSync(join(shotWorkDir, 'out', 'index.md')))
+  const refused = exportShots(shots, pick, { dir: join(ROOT, 'assets', 'shots', 'nope') })
+  check('exportShots 拒绝写进插件目录', Boolean(refused.error), JSON.stringify(refused).slice(0, 100))
+} finally {
+  rmSync(shotWorkDir, { recursive: true, force: true })
+}
+
+// 工具层
+const shotStatsOut = JSON.parse(await callTool('anim_shot_stats'))
+check('anim_shot_stats 报出 124 张 / 10 分类', shotStatsOut.cards === 124 && shotStatsOut.categories.length === 10, JSON.stringify(shotStatsOut).slice(0, 100))
+const shotSearchOut = JSON.parse(await callTool('anim_shot_search', { category: 'data', limit: 10 }))
+check('anim_shot_search 按分类返回 5 张', shotSearchOut.count === 5, '实际 ' + shotSearchOut.count)
+const shotShowOut = await callTool('anim_shot_show', { id: 'brand-ink-open' })
+check('anim_shot_show 输出摘要 + 正文', shotShowOut.includes('## 动效核心') && shotShowOut.includes('上游实现'), shotShowOut.slice(0, 80))
+check('anim_shot_show 不带 frontmatter 重复段', !shotShowOut.includes('\n---\nname:'))
+check('anim_shot_show 未知 id 给提示', (await callTool('anim_shot_show', { id: 'opening/zzz' })).includes('找不到'))
+const shotPreviewOut = await callTool('anim_shot_preview', { ids: ['data/chart-live-moves', 'opening/brand-ink-open'] })
+check('anim_shot_preview 给海报路径', shotPreviewOut.includes('unit-dot-swarm-regroup.jpg'), shotPreviewOut.slice(0, 120))
+check('anim_shot_preview 无海报的卡如实说明', shotPreviewOut.includes('没配海报'), shotPreviewOut.slice(0, 200))
+
+const shotExportDir = join(shotWorkDir, 'tool-out')
+const shotExportOut = JSON.parse(await callTool('anim_shot_export', { ids: ['opening/brand-ink-open'], dir: shotExportDir }, { agent: { session: { cwd: shotWorkDir } } }))
+check('anim_shot_export 真的落盘', shotExportOut.count === 1 && existsSync(join(shotExportDir, 'brand-ink-open', 'brand-ink-open.md')), JSON.stringify(shotExportOut).slice(0, 120))
+check('anim_shot_export 不给 id 时给提示', (await callTool('anim_shot_export', {})).includes('没有给出要导出的卡'))
+const shotRandomOut = await callTool('anim_shot_random', { category: 'outro' })
+check('anim_shot_random 限定分类能抽到', shotRandomOut.includes('（outro）'), shotRandomOut.slice(0, 80))
+const shotGuide = await callTool('anim_shot_guide')
+check('anim_shot_guide 读到镜头卡指南', shotGuide.length > 2000 && shotGuide.includes('anim_shot_search'), String(shotGuide.length))
+
 // ── 联网检查（node tools/verify.mjs --refs）：真的搜图、看详情、下载一张 ────
 // 只有 --refs 且地址不是占位时才跑：DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs
 const LIVE = process.argv.includes('--refs') && !/^(127[.]0[.]0[.]1|localhost)$/.test(new URL(refDefaults.base).hostname)
@@ -671,4 +807,4 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  · ${failure}`)
   process.exit(1)
 }
-console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}）`)
+console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 124 张镜头卡 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}）`)

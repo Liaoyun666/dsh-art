@@ -1,6 +1,6 @@
 ---
 name: code-animation-prompts
-description: 使用 341 种风格提示词、参考静帧、8,496 张参考图与 244 条像素特效制作代码动画，并能从一张图反推元素、配色与提示词。适用于按风格编号选型、组合视觉风格、找像素特效、拆解参考图，把内容转成可编辑动画并渲染成片。
+description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效与 124 张 video-shotcraft 镜头配方卡制作代码动画，并能从一张图反推元素、配色与提示词。适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
 ---
 
 # Code Animation Prompts
@@ -70,6 +70,19 @@ python "<技能目录>/scripts/styles.py" list --series Z
 - 无缝贴图（`kind: texture`）不裁元素，只给配色；精灵表（`sprite-sheet`）不会自动切行切列。
 - 地平线是「背景色突变」的产物，不是语义；**WebP / HEIC / AVIF 不解码**，要用户先另存 PNG。
 - 透明通道会被当成背景统计，透明底图的「背景占比」指透明区域。
+
+## 照着镜头卡拍一条产品片
+
+第五个数据源：video-shotcraft 的 124 张镜头配方卡（10 个分类，54 张带海报，Apache-2.0）。每张卡写的是一个镜头怎么动——意图、动效核心、参数表、声音、已知坑、上游 Remotion 参考实现，不是视频文件。
+
+- `anim_shot_stats`：先看家底（124 张 / 10 个分类 / 各类几张 / 多少张带海报）。
+- `anim_shot_search`：按 `category`（`opening` `camera` `transition` `typography` `ui-entrance` `interaction` `data` `effects` `rhythm` `outro`，也认中文名）、`tag`、`energy`（高／中／低）、`preview`（只要带海报的）筛；关键词默认也搜卡片正文，多词是 AND。
+- `anim_shot_preview`：给海报图的绝对路径（一次最多 12 张），先看画面再定。
+- `anim_shot_show`：一张卡的完整正文 + 上游实现位置 + 图库链接。
+- `anim_shot_export`：把选中的卡连同海报、README、`index.md` 导出到工作目录（缺省 `shot-cards/`），交给 Remotion／剪映那边照着做。
+- `anim_shot_guide`：十类怎么分工、从挑卡到成片的四步、和另外四组怎么搭、许可与维护。
+
+用法：用户说「要一条开场很贵的产品片」「这个转场太生硬」时，按分类挑 3–5 张卡当分镜，卡里的参数表直接是时间轴数据；要真出片就导出去写 Remotion。卡只描述镜头，不含 Remotion 工程、样片、音效与 BGM —— 别答应「直接给我 mp4」。
 
 ## 从提示词到可编辑动画
 
