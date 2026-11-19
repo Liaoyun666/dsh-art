@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "upstream": [
+    {
+      "name": "MickeyAlton33/web-designer-plugin",
+      "license": "MIT",
+      "url": "https://github.com/MickeyAlton33/web-designer-plugin",
+      "took": "反 AI 味清单、配色原型、字体配对、排版层级、动效时长"
+    },
+    {
+      "name": "Ilm-Alan/frontend-design",
+      "license": "MIT",
+      "url": "https://github.com/Ilm-Alan/frontend-design",
+      "took": "内容纪律（禁止伪造数据与填充文案）"
+    }
+  ],
+  "antiPatterns": [
+    {
+      "id": "blue-violet-gradient",
+      "trap": "蓝紫渐变当背景",
+      "instead": "从情绪出发定一个真调色板；要用渐变就让它不常见、且只做一层"
+    },
+    {
+      "id": "radius-12",
+      "trap": "所有元素都 border-radius: 12px",
+      "instead": "变半径：直角可以很高级，或混用，或 border-radius: 1vw 流式"
+    },
+    {
+      "id": "shadow-default",
+      "trap": "处处 box-shadow: 0 4px 6px rgba(0,0,0,.1)",
+      "instead": "少用阴影；1px 描边、backdrop-filter，或干脆不要高度"
+    },
+    {
+      "id": "uniform-card-grid",
+      "trap": "等间距等尺寸卡片墙",
+      "instead": "破格子：让某些卡跨 2 列、大小不均"
+    },
+    {
+      "id": "inter-everywhere",
+      "trap": "全站 font-family: Inter",
+      "instead": "选有性格的字，或衬线，或显示体 + 正文字配对"
+    },
+    {
+      "id": "centered-1200",
+      "trap": "全部居中、max-width: 1200px",
+      "instead": "左对齐首屏、满幅分段、内容偏一侧的非对称"
+    },
+    {
+      "id": "opacity-hover",
+      "trap": "悬停只有 opacity: .8",
+      "instead": "让悬停讲故事：文字上滑、背景反转、下划线定向擦入"
+    },
+    {
+      "id": "same-sections",
+      "trap": "每一屏长得一模一样",
+      "instead": "明暗交替、满幅/容器交替、密/疏交替"
+    },
+    {
+      "id": "stock-illustration",
+      "trap": "Blush / unDraw 那种通用插画",
+      "instead": "具体的东西：真实照片、字体本身、抽象几何"
+    },
+    {
+      "id": "tailwind-button",
+      "trap": "按钮都是 bg-blue-500 rounded-lg",
+      "instead": "按品牌语言设计按钮：描边、胶囊、纯文字带下划线动画"
+    },
+    {
+      "id": "emoji-icon",
+      "trap": "🚀✨💡⚡ 当功能图标",
+      "instead": "内联 SVG，或用大号数字（01/02/03），或干脆只用字"
+    },
+    {
+      "id": "pill-badge",
+      "trap": "首屏标题上面的「✨ 全新上线」胶囊",
+      "instead": "小字大写字母 + 字距的 editorial overline，或者不要"
+    },
+    {
+      "id": "gradient-text",
+      "trap": "标题做 background-clip: text 蓝紫渐变",
+      "instead": "超大实色字、描边字、只把一个词染成强调色"
+    },
+    {
+      "id": "glass-everywhere",
+      "trap": "紫色光晕上遍地毛玻璃卡",
+      "instead": "毛玻璃最多给一类元素（通常是固定导航），其余用实底和描边"
+    },
+    {
+      "id": "fake-proof",
+      "trap": "假头像 + 「已有 10,000+ 开发者信任」",
+      "instead": "真凭证，或者不写；编的社会证明一眼假"
+    }
+  ],
+  "contentDiscipline": [
+    "屏幕上的每个字符串要么是产品真实信息，要么是有自觉的作者文案（标题、按钮、法务、字段名、明确标注是示例的示例数据）。",
+    "禁止伪造冒充真实数据的假数据（a.chen@grid.co、GRID.FREQ 59.998 Hz 这类假遥测）。没有真内容就留空。",
+    "禁止填充式标签：删掉它没有减少任何信息量的 mono 小字副标题、// 开头的假代码注释。",
+    "标准动作使用标准文案：下一步就是「下一步」，不要写成「验证操作员会话」。",
+    "禁止用 Unicode 符号冒充图标（▣ 仪表盘）；要么用真图标集，要么不用。",
+    "禁止 AI 腔：严肃界面上的卖萌小字、日常 B 端上的合成科幻状态条、假装是结构的「接缝」装饰。"
+  ],
+  "craftFloor": [
+    "每个可交互元素都要有设计过的 :hover / :focus-visible / :active，悬停效果包在 @media (hover: hover) 里。",
+    "::selection 要与调色板一致（强调色底 + 可读字色）。",
+    "用真文案，绝不 lorem ipsum；正文对比度达 WCAG AA。",
+    "语义化 HTML：真的 <nav>/<main>/<button>，标题层级正确。",
+    "每个动画都要有 prefers-reduced-motion 兜底。",
+    "页面 title + favicon（内联 SVG favicon 两行就能显出做工）。"
+  ],
+  "palettes": [
+    {
+      "id": "mono-accent",
+      "name": "单色 + 一个强调色",
+      "css": ":root { --color-bg: #0d0d0d; --color-text: #e5e3dc; --color-muted: #8c8c8c; --color-accent: #ff232e; }",
+      "rules": [
+        "强调色只出现在可操作元素上",
+        "不要用强调色做大面积背景",
+        "强调色的稀缺性就是它的力量"
+      ]
+    },
+    {
+      "id": "warm-neutral",
+      "name": "暖中性",
+      "css": ":root { --color-bg: #faf8f5; --color-surface: #f2eeea; --color-text: #1a1a1a; --color-muted: #a5a3a6; --color-accent: #1a1a1a; }",
+      "rules": [
+        "#f5f5f5 冷灰显得诊所味，#faf8f5 暖白才是亲和",
+        "让摄影承担颜色叙事",
+        "强调靠字重和字号，不靠第二种色相"
+      ]
+    },
+    {
+      "id": "bold-brand",
+      "name": "高饱和品牌色",
+      "css": ":root { --color-bg: #fef3e2; --color-primary: #e63946; --color-secondary: #1d3557; --color-pop: #f4a261; }",
+      "rules": [
+        "必须有 60/30/10 的主次分配",
+        "每个颜色写死一个角色，不要串用"
+      ]
+    },
+    {
+      "id": "dark-luxury",
+      "name": "暗色奢华",
+      "css": ":root { --color-bg: #0d0d0d; --color-surface: #1a1a1a; --color-surface-hover: #252525; --color-text: #ffffff; --color-text-muted: rgba(255,255,255,.5); --color-accent: #ff232e; }",
+      "rules": [
+        "绝不用纯 #000 做底，#0d0d0d 才有纵深",
+        "暗底必须开 -webkit-font-smoothing: antialiased",
+        "文字层级用 rgba 白，而不是十种灰"
+      ]
+    },
+    {
+      "id": "sophisticated-minimal",
+      "name": "高级极简",
+      "css": ":root { --color-bg: #ffffff; --color-surface: #f7f7f8; --color-border: #e5e5e7; --color-text: #111111; }",
+      "rules": [
+        "干净不等于冷；边框与层次靠 1px 线与留白",
+        "颜色只留给状态"
+      ]
+    }
+  ],
+  "typePairings": [
+    {
+      "id": "serif-display",
+      "name": "衬线显示 + 无衬线正文",
+      "css": "--font-display: 'Instrument Serif', 'Times New Roman', serif;\n--font-body: 'Hanken Grotesk', 'Helvetica Neue', sans-serif;",
+      "bestFor": "编辑、奢华、内容型站点"
+    },
+    {
+      "id": "grotesk-quiet",
+      "name": "有性格的 Grotesk + 安静正文",
+      "css": "--font-display: 'Bricolage Grotesque', sans-serif;\n--font-body: 'Figtree', sans-serif;",
+      "bestFor": "SaaS、企业服务、专业服务"
+    },
+    {
+      "id": "single-family",
+      "name": "单字族多字重",
+      "css": "--font-primary: 'Satoshi', 'DM Sans', sans-serif;\n/* 正文 300，小标题 500，标题 700–900 */",
+      "bestFor": "极简、应用、仪表盘"
+    },
+    {
+      "id": "display-mono",
+      "name": "显示体 + 等宽",
+      "css": "--font-display: 'Space Grotesk', sans-serif;\n--font-mono: 'JetBrains Mono', 'Fira Code', monospace;",
+      "bestFor": "开发者工具、技术品牌、创意机构"
+    },
+    {
+      "id": "bold-display",
+      "name": "重显示体 + 中性正文",
+      "css": "--font-display: 'Clash Display', 'Cabinet Grotesk', sans-serif;\n--font-body: 'General Sans', 'Schibsted Grotesk', sans-serif;",
+      "bestFor": "作品集、初创品牌、强个性品牌"
+    }
+  ],
+  "typeRules": [
+    "标题层级之间的字号比至少 1.25 倍（大三度或更大）。",
+    "显示字用紧行高（1.0–1.1），正文用舒适行高（1.5–1.7）。",
+    "大字负字距 −0.02em 到 −0.05em，否则显得松散。",
+    "小字大写字母正字距 +0.02em 到 +0.05em。",
+    "正文本行宽 65–75 字符（约 max-width: 42rem）。",
+    "字重和字号一样能建立层级：300 正文配 800 标题，同字号也有戏剧性。",
+    "永远用真内容测试层级，lorem ipsum 会掩盖问题。"
+  ],
+  "fontsToAvoid": [
+    {
+      "avoid": "Inter, Roboto, Open Sans, Lato",
+      "use": "Hanken Grotesk, Figtree, Schibsted Grotesk, Instrument Sans, Albert Sans"
+    },
+    {
+      "avoid": "Montserrat, Poppins, Raleway, Nunito",
+      "use": "Space Grotesk, Bricolage Grotesque, Archivo（用宽度轴）, Syne, Sora"
+    },
+    {
+      "avoid": "Playfair Display",
+      "use": "Fraunces, Instrument Serif, Libre Caslon Text, Newsreader, Cormorant Garamond"
+    },
+    {
+      "avoid": "Merriweather, Lora",
+      "use": "Spectral, Source Serif 4, Crimson Pro"
+    },
+    {
+      "avoid": "generic monospace",
+      "use": "JetBrains Mono, IBM Plex Mono, Space Mono, Fragment Mono"
+    }
+  ],
+  "motionTiming": [
+    {
+      "kind": "微交互",
+      "duration": "150–250ms",
+      "example": "按钮悬停、勾选框切换"
+    },
+    {
+      "kind": "状态切换",
+      "duration": "300–500ms",
+      "example": "菜单展开、面板拉开"
+    },
+    {
+      "kind": "入场",
+      "duration": "600–1000ms",
+      "example": "滚动进入的内容揭示"
+    },
+    {
+      "kind": "页面转场",
+      "duration": "800–1200ms",
+      "example": "路由切换、全屏过场"
+    },
+    {
+      "kind": "慢/奢华",
+      "duration": "1200–2000ms",
+      "example": "首屏视差、编辑式滚动"
+    }
+  ],
+  "typeScale": ":root {\n  --step--2: clamp(0.69rem, 0.66rem + 0.18vw, 0.80rem);\n  --step--1: clamp(0.83rem, 0.78rem + 0.29vw, 1.00rem);\n  --step-0:  clamp(1.00rem, 0.91rem + 0.43vw, 1.25rem);\n  --step-1:  clamp(1.20rem, 1.07rem + 0.63vw, 1.56rem);\n  --step-2:  clamp(1.44rem, 1.26rem + 0.89vw, 1.95rem);\n  --step-3:  clamp(1.73rem, 1.48rem + 1.24vw, 2.44rem);\n  --step-4:  clamp(2.07rem, 1.73rem + 1.70vw, 3.05rem);\n  --step-5:  clamp(2.49rem, 2.03rem + 2.31vw, 3.82rem);\n}",
+  "spaceScale": ":root {\n  --space-3xs: clamp(0.25rem, 0.23rem + 0.11vw, 0.31rem);\n  --space-2xs: clamp(0.50rem, 0.46rem + 0.22vw, 0.63rem);\n  --space-xs:  clamp(0.75rem, 0.68rem + 0.33vw, 0.94rem);\n  --space-s:   clamp(1.00rem, 0.91rem + 0.43vw, 1.25rem);\n  --space-m:   clamp(1.50rem, 1.37rem + 0.65vw, 1.88rem);\n  --space-l:   clamp(2.00rem, 1.83rem + 0.87vw, 2.50rem);\n  --space-xl:  clamp(3.00rem, 2.74rem + 1.30vw, 3.75rem);\n  --space-2xl: clamp(4.00rem, 3.65rem + 1.74vw, 5.00rem);\n  --space-3xl: clamp(6.00rem, 5.48rem + 2.61vw, 7.50rem);\n}",
+  "signatureHint": "每份设计只留一个可被一眼记住的动作（描边字、翻页色闪、3D 倾斜卡……）。写下来，然后确保它真的出现在渲染结果里。"
+}

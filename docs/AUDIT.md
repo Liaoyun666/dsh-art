@@ -1,25 +1,25 @@
 # 审查报告 · dsh-art（dsh-anim-pack）
 
-审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02；0.5.0 镜头卡更新：2026-11-03；0.6.0 设计路由更新：2026-11-03）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
+审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02；0.5.0 镜头卡更新：2026-11-03；0.6.0 设计路由更新：2026-11-03；0.7.0 设计工艺库更新：2026-11-03）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
 
 ## 结论
 
 | 维度 | 评分 | 依据 |
 |---|---|---|
-| 功能完整性 | A− | 28 个工具都在跑，五个数据源都有真实内容（341 / 193 / 244 / 本机提取 / 124 张镜头卡）＋一个设计路由 |
-| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,433 行、`vision.js` 1,579 行、无类型约束 |
-| 测试 | B | 213 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
+| 功能完整性 | A− | 31 个工具都在跑，六个数据源都有真实内容（341 / 193 / 244 / 本机提取 / 124 张镜头卡 / 8+24+15 条设计工艺）＋一个设计路由 |
+| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,588 行、`vision.js` 1,608 行、无类型约束 |
+| 测试 | B | 237 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
 | 可维护性 | B+ | 索引全脚本生成、可重建；缺 lint / format / CI 之外的守护 |
 | 文档 | A− | README / design.md / shots.md / SKILL.md / attribution 齐全，命令都能照抄 |
-| 仓库体积 | C+ | 约 100 MB，其中 59.9 MB 是三个示例 MP4 |
+| 仓库体积 | C+ | 约 104 MB，其中 59.9 MB 是三个示例 MP4 |
 | 合规 | B+ | 三种许可分得清、字体例外写清楚；素材条款是「禁止付费包装」而非标准开源许可 |
 
 **总体 B+：可以放心自用、也够格公开给人用；不适合当「企业级依赖」，因为它是单人维护、无类型检查、体积大。**
 
 ## 1. 它到底是什么
 
-一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 28 个 `anim_*` 工具，背后接五个数据源：
-27 个查数据的工具在前，1 个入口 `anim_design_brief` 把它们按「风格 / 镜头 / 特效 / 配色」
+一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 31 个 `anim_*` 工具，背后接六个数据源：
+30 个查数据的工具在前，1 个入口 `anim_design_brief` 把它们按「风格 / 镜头 / 特效 / 工艺 / 配色」
 重新排成一次调用，解决「工具太多、模型想不起来用」的问题。
 
 | 数据源 | 规模 | 实现 |
@@ -29,7 +29,8 @@
 | pixelfx 特效 | 244 条 / 21 分类 / 244 张预览 | `lib/fx.js` + `assets/fx/catalog.json` |
 | 元素提取（本机） | 一张图 → 元素块 / 调色板 / 构图 / 提示词 | `lib/image.js` + `vision.js` + `prompt.js` + `extract.js` |
 | 镜头配方卡 | 124 张 / 10 分类 / 54 张海报（上游 150 个镜头风格） | `lib/shots.js` + `assets/shots/index.json` |
-| 设计路由 | 1 次调用 → 风格 + 镜头 + 特效 + 配色/版式/动效预算 | `lib/brief.js`，跨上面四组做检索与排版 |
+| 设计工艺库 | 8 锚点 / 24 模式 / 15 准则 + 规则集（配色 5 / 字体 5 / 动效 5） | `lib/design.js` + `assets/design/*.json` |
+| 设计路由 | 1 次调用 → 风格 + 镜头 + 锚点 + 特效 + 配色/版式/动效预算 | `lib/brief.js`，跨上面五组做检索与排版 |
 
 设计上有一处值得表扬：**索引与源码分离**。插件从不 `import` 任何特效模块，只读 JSON、源码文本和预渲染的 PNG。
 所以 244 条特效哪怕有语法错误，也不会把插件带崩；代价是索引可能过期（已用 `fxSourcePath()` + 自检兜住）。
@@ -40,8 +41,9 @@
 
 | 文件 | 行数 | 职责 |
 |---|---|---|
-| `lib/index.js` | 1,433 | 插件入口：28 个工具注册、配置规范化、卡片渲染 |
-| `lib/brief.js` | 442 | 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版 |
+| `lib/index.js` | 1,588 | 插件入口：31 个工具注册、配置规范化、卡片渲染 |
+| `lib/brief.js` | 493 | 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版 |
+| `lib/design.js` | 361 | 设计工艺库：锚点 / 模式 / 准则加载、打分、配色原型、审查清单 |
 | `lib/shots.js` | 419 | 镜头卡库：加载索引 / frontmatter 解析 / 检索（含正文）/ 导出 |
 | `lib/catalog.js` | 164 | 本地素材库：加载 / 检索 / 抽读 / 导出 |
 | `lib/refs.js` | 289 | 参考图库 HTTP 客户端：搜索 / 详情 / 下载 |
@@ -51,10 +53,11 @@
 | `lib/prompt.js` | 229 | 把测量结果写成生图提示词 / 特效提示词 / 检索建议 |
 | `lib/extract.js` | 375 | 裁剪、接触表、色板图、`report.md`、`brief.json` |
 | `lib/vendor/jpeg-decoder.js` | 1,167 | jpeg-js 0.4.4 的 `lib/decoder.js` 原文（BSD-3 / Apache-2.0） |
-| `tools/install.mjs` | 226 | 装 / 卸 / 自检（junction + 托管补丁块） |
-| `tools/verify.mjs` | 621 | 自检用例 |
-| `tools/extract.mjs` | 82 | 命令行版提取器（`node tools/extract.mjs <图片>`） |
-| `tools/build-fx.mjs` | 222 | 从 pixelfx 镜像重建索引与预览 |
+| `tools/install.mjs` | 278 | 装 / 卸 / 自检（junction + 托管补丁块 + 伴随技能） |
+| `tools/verify.mjs` | 918 | 自检用例 |
+| `tools/extract.mjs` | 81 | 命令行版提取器（`node tools/extract.mjs <图片>`） |
+| `tools/build-fx.mjs` | 221 | 从 pixelfx 镜像重建索引与预览 |
+| `tools/build-design.mjs` | 107 | 校验设计工艺库并重建 `assets/design/catalog.json`（`--check`） |
 
 ### 2.2 做得对的八件事
 
@@ -81,10 +84,10 @@
 
 | # | 问题 | 影响 | 建议 |
 |---|---|---|---|
-| 1 | `lib/index.js` 1,071 行，20 个工具与卡片渲染挤在一个文件；`lib/vision.js` 1,579 行 | 改一个工具要滚上千行，冲突率高 | 拆成 `lib/tools/*.js`；vision 按「检测 / 分割 / 分组 / 构图」再切 |
+| 1 | `lib/index.js` 1,588 行，31 个工具与卡片渲染挤在一个文件；`lib/vision.js` 1,608 行 | 改一个工具要滚上千行，冲突率高 | 拆成 `lib/tools/*.js`；vision 按「检测 / 分割 / 分组 / 构图」再切 |
 | 2 | 无 lint、无 format、无类型检查（连 `tsc --checkJs` 都没配） | 拼错字段名只能靠跑起来发现 | 加 eslint + `tsc --allowJs --checkJs`（JSDoc 已经写了不少） |
 | 3 | `defineTool` 是自己写的 JSON Schema shim | 参数类型写错不会在注册时报错 | 换成手写 JSON Schema 常量，verify 里加 schema 快照 |
-| 4 | 仓库 99.1 MB（示例 MP4 59.9 MB） | clone 慢，GitHub 单文件 >50 MB 会警告 | 示例视频挪到 Release，仓库降到约 39 MB |
+| 4 | 仓库 104 MB（示例 MP4 59.9 MB） | clone 慢，GitHub 单文件 >50 MB 会警告 | 示例视频挪到 Release，仓库降到约 44 MB |
 | 5 | 预览 PNG 247 张 24.2 MB | 同上 | 量化到 128 色或转 webp，预计 6–8 MB |
 | 6 | 特效源码依赖外部镜像（`pixelfx/`） | 没有镜像时导出只剩报错 | 已在 README/第 6 节写明；也可考虑 submodule |
 | 7 | 错误判定靠 `/regex/.test(error.message)` | 上游改文案就失配 | 给错误加 `code` 字段 |
@@ -106,22 +109,24 @@
 
 | 命令 | 结果 |
 |---|---|
-| `node tools/verify.mjs` | **PASS — 214 项**（约 3 s，含真渲图、真提取、124 张镜头卡与设计路由） |
-| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 226 项**（214 + 12 项联网：真搜图、真下载两张） |
-| 无镜像时 `node tools/verify.mjs` | **PASS — 208 项**（自动降级，改测失败路径） |
+| `node tools/verify.mjs` | **PASS — 237 项**（约 3 s，含真渲图、真提取、124 张镜头卡、设计路由与设计工艺库） |
+| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 249 项**（237 + 12 项联网：真搜图、真下载两张） |
+| 无镜像时 `node tools/verify.mjs` | **PASS — 231 项**（自动降级，改测失败路径） |
 | 七张真实图跑 `anim_extract` | 全部成功，0.03–1.1 s 一张（scene / framed-artwork / texture / sprite-sheet 四类都命中） |
-| `node tools/install.mjs` | 建 junction + 托管块成功；模块自检打印 341/193/10、244/21/73/244、124 张镜头卡 / 10 分类 / 54 海报 |
+| `node tools/install.mjs` | 建 junction + 托管块 + 伴随技能成功；模块自检打印 341/193/10、244/21/73/244、124 张镜头卡 / 10 分类 / 54 海报、8 锚点 / 24 模式 / 15 准则 |
 | `node tools/build-fx.mjs` | 244 条 → 索引 279 KB，21 分类，244 张预览，无报错 |
+| `node tools/build-design.mjs`（含 `--check`） | 8 锚点 / 24 模式 / 15 准则 / 5 套配色 / 5 组字体配对 / 15 条反 AI 味，写出 `assets/design/catalog.json` |
 | 导出小项目后 `node tools/render.mjs ice/frost-nova --zoom 2` | 103 帧 → `contact.png` 165,096 字节，不需要 `npm install` |
 | `node tools/render.mjs ice/frost-nova --sheet` | 精灵表 PNG + JSON，JSON 里带 `meta.pixelfx.act` 时间轴 |
 
 `--refs` 那 12 项要真实素材库才有的内容（水墨 / 绘本这类），本地只有 4 张演示数据时可跑通 6 项，
-其余 6 项因为库里没有对应素材而失败 —— 是数据问题，不是代码回归。发布档的 165 项是在真实库上量的。
+其余 6 项因为库里没有对应素材而失败 —— 是数据问题，不是代码回归。发布档的 249 项是在真实库上量的。
 
 ### 3.2 覆盖到的
 
-- 28 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
-- 设计路由：认得出落地页 / 看板 / 游戏 UI（含中文 surface 名），输出五节齐全、给出可照抄的 `anim_show` / `anim_shot_show`，三套索引全空时给 build 命令而不是崩。
+- 31 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
+- 设计路由：认得出落地页 / 看板 / 游戏 UI（含中文 surface 名），输出六节齐全、给出可照抄的 `anim_show` / `anim_shot_show`，三套索引全空时给 build 命令而不是崩。
+- 设计工艺库：四份 JSON 字段齐全、`catalog.json` 计数与源文件一致、锚点 / 准则按 id 与中文名都能解析、模式检索每个词都必须命中、三个工具（锚点 / 模式 / 审查）输出含应有的小标题、`focus` 生效、四份全缺时报 "cannot read design library" 并指出 build 命令。
 - 伴随技能：装了就必须提到 `anim_design_brief`；没装则跳过（不假失败）。
 - 计数一致性：341 / 193 / 10、244 / 21 / 244 与磁盘文件逐个对得上。
 - 索引里每条 id 都能在镜像里找到源文件。
@@ -160,7 +165,7 @@
 
 ## 5. 性能
 
-- 自检约 3 s（新增 34 项提取检查与设计路由检查，含现场造图与真渲染）；插件启动只读几个 JSON（279 KB + assets/catalog.json + 124 张卡索引），不起服务。
+- 自检约 3 s（含 34 项提取检查、设计路由检查与 23 项工艺库检查，其中有现场造图与真渲染）；插件启动只读几个 JSON（279 KB + assets/catalog.json + 124 张卡索引 + 约 45 KB 设计工艺库），不起服务。
 - 元素提取实测（本机 CPU，单线程）：800×450 合成场景 0.40 s、480×269 精灵表 0.20 s、554×800 装裱画 1.03 s、400×560 油画 1.12 s、480×480 贴图 0.63 s、220×300 透明精灵 0.03 s。
   分析统一缩到长边 ≤1024，像素画按真实分辨率算，所以耗时稳定在 1 s 量级。
 - 工具调用是一次性读文件，没有常驻内存的大对象（`fx` 索引 244 条约 1 MB）。
@@ -174,6 +179,7 @@
 | 插件代码 | MIT | 无 |
 | `assets/library/` 提示词与静帧 | 原条款：可免费使用/转发，**禁止**包装成课程或付费 skills 出售 | 不是 OSI 许可，商用前要看 `许可与来源.md` |
 | `assets/fx/` | MIT（上游 patch-gg/pixelfx） | 署名链要在 NOTICE.md 里保持完整 |
+| `assets/design/` | MIT（上游 Ilm-Alan/frontend-design、MickeyAlton33/web-designer-plugin、mistyhx/frontend-design-audit） | 内容是译写与改写，不是原文件；三处上游都要在 NOTICE.md / attribution.md 里署名 |
 | pixelfx 的 PatchPixel 网页字体 | © Patch，保留所有权利 | **本仓库不含该文件**，已写明 |
 | `lib/vendor/` 的 jpeg-js | BSD-3-Clause（© 2014 Eugene Ware）+ 解码核心 Apache-2.0（© 2011 notmasteryet） | 两份原文随文件进仓，见 `docs/attribution.md` |
 
@@ -200,9 +206,9 @@
 
 ## 8. 改进清单（按性价比排序）
 
-1. 拆 `lib/index.js`（1,433 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
+1. 拆 `lib/index.js`（1,588 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`、`shots.js`、`design.js`，卡片渲染抽 `render-card.js`。
 2. 加 `eslint` + `tsc --allowJs --checkJs`，把 JSDoc 变成真的类型检查。
-3. 示例 MP4 移 Release，仓库从 99.1 MB 降到约 39 MB。
+3. 示例 MP4 移 Release，仓库从 104 MB 降到约 44 MB。
 4. 预览 PNG 量化/转 webp（24.2 MB → 6–8 MB）。
 5. `verify.mjs` 拆成 `tests/*.test.mjs`（`node:test`），让失败能精确定位。
 6. 给错误加 `code` 字段，别靠正则匹配文案。
@@ -213,10 +219,11 @@
 
 ~~~bash
 cd dsh-art
-node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览；124 张镜头卡 / 10 分类 / 54 海报
-node tools/verify.mjs                    # PASS — 214 项（无镜像时 PASS — 208 项）
-node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 226 项
+node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览；124 张镜头卡 / 10 分类 / 54 海报；8 锚点 / 24 模式 / 15 准则
+node tools/verify.mjs                    # PASS — 237 项（无镜像时 PASS — 231 项）
+node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 249 项
 node tools/build-fx.mjs                  # 重建索引：244 条 → 279 KB
+node tools/build-design.mjs              # 重建工艺库索引：8 / 24 / 15 / 5 / 5 / 15
 node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 + 接触表 + report.md
 ~~~
 
@@ -355,4 +362,71 @@ CI：`.github/workflows/verify.yml` 在 ubuntu-latest + node 22 上跑无镜像�
 - brief 只读不写：要落盘卡片或特效，仍需 `anim_shot_export` / `anim_fx_export` 并给 `dir`。
 - 伴随技能只是「提醒入口」，不保证每次都被模型读到；真正的兜底仍是用户点名工具。
 - 触发率没有量化指标：只做了新会话手测（问「做个深色风落地页」，第一步是否调 brief），没有 A/B 数据。
+
+## 13. 0.7.0：设计工艺库（2026-11-03）
+
+### 13.1 为什么加
+
+0.6.0 解决了「不知道调工具」，但没解决「调了之后照着做出来还是 AI 味」。上游三个 MIT 项目的共同点值得抄：
+它们不提供素材，只提供**判断标准** —— 八条美学锚点、24 条版面模式、15 条可用性准则，以及一套反 AI 味的规则集。
+这类知识不会过时，也不需要联网，正好补上 0.6.0 只有「找参考」没有「怎么定稿」的缺口。
+
+不复用它们的形态：三个项目都是纯 Markdown skill（给 Claude Code 读的作用域文件），本插件是宿主侧工具，
+所以只能**译写成结构化 JSON + 三个检索工具**，让模型按需取一小段，而不是一次读 30 KB 正文。
+
+### 13.2 新增了什么
+
+| 文件 | 行数 | 作用 |
+|---|---|---|
+| `lib/design.js` | 361 | 加载四份 JSON、锚点 / 准则解析、按 token 与 surface 打分、配色原型选择、审查清单排版 |
+| `assets/design/anchors.json` | — | 8 条锚点（Swiss / Industrial / Brutalist / Aurora / Chaotic / Retro-Future / Organic / Lo-Fi），每条含底 / 字 / 强调 / 结构 / 质感 / 动效 / 签名动作 / 会破的写法 |
+| `assets/design/patterns.json` | — | 24 条版式与交互模式（layout 4 / card 4 / nav 3 / section 3 / text 3 / utility 4 / advanced 1），每条带可直接抄的 CSS |
+| `assets/design/heuristics.json` | — | 15 条可用性准则（Status / Real World / Control / Consistency / …）＋ 0–4 严重度标尺与代码层检查点 |
+| `assets/design/rules.json` | — | 15 条反 AI 味、6 条内容纪律、6 条工艺底线、5 套配色原型、5 组字体配对、7 条排版层级、5 档动效时长、fluid type/space scale |
+| `tools/build-design.mjs` | 107 | 校验四份 JSON 并重建 `catalog.json`（`--check` 只比对计数） |
+| `docs/design-library.md` | 120 | 三个工具的用法、真实输出片段、数据文件表、改数据流程、常见坑 |
+
+工具层新增三条，并把 `anim_design_brief` 从五节扩到六节：
+
+- `anim_design_anchors`：无参数列 8 条锚点的差异；给 `query` 读一条全文（id / 中文名 / 关键词都能认）。
+- `anim_design_patterns`：无参数列 7 类；给 `query` / `category` 检索模式并附 CSS 与「为什么」。
+- `anim_design_audit`：15 条准则 + 反 AI 味 + 内容纪律 + 工艺底线；给 `focus` 只展开相关的那几条。
+- `anim_design_brief` 新增「③ 美学锚点」（1–2 条，按任务词打分）与「⑤ 版式与配色」里的配色原型 + 首选模式，
+  「⑥ 下一步」追加 `anim_design_anchors` 与 `anim_design_audit` 两条调用建议。
+
+### 13.3 怎么验的
+
+- `node tools/verify.mjs` → **PASS — 237 项**；隐藏 `pixelfx/` 镜像后 → **PASS — 231 项**（差 6 项镜像检查）。
+- 新增 23 项断言：四份 JSON 与 `catalog.json` 计数一致、`resolveAnchor` 认得 `swiss` 与「瑞士国际主义」、
+  `searchPatterns` 多词必须同时命中、四份全缺时报 `cannot read design library`、三个工具的输出含
+  `## 中文名 · Name` 与 `原则：` / `代码层这样查：`、`focus` 只展开命中的准则、brief 含
+  `## ③ 美学锚点` 与 `## ⑤ 版式与配色` / `- 版式：`。
+- `node tools/install.mjs --status` 多打一行「工艺库：8 条锚点 / 24 条模式 / 15 条准则（5 套配色 / 5 组字体配对）」。
+
+### 13.4 踩到并修掉的坑
+
+1. **CSS 字段里混进了纯 JS**：`utility/scroll-lock` 原样抄下来只有 `document.body.classList…`，没有一条选择器。
+   改成 CSS 优先（`html{scrollbar-gutter:stable}` / `body.is-locked{overflow:hidden}`）再附 JS 补 padding。
+2. **brief 的章节号是硬编码**：插两个新节要同步改断言文案（`## ⑤ 下一步` → `## ⑥ 下一步`），
+   否则 verify 会挂在「输出缺下一步」上，看上去像功能坏了。
+3. **`designStats` 导入了却没用**：ESM 不报错，`node --check` 也不报，只有人看 import 列表才发现 —— 留在 index.js 里给自检用，别删。
+4. **快照被 tmp/ 卡死**：`tmp/edge-prof2` 里的浏览器 profile 文件「Device or resource busy」，`tar` exit 2。
+   已在 `scripts/snapshot.sh` 的 EXCLUDES 加 `--exclude='tmp'`（临时下载 / 探针 / 浏览器 profile 本来就不该进快照）。
+5. **中文长词查不到**：`searchPatterns("数据看板")` 整词不中就直接空手而归（卡片里只写「看板」或不写）。
+   加了两层：`termMatches` 对 3 字以上的中文词按 2 字组合再匹配一次；严格档为空时退成「命中任意词」的排序结果。
+6. **配色出现两个名字**：brief 自己的 6 套预设给「冷色科技」，工艺库原型按「深色」给「暗色奢华」，同一份输出里自相矛盾。
+   改成只把原型当 CSS 变量脚手架（「变量名照抄，色值换成上面那组」），不再并列两个配色结论。
+7. **文档里编了个 id**：示例写成 `card/stat-tile`，24 条模式里根本没有这条（看板类专用版式本身缺）。
+   改成真实存在的 `layout/full-bleed-alternate` 与 `card/glass`，并在已知限制里写明看板类版式偏少。
+8. **模板字符串被外层先求值**：在 run_code 里拼一段 Node 脚本，里面的 `${DESIGN_FILES}` 被外层程序当变量算，
+   抛 `ReferenceError`。嵌套时改用数组 join 或转义。
+
+### 13.5 已知限制
+
+- **打分仍是关键词，不是语义**：锚点靠 id / 名称 / 关键词 / 适用场景命中，任务写得抽象时可能给偏；显式给 `surface` 会好很多。
+- **数据是译写**：为了放进 JSON 做过压缩与改写，长解释被砍成短语；要看原文得回三个上游仓库。
+- **rules.json 没有独立工具**：它只在 brief 与 audit 里被引用（配色原型、反 AI 味、工艺底线），想整份读只能看文件。
+- **版式模式偏营销页**：24 条来自获奖站点的长页 / 落地页，看板、后台、表格密度这类专用版式几乎没有；
+  给 `surface=dashboard` 时只能退到通用卡片与布局。
+- **不做视觉验证**：audit 给的是清单，不是「看一眼截图判断」；真要判断还得人看渲染结果。
 

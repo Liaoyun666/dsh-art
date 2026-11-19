@@ -1,6 +1,6 @@
 ---
 name: code-animation-prompts
-description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效与 124 张 video-shotcraft 镜头配方卡制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
+description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效、124 张 video-shotcraft 镜头配方卡与一套设计工艺库（8 条美学锚点 / 24 条 CSS 版式模式 / 15 条可用性审查准则）制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包，再用 anim_design_anchors 定调、anim_design_patterns 抄 CSS、anim_design_audit 自检；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
 ---
 
 # Code Animation Prompts
@@ -17,12 +17,26 @@ anim_design_brief(task="深色科技风的 AI 写作产品落地页")
 anim_design_brief(task="数据看板，指标卡 + 折线图", surface="dashboard", mood="克制冷灰")
 ```
 
-一次调用拿到五节：① 3 条风格选型 ② 3–6 张镜头配方卡 ③ 像素特效候选
-④ 配色方案 + 版式 + 四条动效硬指标 ⑤ 下一步调用顺序。**照第 ⑤ 节再调 2–3 次就够**，
+一次调用拿到六节：① 定调 ② 3–6 张镜头配方卡 ③ 1–2 条美学锚点 ④ 现成素材（风格 / 特效）
+⑤ 配色原型（变量脚手架）+ 版式模式 + 四条动效硬指标 ⑥ 下一步调用顺序。**照第 ⑥ 节再调 2–3 次就够**，
 不要一口气把库全读一遍。`surface` 可写 `web-landing` / `dashboard` / `app` / `game-ui` /
 `deck` / `promo` / `illustration`（也认中文），它优先于从 `task` 猜测。
 
-细节见 [design.md](design.md)：参数、输出结构、五个数据源分工、配色预设、排查选型。
+细节见 [design.md](design.md)：参数、输出结构、六个数据源分工、配色预设、排查选型。
+
+## 定调、抄版式、交付前自检
+
+第六个数据源是设计工艺库，随包发在 `assets/design/`，不联网：
+
+- `anim_design_anchors`：8 条美学锚点（瑞士、工业终端、粗野、极光、混沌极繁、复古未来、有机、低保真），
+  每条锁死底色 / 字体 / 强调色 / 结构 / 质感 / 动效，并列出会破的写法。**整页只锁一个**；传 `query` 读完整卡。
+- `anim_design_patterns`：24 条可直接抄的 CSS 模式（非对称栅栏、悬停抬升、3D 倾斜、毛玻璃、整屏吸附、
+  明暗交替、描边空心字、差值混合、无跳动锁滚动…），按 `query` 或 `category` 取。抄完把变量名换成项目自己的 token。
+- `anim_design_audit`：15 条可用性准则 + 0–4 严重度 + 反 AI 味 + 内容纪律 + 工艺底线。交付前跑一次，
+  先修 ≥3 分的；传 `focus` 只展开一条。
+
+排序：**brief 定方向 → anchors 锁一个 → patterns 抄零件 → shot/fx 定动效 → audit 收尾**。
+细节见 [design-library.md](design-library.md)。
 
 ## 找到合适的风格
 

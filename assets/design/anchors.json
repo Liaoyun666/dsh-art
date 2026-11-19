@@ -1,0 +1,300 @@
+{
+  "version": "1.0.0",
+  "upstream": [
+    {
+      "name": "Ilm-Alan/frontend-design",
+      "license": "MIT",
+      "url": "https://github.com/Ilm-Alan/frontend-design",
+      "took": "八条美学锚点（palette/type/texture/breaks-if）与内容纪律"
+    }
+  ],
+  "note": "整页只选一个锚点。锚点锁死的是 token，跑出范围就算没抱住。",
+  "entries": [
+    {
+      "id": "swiss",
+      "name": "Swiss",
+      "nameZh": "瑞士国际主义",
+      "keywords": [
+        "瑞士",
+        "网格",
+        "极简",
+        "白色",
+        "字号",
+        "swiss",
+        "grid",
+        "helvetica",
+        "edito"
+      ],
+      "bestFor": [
+        "作品集",
+        "建筑 / 文化机构",
+        "杂志式排版",
+        "编辑感落地页"
+      ],
+      "surface": "纯白 #FFFFFF 或中性 #F7F7F8",
+      "typography": "Akzidenz-Grotesk / Helvetica Neue / Söhne——无衬线，显示与正文同一族",
+      "accent": "瑞士红 #E4002B、国际橙 #FF4F00 或克莱因蓝 #002FA7，只选一个，用得克制",
+      "structure": "可见网格线或 1px 发丝线；左对齐、非对称平衡；数字当构图元素（日期、页码用窄体无衬线）",
+      "texture": "无纹理。留白即结构。",
+      "motion": "克制：150–250ms 的淡入与位移，可用划线与遮罩揭示；不要弹跳",
+      "breaksIf": [
+        "暖纸色",
+        "衬线标题",
+        "颗粒纹理",
+        "居中对齐的排版"
+      ],
+      "signature": "把网格线本身做成视觉语言：细线分隔 + 大号数字/页码 + 左对齐的悬挂标点"
+    },
+    {
+      "id": "industrial",
+      "name": "Industrial",
+      "nameZh": "工业终端",
+      "keywords": [
+        "工业",
+        "终端",
+        "等宽",
+        "深色",
+        "数据",
+        "监控",
+        "hud",
+        "terminal",
+        "mono",
+        "dashboard"
+      ],
+      "bestFor": [
+        "开发者工具",
+        "监控后台",
+        "数据看板",
+        "技术型产品页"
+      ],
+      "surface": "纯黑 #000000 或暖黑 #0B0C0A",
+      "typography": "IBM Plex Mono / JetBrains Mono / Berkeley Mono——显示与正文全等宽",
+      "accent": "一个语义色：绿 #00E676、红 #FF3B30、琥珀 #FFB800 或酸青柠 #C6FF4A",
+      "structure": "全平面；用 1px 边框代替阴影；数字开 tabular-nums 对齐",
+      "texture": "细网格底纹、扫描线可有，但不要颗粒噪点",
+      "motion": "状态切换式：数字滚动、打字机、行扫描；120–200ms，无缓动回弹",
+      "breaksIf": [
+        "衬线字体",
+        "比例字体",
+        "暖纸色",
+        "颗粒",
+        "装饰性阴影",
+        "圆角"
+      ],
+      "signature": "等宽排版 + 一个语义色的状态灯 + 表格化数字，像一台真的机器"
+    },
+    {
+      "id": "brutalist",
+      "name": "Brutalist",
+      "nameZh": "粗野主义",
+      "keywords": [
+        "粗野",
+        "暴力",
+        "大字",
+        "原生",
+        "brutalist",
+        "raw",
+        "原生控件"
+      ],
+      "bestFor": [
+        "实验性品牌",
+        "创意机构",
+        "个人宣言式页面"
+      ],
+      "surface": "纯原色或反原色：#FF0000 / #0000FF / #FFFF00 / #000000 / #FFFFFF，选 2–3 个彼此抗衡",
+      "typography": "只用系统字体——Times New Roman、Helvetica、Courier、Arial、system-ui；故意混排",
+      "accent": "原色块本身就是强调，不要再调出中间色",
+      "structure": "硬偏移阴影 box-shadow: 8px 8px 0 #000；原生 <button>/<select> 不重样；边距压到极小，文字顶边跑",
+      "texture": "无。赤裸的默认控件与边框就是质感。",
+      "motion": "几乎不动；只在交互态硬切换，不要缓动",
+      "breaksIf": [
+        "网络字体",
+        "超出纯原色的调色",
+        "柔和阴影",
+        "圆角",
+        "居中版式"
+      ],
+      "signature": "把浏览器默认控件当成正稿：蓝色下划线链接、灰色按钮、10px 原生边框"
+    },
+    {
+      "id": "aurora",
+      "name": "Aurora Maximalism",
+      "nameZh": "极光铺陈",
+      "keywords": [
+        "极光",
+        "渐变",
+        "霓虹",
+        "赛博",
+        "未来",
+        "发光",
+        "aurora",
+        "gradient",
+        "glow",
+        "ai"
+      ],
+      "bestFor": [
+        "AI 产品发布页",
+        "SaaS 首屏",
+        "年轻向品牌",
+        "活动页"
+      ],
+      "surface": "暗色饱和渐变——violet #5D34D0 → magenta #FF006E → cyan #00F0FF，或 #3B82F6 → #A855F7 → #EC4899",
+      "typography": "Inter Variable / PP Neue Machina / Sharp Grotesk，超大显示字号 15–25vw",
+      "accent": "霓虹 text-shadow 光晕 0 0 20px <accent>；渐变网格是主视觉",
+      "structure": "满幅渐变为主表面；少用卡片，用发光分区切块",
+      "texture": "mesh gradient、噪点叠加、光斑",
+      "motion": "弹簧物理编排、滚动联动视差；600–1000ms 入场",
+      "breaksIf": [
+        "纯平背景",
+        "暖纸色",
+        "克制",
+        "以发丝线为主结构"
+      ],
+      "signature": "一整屏的流动渐变网格 + 超大字号压在光晕里，滚动时视差错位"
+    },
+    {
+      "id": "chaotic",
+      "name": "Chaotic Maximalism",
+      "nameZh": "混沌极繁",
+      "keywords": [
+        "极繁",
+        "拼贴",
+        "涂鸦",
+        "撞色",
+        "活泼",
+        "年轻",
+        "chaotic",
+        "collage",
+        "playful"
+      ],
+      "bestFor": [
+        "潮流品牌",
+        "食品饮料",
+        "活动海报",
+        "Z 世代产品"
+      ],
+      "surface": "撞色：粉 #FF71CE + 酸黄 #DFFF00 + 青 #00FFFF + 任意第四个；粉彩与霓虹同框",
+      "typography": "至少 3 个不同语域的字体同页碰撞（衬线 + 无衬线 + 手写/等宽）",
+      "accent": "没有唯一强调色——每个色块都在喊",
+      "structure": "每个表面都有纹样（波浪线、点阵、锯齿、棋盘，SVG 或 repeating-linear-gradient）；超大标题压住嘈杂底",
+      "texture": "图案铺满；贴纸、胶带、撕边",
+      "motion": "快节奏、多对象错峰入场；200–400ms 抖动/回弹",
+      "breaksIf": [
+        "统一的配色",
+        "单一字体",
+        "把留白当结构",
+        "60/30/10 的主次分配"
+      ],
+      "signature": "三个语域的字撞在一起 + 满屏图案 + 一个手绘涂鸦盖在网格上"
+    },
+    {
+      "id": "retro-future",
+      "name": "Retro-Futuristic",
+      "nameZh": "复古未来",
+      "keywords": [
+        "复古未来",
+        "赛博",
+        "像素",
+        "crt",
+        "拳皇",
+        "街机",
+        "retro",
+        "synthwave",
+        "cyberpunk",
+        "像素风"
+      ],
+      "bestFor": [
+        "游戏",
+        "音乐 / 演出",
+        "复古科技品牌",
+        "独立开发者作品"
+      ],
+      "surface": "深黑 #0A0014 或深海军蓝黑",
+      "typography": "年代字体：VT323（CRT）、Orbitron（合成波）、Space Mono（赛博朋克）、Monoton（迈阿密霓虹）、Press Start 2P（街机）、IBM Plex Mono（终端）",
+      "accent": "霓虹成对：洋红 #FF006E + 青 #00FFFF（合成波），或荧光绿 #00FF41 + 琥珀 #FFB000（终端）",
+      "structure": "框线 + 角标 + 状态条；网格底纹",
+      "texture": "CRT 扫描线（::before repeating-linear-gradient）或色差 text-shadow: 2px 0 #FF0000, -2px 0 #00FFFF，也可以两者都要",
+      "motion": "闪烁、扫描、故障抖动；150–300ms 硬切",
+      "breaksIf": [
+        "扁平化",
+        "现代无衬线（Inter、Söhne）",
+        "纸感表面",
+        "完全没有纹理"
+      ],
+      "signature": "扫描线叠在整屏上 + 标题做色差 + 右下角一个闪烁的 CRT 电源灯"
+    },
+    {
+      "id": "organic",
+      "name": "Organic",
+      "nameZh": "有机自然",
+      "keywords": [
+        "有机",
+        "自然",
+        "大地色",
+        "治愈",
+        "温柔",
+        "手作",
+        "organic",
+        "earthy",
+        "calm",
+        "wellness"
+      ],
+      "bestFor": [
+        "健康 / 冥想",
+        "食品",
+        "手作品牌",
+        "生活方式产品"
+      ],
+      "surface": "大地色——鼠尾草 #8B9D83、陶土 #B08B6E、赭石 #C66B3D、黄土 #C08E3A、苔藓 #606C38；浅底用沙 #E8DCC7 或燕麦 #D4B895。绝不用 #F0–F8 的暖奶油色",
+      "typography": "人文衬线（Freight、Caslon、Fraunces——Fraunces 只属于这一锚点）或温暖几何无衬线（Greycliff、Epilogue、Recoleta）",
+      "accent": "大地色本身分层，不用高饱和撞色",
+      "structure": "圆角 16–32px；柔和的非对称留白",
+      "texture": "1–3% 颗粒（SVG feTurbulence）",
+      "motion": "柔和 ease 300–500ms，主视觉做呼吸动画",
+      "breaksIf": [
+        "奶油色背景（暖调 #F0+）",
+        "冷灰",
+        "纯白",
+        "纯黑",
+        "硬直角"
+      ],
+      "signature": "大圆角 + 颗粒纸感 + 一条手绘弧线连接两个内容块"
+    },
+    {
+      "id": "lo-fi",
+      "name": "Lo-Fi",
+      "nameZh": "低保真拼贴",
+      "keywords": [
+        "低保真",
+        "拼贴",
+        "纸张",
+        "手作",
+        "怀旧",
+        "lo-fi",
+        "zine",
+        "risograph",
+        "halftone"
+      ],
+      "bestFor": [
+        "独立杂志",
+        "音乐厂牌",
+        "个性小店",
+        "创意工作室"
+      ],
+      "surface": "纸黄 #E8E0C0 或 #EDE4CF——比奶油更饱和",
+      "typography": "同页混用系统字体（Times + Helvetica + Courier 故意相撞）",
+      "accent": "Risograph 错版：2–4px 的 RGB 通道偏移",
+      "structure": "元素旋转 2–8° 脱离网格；钉书钉、胶带、撕边的 SVG",
+      "texture": "半调网点（SVG pattern 或 radial-gradient tile）压在图片上",
+      "motion": "轻微抖动、翻页感；不要丝滑缓动",
+      "breaksIf": [
+        "精确对齐",
+        "单一字体",
+        "顺滑动效",
+        "严丝合缝的矩形",
+        "奶油色（本锚点是更饱和的纸黄）"
+      ],
+      "signature": "整页旋转 3° + 半调网点 + 错版红青偏移的标题"
+    }
+  ]
+}

@@ -9,7 +9,8 @@
  * 第二个数据源（自建美术素材库）客户端的离线单测，第三个数据源
  * （镜像进来的 patch-gg/pixelfx：244 个特效）的索引、查找、导出与真渲染，
  * 以及第四个数据源（本地元素提取）的解码、分割、裁剪、提示词与工具入口，
- * 第五个数据源（video-shotcraft 镜头卡）与前端设计路由 anim_design_brief 的选型逻辑。
+ * 第五个数据源（video-shotcraft 镜头卡）与前端设计路由 anim_design_brief 的选型逻辑，
+ * 以及第六个数据源（设计工艺库：八锚点 / 24 条 CSS 模式 / 15 条审查准则 / 规则集）。
  * 全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
  *
  *   node tools/verify.mjs --refs     额外跑联网检查：真的去素材库搜图、取详情、下载一张图。
@@ -54,6 +55,15 @@ import {
   searchFx,
   summarizeFx,
 } from '../lib/fx.js'
+
+import {
+  DESIGN_FILES,
+  PATTERN_CATEGORIES,
+  auditChecklist,
+  loadDesignLibrary,
+  resolveAnchor,
+  searchPatterns,
+} from '../lib/design.js'
 
 import {
   decodeImage,
@@ -346,14 +356,14 @@ try {
   rmSync(fxWorkDir, { recursive: true, force: true })
 }
 
-// ── 插件注册：用假 ctx 跑一遍 apply()，28 个工具都得能真的执行 ─────────────
+// ── 插件注册：用假 ctx 跑一遍 apply()，31 个工具都得能真的执行 ─────────────
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
 apply(fakeCtx, {})
 
 const TOOL_NAMES = [
-  'anim_design_brief',
+  'anim_design_brief', 'anim_design_anchors', 'anim_design_patterns', 'anim_design_audit',
   'anim_list_series', 'anim_search', 'anim_show', 'anim_still', 'anim_export', 'anim_random', 'anim_guide',
   'anim_ref_sources', 'anim_ref_search', 'anim_ref_show', 'anim_ref_pick',
   'anim_fx_stats', 'anim_fx_search', 'anim_fx_show', 'anim_fx_preview', 'anim_fx_export', 'anim_fx_random', 'anim_fx_guide',
@@ -362,7 +372,7 @@ const TOOL_NAMES = [
   'anim_shot_export', 'anim_shot_random', 'anim_shot_guide',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 28 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 31 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -769,12 +779,14 @@ check('anim_shot_guide 读到镜头卡指南', shotGuide.length > 2000 && shotGu
 
 // ── 前端设计路由：一次调用给出风格 / 镜头 / 特效 / 配色，且说清下一步调谁 ──
 const briefOut = await callTool('anim_design_brief', { task: '深色科技风的 AI 写作产品落地页' })
-check('anim_design_brief 输出前端设计参考包', briefOut.includes('# 前端设计参考包') && briefOut.includes('## ⑤ 下一步'), briefOut.slice(0, 80))
+check('anim_design_brief 输出前端设计参考包', briefOut.includes('# 前端设计参考包') && briefOut.includes('## ⑥ 下一步'), briefOut.slice(0, 80))
 check('brief 从任务描述认出落地页场景', briefOut.includes('surface=web-landing'), briefOut.slice(0, 220))
 check('brief 给出能直接照抄的下一次调用',
   /anim_show\(id="/.test(briefOut) && /anim_shot_show\(id="/.test(briefOut), briefOut.slice(-320))
 check('brief 带配色方案与版式要点',
-  briefOut.includes('## ④ 配色与排版') && briefOut.includes('- 版式：'), briefOut.slice(0, 400))
+  briefOut.includes('## ⑤ 版式与配色') && briefOut.includes('- 版式：'), briefOut.slice(0, 400))
+check('brief 从工艺库带出锚点与配色变量',
+  briefOut.includes('## ③ 美学锚点') && briefOut.includes('配色变量脚手架') && briefOut.includes('首选模式'), briefOut.slice(0, 600))
 
 const dashBrief = await callTool('anim_design_brief', { task: '做个数据看板', surface: 'dashboard' })
 check('显式 surface 优先于从任务猜（dashboard）', dashBrief.includes('surface=dashboard'), dashBrief.slice(0, 200))
@@ -790,6 +802,65 @@ const toks = tokensOf('深色科技风 AI 写作落地页')
 check('tokensOf 拆出中英文关键词并带权重', toks.some((row) => row.token === '科技') && toks.some((row) => row.token === 'ai') && toks.every((row) => row.weight > 0), JSON.stringify(toks.slice(0, 6)))
 const loneBrief = buildDesignBriefPure({ task: '做个页面' }, { styles: null, shots: null, fx: null })
 check('三套索引全空时 brief 给 build 命令而不是崩', /build-catalog\.mjs/.test(loneBrief.text) && /build-shots\.mjs/.test(loneBrief.text) && /build-fx\.mjs/.test(loneBrief.text), loneBrief.text.slice(0, 200))
+
+// ── 设计工艺库：数据完整性 + 检索 + 三个工具 ────────────────────────────────
+const design = loadDesignLibrary(ROOT)
+check('设计工艺库四份数据齐全', design.missing.length === 0, design.missing.join('、'))
+check('工艺库计数 8 锚点 / 24 模式 / 15 准则',
+  design.counts.anchors === 8 && design.counts.patterns === 24 && design.counts.heuristics === 15,
+  JSON.stringify(design.counts))
+check('每条锚点都有六个 token 与破法',
+  design.anchors.entries.every((row) => ['surface', 'typography', 'accent', 'structure', 'texture', 'motion'].every((key) => typeof row[key] === 'string' && row[key].length > 0) && Array.isArray(row.breaksIf) && row.breaksIf.length > 0),
+  '缺字段的锚点：' + design.anchors.entries.filter((row) => !row.surface || !row.breaksIf?.length).map((row) => row.id).join('、'))
+check('每条模式都带可抄的 CSS 与分类',
+  design.patterns.entries.every((row) => typeof row.css === 'string' && row.css.includes('{') && PATTERN_CATEGORIES.some((cat) => cat.id === row.category)),
+  '有问题的模式：' + design.patterns.entries.filter((row) => !row.css).map((row) => row.id).join('、'))
+check('每条准则都有查法与严重度',
+  design.heuristics.entries.every((row) => Array.isArray(row.lookFor) && row.lookFor.length > 0 && Array.isArray(row.severity) && row.severity.length >= 3))
+check('规则集有反 AI 味 / 配色原型 / 字体配对',
+  (design.rules.antiPatterns ?? []).length >= 12 && (design.rules.palettes ?? []).length === 5 && (design.rules.typePairings ?? []).length === 5,
+  JSON.stringify({ anti: design.rules.antiPatterns?.length, palettes: design.rules.palettes?.length }))
+check('设计工艺库 catalog.json 计数与数据一致', (() => {
+  const file = join(ROOT, 'assets', 'design', 'catalog.json')
+  if (!existsSync(file)) return false
+  const catalog = JSON.parse(readFileSync(file, 'utf8'))
+  return JSON.stringify(catalog.counts) === JSON.stringify(design.counts)
+})(), '跑一次 node tools/build-design.mjs')
+check('四份数据文件都在',
+  DESIGN_FILES.every((name) => existsSync(join(ROOT, 'assets', 'design', name + '.json'))))
+
+check('resolveAnchor 认 id 与中文名', resolveAnchor(design, 'brutalist').entry?.id === 'brutalist' && resolveAnchor(design, '瑞士').entry?.id === 'swiss')
+check('resolveAnchor 认不出时为空而不是乱给', resolveAnchor(design, '不存在的风格').entry === null)
+check('searchPatterns 每词都必须命中，全不中时退成部分命中',
+  searchPatterns(design, { query: '悬停 抬升', limit: 5 }).every((row) => /悬停|抬升/.test([row.entry.name, row.entry.why, row.entry.when, row.entry.css].join(' '))) &&
+    searchPatterns(design, { query: '数据看板 卡片', limit: 3 }).length > 0,
+  '严格档与降级档都要有结果')
+let designThrew = ''
+try {
+  loadDesignLibrary(ROOT, { dir: 'assets/design-nope' })
+} catch (error) {
+  designThrew = String(error?.message ?? error)
+}
+check('工艺库全缺时给出可照做的报错', /cannot read design library/.test(designThrew), designThrew)
+
+const anchorListOut = await callTool('anim_design_anchors')
+check('anim_design_anchors 列出八条', anchorListOut.includes('八条美学锚点') && anchorListOut.includes('swiss') && anchorListOut.includes('复古未来'), anchorListOut.slice(0, 120))
+const anchorOut = await callTool('anim_design_anchors', { query: 'swiss' })
+check('anim_design_anchors 读一条给 token 与破法', anchorOut.includes('会破的写法') && anchorOut.includes('- 字：'), anchorOut.slice(0, 120))
+check('anim_design_anchors 未知 id 给提示', (await callTool('anim_design_anchors', { query: 'zzz' })).includes('找不到锚点'))
+
+const patternListOut = await callTool('anim_design_patterns')
+check('anim_design_patterns 不给条件时列 7 类', patternListOut.includes('版式与交互模式') && patternListOut.includes('utility'), patternListOut.slice(0, 120))
+const patternOut = await callTool('anim_design_patterns', { category: 'layout', limit: 3 })
+check('anim_design_patterns 按分类给 CSS', (patternOut.match(/\{/g) ?? []).length >= 3 && patternOut.includes('--'), patternOut.slice(0, 200))
+check('anim_design_patterns 抄 CSS 前提醒换 token', patternOut.includes('换成项目自己的 token'), patternOut.slice(-160))
+
+const auditOut = await callTool('anim_design_audit')
+check('anim_design_audit 出 15 条审查清单', auditOut.includes('# 前端设计审查清单') && (auditOut.match(/原则：/g) ?? []).length === 15, String(auditOut.length))
+check('审查清单带严重度标尺与反 AI 味', auditOut.includes('严重度：') && auditOut.includes('## 反 AI 味'))
+const auditFocusOut = await callTool('anim_design_audit', { focus: 'accessibility' })
+check('审查清单 focus 只展开一条', auditFocusOut.includes('## 无障碍') && auditFocusOut.includes('代码层这样查：'), auditFocusOut.slice(0, 160))
+check('auditChecklist 纯函数与工具输出一致', auditChecklist(design, { focus: '' }).startsWith('# 前端设计审查清单'))
 
 const companion = join(homedir(), '.agents', 'skills', 'frontend-art-reference', 'SKILL.md')
 if (existsSync(companion)) {

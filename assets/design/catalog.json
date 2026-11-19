@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-11-19T05:49:28.728Z",
+  "upstream": [
+    {
+      "name": "Ilm-Alan/frontend-design",
+      "license": "MIT",
+      "url": "https://github.com/Ilm-Alan/frontend-design",
+      "took": "八条美学锚点（palette/type/texture/breaks-if）与内容纪律"
+    },
+    {
+      "name": "MickeyAlton33/web-designer-plugin",
+      "license": "MIT",
+      "url": "https://github.com/MickeyAlton33/web-designer-plugin",
+      "took": "版式 / 卡片 / 导航 / 章节 / 文字 / 工具类 CSS 模式（摘自 38 个获奖站点）"
+    },
+    {
+      "name": "mistyhx/frontend-design-audit",
+      "license": "MIT",
+      "url": "https://github.com/mistyhx/frontend-design-audit",
+      "took": "15 条可用性准则、代码层违规模式、0–4 严重度评分"
+    }
+  ],
+  "counts": {
+    "anchors": 8,
+    "patterns": 24,
+    "heuristics": 15,
+    "palettes": 5,
+    "typePairings": 5,
+    "antiPatterns": 15
+  },
+  "patternCategories": [
+    {
+      "id": "layout",
+      "name": "版式",
+      "count": 6
+    },
+    {
+      "id": "card",
+      "name": "卡片",
+      "count": 4
+    },
+    {
+      "id": "nav",
+      "name": "导航与按钮",
+      "count": 3
+    },
+    {
+      "id": "section",
+      "name": "章节",
+      "count": 3
+    },
+    {
+      "id": "text",
+      "name": "文字效果",
+      "count": 3
+    },
+    {
+      "id": "utility",
+      "name": "工具",
+      "count": 4
+    },
+    {
+      "id": "advanced",
+      "name": "进阶",
+      "count": 1
+    }
+  ],
+  "rules": {
+    "antiPatterns": 15,
+    "contentDiscipline": 6,
+    "craftFloor": 6,
+    "palettes": [
+      "mono-accent",
+      "warm-neutral",
+      "bold-brand",
+      "dark-luxury",
+      "sophisticated-minimal"
+    ],
+    "typePairings": [
+      "serif-display",
+      "grotesk-quiet",
+      "single-family",
+      "display-mono",
+      "bold-display"
+    ],
+    "motionTiming": 5
+  }
+}

@@ -1,10 +1,10 @@
 # 前端设计参考包：anim_design_brief
 
-这个插件有 28 个工具、五个数据源。工具一多，模型在「帮我做个落地页」这种任务里
+这个插件有 31 个工具、六个数据源。工具一多，模型在「帮我做个落地页」这种任务里
 **根本想不起来去调它们**——描述里写的是「能查什么」，而模型需要的是「什么时候该查」。
 
-`anim_design_brief` 就是为此加的入口：**一次调用**把风格、镜头、像素特效、配色与
-排版预算揉成一份可以直接照着排的参考包，并且每一步都给出**下一次该调哪个工具**。
+`anim_design_brief` 就是为此加的入口：**一次调用**把风格、镜头、美学锚点、像素特效、配色与
+版式预算揉成一份可以直接照着排的参考包，并且每一步都给出**下一次该调哪个工具**。
 
 ## 1. 什么时候调
 
@@ -39,16 +39,19 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 
 ## 3. 输出长什么样
 
-固定五节：
+固定六节：
 
 1. **① 定调**：3 条最贴的风格（341 条库里选），带命中词、一句简介、适合什么，以及
    `anim_show(id="…")` 的现成调用。
 2. **② 动效配方**：3–6 张镜头配方卡（124 张库里选），按场景给分类优先（落地页偏
    opening / ui-entrance / effects / typography，看板偏 data / interaction，游戏 HUD 偏
    ui-entrance / effects / interaction…），带能量与时长，以及 `anim_shot_show(id="…")`。
-3. **③ 现成素材**：3–4 条像素特效（244 条库里选），要代码就 `anim_fx_show` / `anim_fx_export`。
-4. **④ 配色与排版**：一套配色（6 套预设之一，或场景默认深/浅色）＋ 版式要点 ＋ 四条动效硬指标。
-5. **⑤ 下一步**：按顺序列出 3–4 次调用，别一口气全读。
+3. **③ 美学锚点**：1–2 条锚点（8 条库里选），只列标题、关键差异与 `anim_design_anchors(query="…")`；
+   没有工艺库数据时这一节整段不出现。
+4. **④ 现成素材**：3–4 条像素特效（244 条库里选），要代码就 `anim_fx_show` / `anim_fx_export`。
+5. **⑤ 版式与配色**：一套配色原型（5 套预设之一，或场景默认深/浅色，附 CSS 变量脚手架）＋ 1–3 条现成版式模式
+   （带可直抄的 CSS）＋ 四条动效硬指标。
+6. **⑥ 下一步**：按顺序列出 5–6 次调用（含 `anim_design_anchors` 与 `anim_design_audit`），别一口气全读。
 
 真实输出片段（`task="深色科技风的 AI 写作产品落地页"`）：
 
@@ -69,23 +72,32 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 1. ui-entrance/neon-frame-forerun · 界面登场 — …
    打开：anim_shot_show(id="ui-entrance/neon-frame-forerun")；海报：anim_shot_preview(ids=["…"])
 …
-## ④ 配色与排版（照这个花）
+## ③ 美学锚点：整页只锁一个
+
+1. 瑞士国际主义 · Swiss（swiss）
+   底白 / 字黑 / 强调一个高饱和色；栅格硬、留白大、没有渐变阴影。
+   打开：anim_design_anchors(query="swiss")
+…
+## ⑤ 版式与配色（照这个花，别自己另起一套）
 
 - 配色方案：冷色科技（深底 + 冷光）
   #0B0D10 底　#12151A 面　#5B8CFF 主　#22D3EE 辅　#E6EDF7 字
   只让一个强调色发光：主按钮、进度、选中态；其余全灰。
-- 版式：…
+- 版式：全幅与容器交替（layout/full-bleed-alternate）、玻璃卡（card/glass）
+  两种都是 CSS 直出，抄完把 #0B0D10 这类值换成本页的 token。
 - 一屏 / 一页只放一个主动效，其余元素静态或只做 8–16px 位移。
 - 微交互 120–200ms、页面转场 240–400ms、片头镜头 ≤ 3s；缓动首选 ease-out。
 - 滚动驱动的动画必须能被 prefers-reduced-motion 关掉，且关掉后布局不塌。
 - 对比度：正文 ≥ 4.5:1，大字 ≥ 3:1；焦点态用 2px outline，别只靠颜色。
 
-## ⑤ 下一步（照这个顺序调，别一口气全读）
+## ⑥ 下一步（照这个顺序调，别一口气全读）
 
 1. anim_show(id="R6") — 读整条风格提示词，定基调与配色。
 2. anim_shot_show(id="…")；anim_shot_show(id="…") — 读参数表与「已知坑」。
 3. anim_shot_preview(ids=["…"]) — 一次看几张海报，定镜头顺序。
 4. anim_fx_show(id="…")，要代码就 anim_fx_export(ids=["…"]) 导到工作目录。
+5. anim_design_anchors(query="…") — 把锚点的「底 / 字 / 强调 / 结构 / 质感 / 动效」全文读完。
+6. anim_design_audit(focus="可访问性") — 交付前按 15 条准则自检。
 ```
 
 一条输出控制在 6,000 字符以内：镜头卡标题会被截断到 46 字，正文留给 `anim_shot_show`。
@@ -102,8 +114,11 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 | 实拍 / 绘画参考图 | `anim_ref_search(query, download=true)`（需自建素材库） |
 | 手里只有一张图要拆 | `anim_extract(path)` |
 | 想做视频而不是页面 | `anim_shot_*` 组 + `anim_show`，按 `docs/shots.md` 的流程走 |
+| 定美学方向、确认「别做成 AI 味」 | `anim_design_anchors(query)`，8 条锚点各有「会破的写法」 |
+| 抄版式 / 交互 / CSS | `anim_design_patterns(query, category)`，24 条模式附可直抄的 CSS |
+| 交付前自检 | `anim_design_audit(focus)`，15 条准则 + 反 AI 味 + 内容纪律 |
 
-## 5. 五个数据源怎么分工
+## 5. 六个数据源怎么分工
 
 | 数据源 | 规模 | brief 里负责 |
 |---|---|---|
@@ -111,6 +126,7 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 | 参考图库 | 8,496 张（需自建服务） | 深读阶段找实拍/绘画参考 |
 | 像素特效 | 244 条 / 21 类 | ③ 现成画面：HUD、粒子、按钮反馈 |
 | 镜头配方卡 | 124 张 / 10 类 / 54 海报 | ② 动效节奏：一屏一幕怎么动 |
+| 设计工艺库 | 8 锚点 / 24 模式 / 15 准则 + 规则集 | ③ 美学锚点 + ⑤ 版式与配色；交付前审查 |
 | 元素提取 | 本机图片 | 深读阶段把参考图拆成素材与配色 |
 
 ## 6. 配色与动效硬规矩
@@ -144,10 +160,10 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 
 光有工具不够——模型不会主动去翻工具列表。插件做了两件事：
 
-1. **描述带触发词**：28 个工具的 description 开头都写了「什么时候该用」。
+1. **描述带触发词**：31 个工具的 description 开头都写了「什么时候该用」。
 2. **伴随技能**：`node tools/install.mjs` 会写一份
    `~/.agents/skills/frontend-art-reference/SKILL.md`，description 里带前端/UI/海报等触发场景，
-   正文第一句就是「先 `anim_design_brief`，再按第 ⑤ 节深读 2–3 次」。
+   正文第一句就是「先 `anim_design_brief`，再按第 ⑥ 节深读 2–3 次」。
    `--status` 会报告有没有装上，`--uninstall` 只删带托管标记的那份。
 
 验证是否生效：开一个新会话，只问「帮我做个深色风的落地页」，
@@ -159,5 +175,6 @@ anim_design_brief(task="小王子主题的绘本海报", surface="illustration",
 - **别把 brief 当模板**：它给的是参考与参数，不是 HTML。抄节奏，不抄整段代码。
 - **镜头卡里的「上游实现」是 Remotion 仓库路径**，不在本机，别照着 import；要代码走 `anim_fx_export`。
 - **参考图库默认没连**：`anim_ref_*` 会如实说「没连上」，不影响其余工具。
+- **工艺库是译写**：`assets/design/*.json` 为放进 JSON 做过压缩改写，要看原文回三个 MIT 上游仓库。
 - **brief 不写文件**：要落地卡片或特效，自己调 `anim_shot_export` / `anim_fx_export` 并给 `dir`。
 - **场景认错**：显式传 `surface`；它优先于从任务里猜。

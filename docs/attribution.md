@@ -51,3 +51,15 @@ BMP / TGA 的位深与 RLE）都是本仓库自己实现的。
 - 索引 `assets/shots/index.json` 由本仓库的 `tools/build-shots.mjs` 从卡片 frontmatter 生成，可随时重建。
 - 上游 4 张海报用的是「镜头风格名」而不是卡片名，本仓库按 `tools/build-shots.mjs` 里的 `POSTER_ALIAS`
   对到卡片上，并在注释里写明映射关系。
+
+## 设计工艺库（第六个数据源）
+
+`assets/design/` 的四份 JSON 与 `catalog.json` 是**按上游要点重新译写**的中文数据，
+不是上游文件的原样复制；三个上游都是 MIT，可以改写与再分发，但需保留署名：
+
+- **八条美学锚点**、内容纪律与「发货前五项自检」→ [Ilm-Alan/frontend-design](https://github.com/Ilm-Alan/frontend-design)（MIT）。
+- **24 条 CSS 版式模式**、5 套配色原型、5 组字体配对、7 条排版层级、5 档动效时长 → [MickeyAlton33/web-designer-plugin](https://github.com/MickeyAlton33/web-designer-plugin)（MIT）。
+- **15 条可用性准则**与 0–4 严重度 → [mistyhx/frontend-design-audit](https://github.com/mistyhx/frontend-design-audit)（MIT）。
+
+原文见 [NOTICE.md](../NOTICE.md) 第 6 节。三个仓库的 SKILL.md、长文档与示例页面没有收录；
+`patterns.json` 里的 CSS 是摘写后的片段，抄进项目前要换成项目自己的 token 名。

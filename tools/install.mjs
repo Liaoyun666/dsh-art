@@ -78,7 +78,10 @@ const BLOCK = `${BLOCK_BEGIN}
 # 镜头：video-shotcraft 的 124 张镜头配方卡 + 54 张海报（anim_shot_stats / search /
 # show / preview / export / random / guide）。索引路径 config.shotsPath，
 # 导出缺省目录 config.shotsExportDir。
-# 路由：anim_design_brief 一次给出风格/镜头/特效/配色参考包，做前端设计时先调它；
+# 工艺：设计工艺库的 8 条美学锚点 / 24 条 CSS 模式 / 15 条审查准则
+# （anim_design_anchors / anim_design_patterns / anim_design_audit），随包发在
+# assets/design/，不需要额外下载。
+# 路由：anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计时先调它；
 # 安装时还会写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
 # 让模型在写页面、界面、海报之前想起这些工具。
 - insert:
@@ -182,6 +185,13 @@ async function selfCheck() {
     lines.push(`  镜头卡    : ${shots.cards} 张 / ${shots.categories.length} 个分类 / ${shots.withPoster} 张海报 / 上游 ${shots.styles} 个镜头风格`)
   } catch (error) {
     lines.push(`  镜头卡失败: ${error?.message ?? error}`)
+  }
+  try {
+    const { designStats, loadDesignLibrary } = await import(pathToFileURL(join(pluginDir, 'lib', 'design.js')).href)
+    const design = designStats(loadDesignLibrary(pluginDir))
+    lines.push(`  工艺库    : ${design.anchors} 条锚点 / ${design.patterns} 条模式 / ${design.heuristics} 条准则（${design.palettes} 套配色 / ${design.typePairings} 组字体配对）`)
+  } catch (error) {
+    lines.push(`  工艺库失败: ${error?.message ?? error}`)
   }
   return lines.join('\n')
 }

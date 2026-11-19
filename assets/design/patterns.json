@@ -1,0 +1,360 @@
+{
+  "version": "1.0.0",
+  "upstream": [
+    {
+      "name": "MickeyAlton33/web-designer-plugin",
+      "license": "MIT",
+      "url": "https://github.com/MickeyAlton33/web-designer-plugin",
+      "took": "版式 / 卡片 / 导航 / 章节 / 文字 / 工具类 CSS 模式（摘自 38 个获奖站点）"
+    }
+  ],
+  "note": "模式是零件不是模板。抄 CSS 之前先把里面的 --space-* / --color-* 换成项目自己的 token。",
+  "entries": [
+    {
+      "id": "layout/full-bleed-alternate",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "满幅与容器交替",
+      "keywords": [
+        "节奏",
+        "满幅",
+        "版式"
+      ],
+      "why": "避免整页一个宽度从头到尾，用满幅/容器交替制造阅读节奏。",
+      "when": "落地页、长页面、每个 section 都要有存在感时",
+      "css": ".section-full { width: 100vw; margin-left: calc(-50vw + 50%); padding: var(--space-3xl) 0; }\n.section-contained { max-width: 75rem; margin: 0 auto; padding: var(--space-3xl) var(--space-m); }"
+    },
+    {
+      "id": "layout/museum-frame",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "博物馆画框",
+      "keywords": [
+        "模态",
+        "弹窗",
+        "画框",
+        "michael kors"
+      ],
+      "why": "不高亮全屏，留一圈背景可见，画面像被装裱起来，比全屏更有层级。",
+      "when": "作品图、产品大图、图片详情弹层",
+      "css": ".modal-frame { width: calc(100vw - 2.5rem); max-height: calc(100vh - 2.5rem); margin: 1.25rem auto; overflow: hidden; }"
+    },
+    {
+      "id": "layout/asymmetric-grid",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "非对称 12 栏",
+      "keywords": [
+        "网格",
+        "非对称",
+        "卡片墙"
+      ],
+      "why": "同宽卡片一路排下来最像模板；让跨列不同，版面立刻有主次。",
+      "when": "功能列表、案例墙、博客列表",
+      "css": ".grid-asymmetric { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--space-m); }\n.grid-asymmetric > :nth-child(3n+1) { grid-column: span 7; }\n.grid-asymmetric > :nth-child(3n+2) { grid-column: span 5; }\n.grid-asymmetric > :nth-child(3n+3) { grid-column: span 12; }"
+    },
+    {
+      "id": "layout/offset-two-column",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "错位双栏",
+      "keywords": [
+        "双栏",
+        "错位",
+        "张力"
+      ],
+      "why": "两栏上下错开半个节奏，比严格齐平更有张力，也更像有人设计过。",
+      "when": "图文混排 section、服务介绍",
+      "css": ".offset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); align-items: start; }\n.offset-grid > :nth-child(even) { transform: translateY(var(--space-2xl)); }"
+    },
+    {
+      "id": "layout/single-column",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "单栏阅读",
+      "keywords": [
+        "文章",
+        "长文",
+        "阅读"
+      ],
+      "why": "65–75 字符的行长是舒适阅读的硬指标，加宽只会让眼睛跑丢。",
+      "when": "长文、博客、隐私条款、文档",
+      "css": ".content-column { max-width: 42rem; margin: 0 auto; padding: var(--space-3xl) var(--space-m); }"
+    },
+    {
+      "id": "layout/horizontal-scroll",
+      "category": "layout",
+      "categoryName": "版式",
+      "name": "横向滚动区",
+      "keywords": [
+        "横向滚动",
+        "画廊",
+        "作品"
+      ],
+      "why": "竖向长页里插一段横向滑动，读者会主动去拖，停留时间明显变长。",
+      "when": "作品集、产品系列、照片墙",
+      "css": ".horizontal-scroll { display: flex; gap: var(--space-m); overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: var(--space-m); cursor: grab; }\n.horizontal-scroll > * { flex: 0 0 clamp(280px, 35vw, 450px); scroll-snap-align: start; }"
+    },
+    {
+      "id": "card/hover-lift",
+      "category": "card",
+      "categoryName": "卡片",
+      "name": "悬停抬升",
+      "keywords": [
+        "卡片",
+        "悬停",
+        "hover"
+      ],
+      "why": "位移 + 阴影同时变化，比只变阴影更像实物被拿起来。",
+      "when": "可点击卡片、文章卡、商品卡",
+      "css": ".card { border-radius: clamp(0.5rem, 1vw, 1rem); transition: transform .4s cubic-bezier(.23,1,.32,1), box-shadow .4s cubic-bezier(.23,1,.32,1); }\n.card:hover { transform: translateY(-0.5rem); box-shadow: 0 2rem 4rem -1rem rgba(0,0,0,.15); }"
+    },
+    {
+      "id": "card/3d-tilt",
+      "category": "card",
+      "categoryName": "卡片",
+      "name": "3D 倾斜卡",
+      "keywords": [
+        "3d",
+        "倾斜",
+        "鼠标"
+      ],
+      "why": "跟随鼠标的轻微旋转是低成本高感知的「质感」来源。",
+      "when": "作品集卡片、产品卡（每张卡都做会很吵，只给主推卡）",
+      "css": ".card-3d { perspective: 1000px; transform-style: preserve-3d; }\n.card-3d-inner { transition: transform .15s ease-out; will-change: transform; }\n// JS: rotateY(x*15deg) rotateX(-y*15deg)，鼠标离开归零"
+    },
+    {
+      "id": "card/glass",
+      "category": "card",
+      "categoryName": "卡片",
+      "name": "毛玻璃卡",
+      "keywords": [
+        "毛玻璃",
+        "玻璃",
+        "模糊",
+        "glass"
+      ],
+      "why": "极轻微的模糊 + 1px 亮边就能压住背景又保留其层次；过头就成 AI 味。",
+      "when": "深色页面上的浮层、固定导航、最多一个元素类",
+      "css": ".card-glass { background: rgba(255,255,255,.05); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.08); border-radius: clamp(.5rem, 1vw, 1rem); }"
+    },
+    {
+      "id": "card/product-tinted",
+      "category": "card",
+      "categoryName": "卡片",
+      "name": "商品卡各自底色",
+      "keywords": [
+        "商品",
+        "电商",
+        "底色",
+        "卡片墙"
+      ],
+      "why": "每张卡自带浅色底，整面墙立刻有节奏，而不是一排白盒子。",
+      "when": "食品、饮料、快消商品列表",
+      "css": ".product-card { padding: var(--space-l); border-radius: clamp(.75rem, 1.5vw, 1.5rem); display: flex; flex-direction: column; align-items: center; }\n.product-card:nth-child(1) { background: #fef3e2; }\n.product-card:nth-child(2) { background: #e8f4f8; }\n.product-card:nth-child(3) { background: #f3e8f9; }\n.product-card:nth-child(4) { background: #e8f8e9; }"
+    },
+    {
+      "id": "nav/directional-underline",
+      "category": "nav",
+      "categoryName": "导航",
+      "name": "方向性下划线",
+      "keywords": [
+        "导航",
+        "下划线",
+        "链接",
+        "hover"
+      ],
+      "why": "悬停时从左进、离开时往右出，方向本身就在说话，比淡入有记忆点。",
+      "when": "顶部导航、页脚链接、内联菜单",
+      "css": ".nav-link { position: relative; text-decoration: none; }\n.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: bottom right; transition: transform .35s ease; }\n.nav-link:hover::after { transform: scaleX(1); transform-origin: bottom left; }"
+    },
+    {
+      "id": "nav/text-slide-button",
+      "category": "nav",
+      "categoryName": "导航",
+      "name": "文字上滑按钮",
+      "keywords": [
+        "按钮",
+        "文字",
+        "hover",
+        "cta"
+      ],
+      "why": "旧文字滑走、新文字从下方顶上来，一个按钮就能交代「点下去会换状态」。",
+      "when": "主 CTA、预约按钮",
+      "css": ".btn-slide { overflow: hidden; position: relative; }\n.btn-slide span { display: block; transition: transform .4s cubic-bezier(.23,1,.32,1); }\n.btn-slide::after { content: attr(data-text); position: absolute; top: 100%; left: 0; width: 100%; text-align: center; transition: transform .4s cubic-bezier(.23,1,.32,1); }\n.btn-slide:hover span, .btn-slide:hover::after { transform: translateY(-100%); }"
+    },
+    {
+      "id": "nav/frosted-bar",
+      "category": "nav",
+      "categoryName": "导航",
+      "name": "毛玻璃导航",
+      "keywords": [
+        "导航",
+        "毛玻璃",
+        "固定",
+        "sticky"
+      ],
+      "why": "滚动时内容从导航底下透出一点，说明页面在动，且不打断内容。",
+      "when": "内容型站点、长页面",
+      "css": ".nav-frosted { position: fixed; top: 0; width: 100%; backdrop-filter: blur(0.625rem); background: rgba(255,255,255,.8); z-index: 100; }\n.nav-frosted--dark { background: rgba(0,0,0,.6); color: #fff; }"
+    },
+    {
+      "id": "section/scroll-snap",
+      "category": "section",
+      "categoryName": "章节",
+      "name": "整屏吸附",
+      "keywords": [
+        "整屏",
+        "滑动",
+        "snap",
+        "演示"
+      ],
+      "why": "每屏恰好停在视口，读起来像翻页，适合一屏一个论点。",
+      "when": "产品演示页、剧本式长页、招聘页",
+      "css": ".snap-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; }\n.snap-section { height: 100vh; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; }"
+    },
+    {
+      "id": "section/alternating-rhythm",
+      "category": "section",
+      "categoryName": "章节",
+      "name": "明暗交替节奏",
+      "keywords": [
+        "节奏",
+        "明暗",
+        "章节",
+        "背景"
+      ],
+      "why": "深浅交替是最省力的分段手段，比加分隔线更有段落感。",
+      "when": "多段落地页、功能介绍",
+      "css": ".section { padding: var(--space-3xl) var(--space-m); }\n.section--dark { background: var(--color-surface-dark); color: var(--color-text-on-dark); }\n.section--light { background: var(--color-surface-light); color: var(--color-text-primary); }\n.section--accent { background: var(--color-brand); color: var(--color-text-on-brand); }"
+    },
+    {
+      "id": "section/split-hero",
+      "category": "section",
+      "categoryName": "章节",
+      "name": "左右分屏首屏",
+      "keywords": [
+        "首屏",
+        "hero",
+        "分屏",
+        "左右"
+      ],
+      "why": "左文右图打破居中套路，首屏就能看出主次；窄屏自动叠成单列。",
+      "when": "产品官网、SaaS 首屏",
+      "css": ".hero-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; align-items: center; }\n.hero-split__media img { width: 100%; height: 100%; object-fit: cover; }\n@media (max-width: 768px) { .hero-split { grid-template-columns: 1fr; min-height: auto; } }"
+    },
+    {
+      "id": "text/outlined",
+      "category": "text",
+      "categoryName": "文字",
+      "name": "描边空心字",
+      "keywords": [
+        "描边",
+        "空心",
+        "标题",
+        "大字"
+      ],
+      "why": "空心大标题能让背景参与构图，还不用靠渐变作弊。",
+      "when": "首屏巨型标题、章节号",
+      "css": ".text-outlined { -webkit-text-fill-color: transparent; -webkit-text-stroke-width: 1.5px; -webkit-text-stroke-color: currentColor; font-weight: 700; }\n@media (max-width: 480px) { .text-outlined { -webkit-text-stroke-width: 0.8px; } }"
+    },
+    {
+      "id": "text/mix-blend",
+      "category": "text",
+      "categoryName": "文字",
+      "name": "差值混合字",
+      "keywords": [
+        "混合",
+        "反色",
+        "叠字",
+        "图片上文字"
+      ],
+      "why": "文字压在任意背景上都能自动反色，永远读得清，适合图片上的大标题。",
+      "when": "图片上的超大标题、滚动叠字",
+      "css": ".text-blend { mix-blend-mode: difference; color: #fff; position: relative; z-index: 2; }"
+    },
+    {
+      "id": "text/reveal-up",
+      "category": "text",
+      "categoryName": "文字",
+      "name": "遮罩上移揭示",
+      "keywords": [
+        "揭示",
+        "入场",
+        "文字动画",
+        "reveal"
+      ],
+      "why": "文字像从一条线后面升起来，比单纯淡入更有「排版感」。",
+      "when": "标题入场、章节标题",
+      "css": ".text-reveal { overflow: hidden; }\n.text-reveal span { display: inline-block; transform: translateY(100%); transition: transform .8s cubic-bezier(.23,1,.32,1); }\n.text-reveal.visible span { transform: translateY(0); }"
+    },
+    {
+      "id": "utility/hidden-scrollbar",
+      "category": "utility",
+      "categoryName": "工具",
+      "name": "隐藏滚动条",
+      "keywords": [
+        "滚动条",
+        "横滑"
+      ],
+      "why": "横滑区留着滚动条会破坏版式，但别把可滚动的能力也藏掉。",
+      "when": "横向滚动容器",
+      "css": ".no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }\n.no-scrollbar::-webkit-scrollbar { display: none; }"
+    },
+    {
+      "id": "utility/scroll-lock",
+      "category": "utility",
+      "categoryName": "工具",
+      "name": "无跳动锁滚动",
+      "keywords": [
+        "弹窗",
+        "锁滚动",
+        "滚动条"
+      ],
+      "why": "直接用 overflow:hidden 会让页面横向跳一下，补上滚动条宽度就稳了。",
+      "when": "打开模态 / 抽屉时",
+      "css": "/* 给 body 预留滚动条槽位，避免开关弹窗时页面横向抖一下 */\nhtml { scrollbar-gutter: stable; }\nbody.is-locked { overflow: hidden; }\n\n/* 老浏览器没有 scrollbar-gutter 时，用 JS 补等效的 padding */\nconst w = window.innerWidth - document.documentElement.clientWidth;\ndocument.body.style.paddingRight = w + 'px';"
+    },
+    {
+      "id": "utility/fluid-radius",
+      "category": "utility",
+      "categoryName": "工具",
+      "name": "流式圆角",
+      "keywords": [
+        "圆角",
+        "响应式"
+      ],
+      "why": "圆角跟着视口缩放，手机与桌面的观感一致，不会大屏显得太硬。",
+      "when": "大卡片、图片容器",
+      "css": ".fluid-radius { border-radius: clamp(.5rem, 1vw, 1.5rem); }"
+    },
+    {
+      "id": "utility/reduced-motion",
+      "category": "utility",
+      "categoryName": "工具",
+      "name": "尊重减弱动效",
+      "keywords": [
+        "无障碍",
+        "reduced-motion",
+        "动效"
+      ],
+      "why": "前庭敏感用户会被大幅动效弄晕；一条媒体查询就能全站兜底。",
+      "when": "任何带动效的页面，必写",
+      "css": "@media (prefers-reduced-motion: reduce) {\n  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }\n}"
+    },
+    {
+      "id": "advanced/two-tone-heading",
+      "category": "advanced",
+      "categoryName": "进阶",
+      "name": "双色标题",
+      "keywords": [
+        "标题",
+        "双色",
+        "主副"
+      ],
+      "why": "同一行里前半句实色、后半句压灰，主张与补充一次说完，不用两段文字。",
+      "when": "章节标题、服务主张",
+      "css": ".heading-bright { color: #fff; }\n.heading-muted { color: #696F81; }\n/* <h2><span class=\"heading-bright\">主张。</span> <span class=\"heading-muted\">补充说明。</span></h2> */"
+    }
+  ]
+}

@@ -6,11 +6,12 @@
 
 > 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
 >
-> 给 DeepSeek Harness（DSH）用的美术素材包插件。**28 个工具、五个数据源、一个路由**：
+> 给 DeepSeek Harness（DSH）用的美术素材包插件。**31 个工具、六个数据源、一个路由**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
-> 244 条带源码与预览的像素特效、**把你自己那张图拆成元素块、配色和提示词**的本地提取器，
-> 外加 124 张视频镜头配方卡（video-shotcraft，含 54 张海报）。
-> 外加一个 `anim_design_brief` 路由：做前端 / 界面 / 海报之前一次调用，把风格、镜头、特效、配色揉成一份能照着做的参考包。零运行时依赖，装完直接在会话里用。
+> 244 条带源码与预览的像素特效、**把你自己那张图拆成元素块、配色和提示词**的本地提取器、
+> 124 张视频镜头配方卡（video-shotcraft，含 54 张海报），
+> 以及一套**设计工艺库**（8 条美学锚点 / 24 条可抄的 CSS 版式模式 / 15 条可用性审查准则）。
+> 外加一个 `anim_design_brief` 路由：做前端 / 界面 / 海报之前一次调用，把风格、镜头、特效、工艺、配色揉成一份能照着做的参考包。零运行时依赖，装完直接在会话里用。
 
 | | 内容 | 工具 |
 |---|---|---|
@@ -19,7 +20,8 @@
 | **③ pixelfx 特效** | 244 条像素特效 / 21 个分类 / 244 张预览 / 源码可导出 | `anim_fx_stats` `anim_fx_search` `anim_fx_show` `anim_fx_preview` `anim_fx_export` `anim_fx_random` `anim_fx_guide` |
 | **④ 元素提取**（本机跑） | 你手里那一张图 → 元素块 / 调色板 / 构图 / 两段提示词 | `anim_extract` `anim_extract_guide` |
 | **⑤ 镜头配方卡** | 124 张卡 / 10 分类 / 150 个镜头风格 / 54 张海报（video-shotcraft，Apache-2.0） | `anim_shot_stats` `anim_shot_search` `anim_shot_show` `anim_shot_preview` `anim_shot_export` `anim_shot_random` `anim_shot_guide` |
-| **⑥ 设计路由**（入口） | 一次调用：3 条风格 + 3–6 张镜头卡 + 像素特效 + 配色/版式/动效预算 | `anim_design_brief` |
+| **⑥ 设计工艺库** | 8 条美学锚点（各锁六个 token）/ 24 条 CSS 版式模式 / 15 条审查准则 + 反 AI 味规则 | `anim_design_anchors` `anim_design_patterns` `anim_design_audit` |
+| **⑦ 设计路由**（入口） | 一次调用：3 条风格 + 3–6 张镜头卡 + 2 条锚点 + 像素特效 + 配色/版式/动效预算 | `anim_design_brief` |
 
 ![像素特效：史莱姆](assets/fx/previews/critters/slime/contact.png)
 ![像素特效：暴雨](assets/fx/previews/weather/storm/contact.png)
@@ -36,8 +38,8 @@ git clone https://github.com/Liaoyun666/dsh-art.git
 cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
-node tools/install.mjs --status   # 自检：模块能不能加载、五个数据源各有多少条
-node tools/verify.mjs             # 214 项检查（纯离线，不用联网）
+node tools/install.mjs --status   # 自检：模块能不能加载、六个数据源各有多少条
+node tools/verify.mjs             # 237 项检查（纯离线，不用联网）
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -48,7 +50,7 @@ node tools/verify.mjs             # 214 项检查（纯离线，不用联网）
 - 要求 Node ≥ 22；DSH 桌面端自带的 node 也能跑。
 - 插件本体零依赖 —— 没有 `dependencies`，`npm install` 都不用跑。
 
-## 2. 二十八个工具
+## 2. 三十一个工具
 
 ### 本地素材库（7）
 
@@ -72,7 +74,7 @@ node tools/verify.mjs             # 214 项检查（纯离线，不用联网）
 | `anim_ref_pick` | 随机抽几张参考图，带回本地路径 |
 
 地址按 **`config.refBase` → 环境变量 `DSH_REF_BASE` → 占位地址 `http://127.0.0.1:8080`** 取，代码里不写死。
-**没有自建库时这四条会如实说「没连上」，不影响其余 23 个工具。**
+**没有自建库时这四条会如实说「没连上」，不影响其余 30 个工具。**
 参考图库本身是另一个项目（纯静态站 + 一个只读 JSON API），不在本仓库里。
 
 ### pixelfx 像素特效（7）
@@ -122,17 +124,31 @@ node tools/verify.mjs             # 214 项检查（纯离线，不用联网）
 `data` 数据与指标 5、`effects` 光效与强调 15、`rhythm` 节奏与蒙太奇 8、`outro` 收尾 6。
 本插件只带卡与海报，**不带 Remotion 工程、样片、音效与 BGM**；卡里的「参考实现」写着去上游取代码的相对路径。
 
+### 设计工艺库（3，定调 / 抄版式 / 交付前自检）
+
+随包发在 `assets/design/`，不联网、不下载。数据是按三个 MIT 项目的要点**重写的中文 JSON**，
+不是原文件复制（署名见 [NOTICE.md](NOTICE.md) 第 6 节）：
+
+| 工具 | 作用 |
+|---|---|
+| `anim_design_anchors` | 8 条美学锚点（瑞士、工业终端、粗野、极光、混沌极繁、复古未来、有机、低保真），每条锁死底色 / 字体 / 强调色 / 结构 / 质感 / 动效，并列「会破的写法」。整页只锁一个；传 `query` 读完整卡 |
+| `anim_design_patterns` | 24 条可直接抄的 CSS 模式（非对称栅栏、悬停抬升、3D 倾斜、毛玻璃、整屏吸附、明暗交替、描边空心字、差值混合、无跳动锁滚动…），每条给「为什么 / 什么时候用 / CSS」；关键词也搜 CSS 正文 |
+| `anim_design_audit` | 15 条可用性准则 + 0–4 严重度 + 15 条反 AI 味 + 内容纪律 + 工艺底线。交付前跑一次，先修 ≥3 分的；传 `focus` 只展开一条 |
+
+配套规则数据（5 套配色原型、5 组字体配对、5 档动效时长、流式字号与间距）不单独开工具，
+由 `anim_design_brief` 与 `anim_design_audit` 带出。指南见 [docs/design-library.md](docs/design-library.md)。
+
 ### 前端设计参考包（1，做界面时从这里进）
 
 写页面、界面、看板、游戏 HUD、海报、PPT 之前先调它一次，别凭空写样式：
 
 | 工具 | 作用 |
 |---|---|
-| `anim_design_brief` | 输入 `task`（必填）＋可选 `surface`（web-landing / dashboard / app / game-ui / deck / promo / illustration）、`mood`、`palette`、`motion`、`limit`，输出「① 定调 3 条风格 ② 动效配方 3–6 张镜头卡 ③ 现成像素素材 ④ 配色方案 + 版式 + 动效硬指标 ⑤ 下一步调用顺序」，并且每条都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")` 调用 |
+| `anim_design_brief` | 输入 `task`（必填）＋可选 `surface`（web-landing / dashboard / app / game-ui / deck / promo / illustration）、`mood`、`palette`、`motion`、`limit`，输出「① 定调 3 条风格 ② 动效配方 3–6 张镜头卡 ③ 1–2 条美学锚点 ④ 现成像素素材 ⑤ 配色原型（变量脚手架）+ 版式模式 + 动效硬指标 ⑥ 下一步调用顺序」，并且每条都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")` / `anim_design_anchors(query="…")` 调用 |
 
-它不新造数据，只把上面五组数据源按场景重新排一遍：先从任务描述里拆关键词（中英文都认），
-再按场景给镜头卡分类、特效分类加权，最后配一套 60/30/10 的配色与四条动效硬指标。
-只读参考、不写文件；深读仍然走 `anim_show` / `anim_shot_show` / `anim_fx_show`。
+它不新造数据，只把上面六组数据源按场景重新排一遍：先从任务描述里拆关键词（中英文都认），
+再按场景给镜头卡分类、特效分类、版式模式加权，最后配一套 60/30/10 的配色与四条动效硬指标。
+只读参考、不写文件；深读仍然走 `anim_show` / `anim_shot_show` / `anim_fx_show` / `anim_design_* `。
 
 安装器会顺手写一份伴随技能 `~/.agents/skills/frontend-art-reference/SKILL.md`，
 让模型在「做前端 / 界面 / 海报」时想起这条入口（卸载时一并撤掉，手写的同名技能不会被覆盖删除）。
@@ -212,11 +228,14 @@ node tools/verify.mjs                                       # 这次会多跑 6 
 ~~~text
 你：做一个深色科技风的 AI 写作产品落地页
 → anim_design_brief task="深色科技风的 AI 写作产品落地页"
-   （一次拿到：3 条风格 / 4 张镜头卡 / 3 条像素特效 / 配色方案 / 四条动效硬指标 / 下一步顺序）
+   （一次拿到：3 条风格 / 4 张镜头卡 / 2 条锚点 / 3 条像素特效 / 配色原型 / 版式模式 / 下一步顺序）
+→ anim_design_anchors query="aurora"      （锁一个锚点，读它的六个 token 与「会破的写法」）
 → anim_show id="R6"                       （只挑命中最准的那条读全文，定基调）
+→ anim_design_patterns category="layout"  （抄 2–3 条版式 CSS，换成自己的 token）
 → anim_shot_show id="ui-entrance/neon-frame-forerun"   （读参数表与已知坑，照节奏写 CSS/JS）
 → anim_fx_show id="ui/health-bar-hit"     （需要现成动效就取代码，或 anim_fx_export 落地）
 → 动手写页面：配色按 60/30/10，一屏只留一个动效主角
+→ anim_design_audit                       （交付前过 15 条，先修 ≥3 分）
 ~~~
 
 ## 4. 目录结构
@@ -226,7 +245,7 @@ dsh-art/
 ├── package.json              # DSH bundle 声明（dsh.bundle.patch）
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
-│   ├── index.js              # 插件入口：28 个工具注册、配置规范化、渲染成文本卡片（1,433 行）
+│   ├── index.js              # 插件入口：31 个工具注册、配置规范化、渲染成文本卡片（1,588 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
 │   ├── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
@@ -235,7 +254,8 @@ dsh-art/
 │   ├── prompt.js             # 把测量结果写成生图提示词 / 特效提示词 / 检索建议（229 行）
 │   ├── extract.js            # 裁剪、接触表、色板图、report.md 与 brief.json（375 行）
 │   ├── shots.js              # 镜头配方卡：索引加载 / 检索 / 抽读 / 导出（video-shotcraft，400 行）
-│   ├── brief.js              # 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版（442 行）
+│   ├── brief.js              # 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版（493 行）
+│   ├── design.js             # 设计工艺库：锚点/模式/准则加载、打分、审查清单（361 行）
 │   └── vendor/               # jpeg-js 解码器（BSD-3 / Apache-2.0）+ 两份许可原文
 ├── assets/
 │   ├── catalog.json          # 341 条风格索引（脚本生成，别手改）
@@ -255,19 +275,27 @@ dsh-art/
 │   │   ├── index.json        # 124 条卡片索引（tools/build-shots.mjs 生成）
 │   │   ├── cards/            # 124 张镜头配方卡，按 10 个分类分目录
 │   │   └── posters/          # 54 张 gallery 海报 JPG
+│   ├── design/
+│   │   ├── catalog.json      # 计数与出处摘要（tools/build-design.mjs 生成）
+│   │   ├── anchors.json      # 8 条美学锚点（MIT 译写）
+│   │   ├── patterns.json     # 24 条 CSS 版式模式（MIT 译写）
+│   │   ├── heuristics.json   # 15 条可用性准则 + 0–4 严重度（MIT 译写）
+│   │   └── rules.json        # 反 AI 味 / 配色原型 / 字体配对 / 动效时长 / 字号间距
 │   └── companion/
 │       └── frontend-art-reference/SKILL.md   # 安装时复制到 ~/.agents/skills/ 的伴随技能
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（有镜像 153 项，无镜像 147 项；--refs 再加 12 项联网）
+│   ├── verify.mjs            # 自检（离线 237 项；--refs 再加 12 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
 │   ├── build-shots.mjs       # 从 assets/shots/cards 重建镜头卡索引（--check 校验）
+│   ├── build-design.mjs      # 校验设计工艺库并重建计数索引（--check 校验）
 │   └── extract.mjs           # 命令行版提取器：node tools/extract.mjs <图片> [--json]
 ├── docs/
 │   ├── fx.md                 # 特效库指南（导出后怎么用、怎么给非 JS 引擎）
 │   ├── extract.md            # 元素提取指南（量了什么、四类图、参数、局限）
 │   ├── shots.md              # 镜头卡指南（卡里有什么、十类分工、挑卡到成片、许可）
-│   ├── design.md             # 前端设计用法（何时先调 brief、五个数据源分工、配色与动效预算）
+│   ├── design.md             # 前端设计用法（何时先调 brief、六个数据源分工、配色与动效预算）
+│   ├── design-library.md     # 设计工艺库指南（八锚点、CSS 模式、审查清单、改数据）
 │   ├── SKILL.md              # 给 Claude Code / Codex 一类 agent 的技能描述
 │   ├── attribution.md        # 素材与第三方致谢明细
 │   ├── rendering.md          # 代码动画的时间接口与录 MP4
@@ -275,7 +303,7 @@ dsh-art/
 └── .github/workflows/verify.yml
 ~~~
 
-仓库现实：**831 个文件 / 99.1 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
+仓库现实：**1,025 个文件 / 104 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
 clone 慢是这个原因，不是代码。
 
 ## 5. 配置（九个键）
@@ -304,12 +332,13 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：214 项（纯逻辑，不联网）
+node tools/verify.mjs                                      # 离线：237 项（纯逻辑，不联网）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
-覆盖：28 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150 的计数与磁盘文件是否一致、
+覆盖：31 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150、8/24/15 的计数与磁盘文件是否一致、
 设计路由是否认得出场景并给出可照抄的下一步调用（含三套索引全空时不崩）、
+工艺库每条锚点是否六个 token 齐全、每条模式是否带可抄的 CSS、每条准则是否有查法与严重度、三个工艺工具的输出是否成篇、
 索引里的 id 是否都能查到源文件、检索排序（含镜头卡的正文检索与多词 AND）、导出是否拒绝写进库内、
 特效能否在临时目录里真的渲出图，以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 
@@ -321,6 +350,7 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 | **素材**（`assets/library/`：341 条提示词与 193 张静帧） | 原条款：可免费使用、可免费转发；**禁止包装成课程 / 付费 skills 或其他收费物出售**；来自开源项目的部分保留原许可与署名 |
 | **pixelfx**（`assets/fx/`，上游 `patch-gg/pixelfx`） | **MIT**；其中 `sim.js` 与约 180 个特效改编自 Sprite Fusion（© 2026 Hugo Duprez），`act.js` 改编自 Hollow Crown —— 署名见 [NOTICE.md](NOTICE.md) |
 | **镜头卡**（`assets/shots/`，上游 `Vincentwei1021/video-shotcraft`） | **Apache-2.0**，© 2026 Vincentwei1021；卡片正文按原文收录，索引脚本生成，署名见 [NOTICE.md](NOTICE.md) |
+| **设计工艺库**（`assets/design/`，上游 Ilm-Alan/frontend-design、MickeyAlton33/web-designer-plugin、mistyhx/frontend-design-audit） | 三个上游均 **MIT**；本仓库收的是**中文译写后的要点**（不是原文件），署名见 [NOTICE.md](NOTICE.md) 第 6 节 |
 | **图片解码器**（`lib/vendor/`） | jpeg-js 的 **BSD-3-Clause**（© 2014 Eugene Ware）＋ 其解码核心的 **Apache-2.0**（© 2011 notmasteryet）；原文在 `lib/vendor/LICENSE-jpeg-js.txt`、`lib/vendor/LICENSE-apache-2.0.txt` |
 
 注意：pixelfx 上游 `gallery/` 里那个 `PatchPixel` 网页字体**不是 MIT**（© Patch，保留所有权利）；
@@ -332,10 +362,12 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 
 - **能用、可维护**：模块边界清楚（catalog / refs / fx 各管一个数据源）、零依赖、错误信息是人话、
   导出有防呆（拒绝往库内写）、服务地址不写死。
-- **测试是真的**：153 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
+- **测试是真的**：237 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
 - **元素提取是本机算的**：一张 720p 图约 0.2–1.1 s，纯 CPU、不联网、零依赖；
   像素画会先认倍率再分析，裁剪按整数倍放大。
-- **风险**：① `lib/index.js` 1,071 行、`lib/vision.js` 1,579 行，单文件偏大；② 没有 lint / 类型检查；
+- **设计工艺库是离线 JSON**：8 条锚点 / 24 条模式 / 15 条准则随包发，检索是关键词打分（不是语义），
+  CSS 片段抄进项目前要换 token 名。
+- **风险**：① `lib/index.js` 1,588 行、`lib/vision.js` 1,608 行，单文件偏大；② 没有 lint / 类型检查；
   ③ 仓库约 100 MB（三个示例 MP4 占 59.9 MB）；④ 特效索引依赖外部 pixelfx 镜像；
   ⑤ 特效按 24×38 的人物尺度画，放大会糊；⑥ 元素提取是**分割不是识别**，
   角色可能被拆开或与背景合并，标签只是启发式；⑦ JPEG 解码是 vendored 的第三方代码（BSD-3 / Apache-2.0），得跟着它的许可走；
@@ -357,17 +389,20 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 
 ## English
 
-**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **27 `anim_*` tools** over five
+**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **31 `anim_*` tools** over six
 data sources: 341 code-animation style prompts (with 193 reference stills), an optional art-reference library
 client, 244 pixel-art effects with source and rendered previews, a local image extractor that turns one
-picture into element crops, a palette and ready-to-paste prompts, and 124 storyboard shot cards from
-video-shotcraft (with 54 posters). Zero runtime dependencies.
+picture into element crops, a palette and ready-to-paste prompts, 124 storyboard shot cards from
+video-shotcraft (with 54 posters), and a design-craft library (8 aesthetic anchors, 24 copy-paste CSS
+layout patterns, 15 usability heuristics, plus palette / type / motion rules). Zero runtime dependencies.
 
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art
 node tools/install.mjs        # junction into the DSH profile + patch entry
-node tools/verify.mjs         # 153 offline checks (147 without the pixelfx mirror)
+node tools/verify.mjs         # 237 offline checks
 ~~~
 
 Code is MIT. The prompt library under `assets/library/` keeps its own terms (free to use and share, not to be
-resold as a course or paid skill pack). Effects are MIT via `patch-gg/pixelfx`. See [NOTICE.md](NOTICE.md).
+resold as a course or paid skill pack). Effects are MIT via `patch-gg/pixelfx`; shot cards are Apache-2.0 via
+`Vincentwei1021/video-shotcraft`; the design library is a Chinese rewrite of MIT material (see NOTICE.md §6).
+See [NOTICE.md](NOTICE.md).

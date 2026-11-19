@@ -75,3 +75,20 @@ pixelfx 上游的 `gallery/fonts/PatchPixel-Regular.woff2` 是 Patch 自己的�
 `anim_ref_*` 四条工具连接的是**使用者自己部署的**参考图库（只读 JSON API），
 图片版权归各自来源（Met、SafeBooru、V&A、Iconify、ambientCG、NASA、Wellcome 等），
 本仓库不分发任何一张参考图。
+
+## 6. 设计工艺库 —— MIT（译写，不是原文件）
+
+`assets/design/` 下的四份 JSON（`anchors.json` / `patterns.json` /
+`heuristics.json` / `rules.json`）与索引 `catalog.json` 是**按上游要点重新译写**的中文
+数据，不是上游文件的原样复制。来源与许可：
+
+- 八条美学锚点（Swiss / Industrial / Brutalist / Aurora Maximalism / Chaotic Maximalism /
+  Retro-Futuristic / Organic / Lo-Fi）与内容纪律：来自
+  [Ilm-Alan/frontend-design](https://github.com/Ilm-Alan/frontend-design)，**MIT**。
+- 24 条 CSS 版式模式、配色原型、字体配对与动效时长：来自
+  [MickeyAlton33/web-designer-plugin](https://github.com/MickeyAlton33/web-designer-plugin)，**MIT**。
+- 15 条可用性准则、0–4 严重度与反 AI 味清单：来自
+  [mistyhx/frontend-design-audit](https://github.com/mistyhx/frontend-design-audit)，**MIT**。
+
+改数据时连同 `lib/design.js` 的检索逻辑一起改，并跑 `node tools/build-design.mjs`
+重建 `catalog.json`。三个上游的 SKILL.md / 长文档没有收录。
