@@ -39,6 +39,30 @@ const ROW_ID = 'anim-pack'
 /** 补丁层托管块的首尾标记（卸载时按标记精确摘除）。 */
 const BLOCK_BEGIN = `# ── ${packageName} (managed block; 由 tools/install.mjs 维护) ──`
 const BLOCK_END = `# ── /${packageName} ──`
+/** 伴随技能：让模型在做前端设计时主动想起本插件（技能目录由 DSH / 其他 agent 共用）。 */
+const SKILL_DIR = join(homedir(), '.agents', 'skills', 'frontend-art-reference')
+const SKILL_FILE = join(SKILL_DIR, 'SKILL.md')
+const SKILL_MARK = '<!-- managed by dsh-anim-pack tools/install.mjs -->'
+/** 伴随技能的正文就放在包里，安装器只负责复制（改文案改 assets/companion 里那份）。 */
+const SKILL_SOURCE = join(pluginDir, 'assets', 'companion', 'frontend-art-reference', 'SKILL.md')
+const SKILL_BODY = readFileSync(SKILL_SOURCE, 'utf8')
+
+/** 写/更新伴随技能（幂等）。 */
+function installSkill() {
+  mkdirSync(SKILL_DIR, { recursive: true })
+  const existed = existsSync(SKILL_FILE) && readFileSync(SKILL_FILE, 'utf8').includes(SKILL_MARK)
+  writeFileSync(SKILL_FILE, SKILL_BODY)
+  return existed ? '已更新' : existsSync(SKILL_FILE) ? '已写入（覆盖了同名旧文件）' : '已写入'
+}
+
+/** 只删自己写的技能，别动用户手写的同名技能。 */
+function removeSkill() {
+  if (!existsSync(SKILL_FILE)) return false
+  if (!readFileSync(SKILL_FILE, 'utf8').includes(SKILL_MARK)) return false
+  rmSync(SKILL_DIR, { recursive: true, force: true })
+  return true
+}
+
 /** 托管块里要不要顺手写上 refBase：装了自建素材库的机器用环境变量给，仓库里不放地址。 */
 const MANAGED_REF_BASE = (process.env.ANIM_PACK_REF_BASE ?? '').trim()
 
@@ -54,6 +78,9 @@ const BLOCK = `${BLOCK_BEGIN}
 # 镜头：video-shotcraft 的 124 张镜头配方卡 + 54 张海报（anim_shot_stats / search /
 # show / preview / export / random / guide）。索引路径 config.shotsPath，
 # 导出缺省目录 config.shotsExportDir。
+# 路由：anim_design_brief 一次给出风格/镜头/特效/配色参考包，做前端设计时先调它；
+# 安装时还会写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
+# 让模型在写页面、界面、海报之前想起这些工具。
 - insert:
     - id: ${ROW_ID}
       name: ${packageName}
@@ -164,6 +191,8 @@ if (flags.has('--status')) {
   console.log(`node_modules : ${target === undefined ? '（无 junction）' : target === false ? '（同名实体目录，未接管）' : target}`)
   console.log(`patch 登记   : ${hasPatchBlock ? `已写入 ${patchPath}` : '未登记'}`)
   console.log(`bundle 登记  : ${hasBundle ? '已写入 package.json (dependencies + dsh.profile.bundles)' : '未登记'}`)
+  const skillNow = existsSync(SKILL_FILE) && readFileSync(SKILL_FILE, 'utf8').includes(SKILL_MARK)
+  console.log(`伴随技能     : ${skillNow ? `已安装（${SKILL_FILE}）` : `未安装（跑 node tools/install.mjs 会写 ${SKILL_FILE}）`}`)
   console.log('模块自检：')
   console.log(await selfCheck())
   process.exit(0)
@@ -179,6 +208,7 @@ if (flags.has('--uninstall')) {
     manifest.dsh.profile.bundles = bundles.filter((value) => value !== packageName)
   }
   writeProfileManifest(manifest)
+  if (removeSkill()) console.log(`伴随技能已撤掉：${SKILL_FILE}`)
   console.log(`已卸载 ${packageName}（profile ${profile}）：junction、补丁块、bundle 登记都已撤掉。`)
   console.log('素材文件仍在 dsh-plugins/dsh-anim-pack/，没有动过。')
   process.exit(0)
@@ -233,5 +263,6 @@ if (flags.has('--bundle')) {
   console.log('  profile 是 patchReload: live：补丁层会热重载，刷新页面/开新会话即可看到 anim_* 工具。')
 }
 
+console.log(`伴随技能 : ${installSkill()} → ${SKILL_FILE}`)
 console.log('模块自检：')
 console.log(await selfCheck())

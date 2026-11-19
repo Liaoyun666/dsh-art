@@ -1,9 +1,9 @@
 {
   "name": "dsh-anim-pack",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
-  "description": "代码动画素材包：341 种风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）/ 远端美术参考图库 / 本地元素提取（把一张图拆成素材、配色与提示词）/ 124 张 video-shotcraft 镜头配方卡（含 54 张海报），共 27 个 anim_* 工具。",
+  "description": "代码动画素材包：341 种风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）/ 远端美术参考图库 / 本地元素提取（把一张图拆成素材、配色与提示词）/ 124 张 video-shotcraft 镜头配方卡（含 54 张海报），共 28 个 anim_* 工具：anim_design_brief 一次给出风格/镜头/特效/配色参考包，做前端设计前先调它。",
   "keywords": [
     "dsh",
     "animation",
@@ -26,6 +26,7 @@
     "./prompt": "./lib/prompt.js",
     "./extract": "./lib/extract.js",
     "./shots": "./lib/shots.js",
+    "./brief": "./lib/brief.js",
     "./package.json": "./package.json"
   },
   "files": [

@@ -6,10 +6,11 @@
 
 > 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
 >
-> 给 DeepSeek Harness（DSH）用的美术素材包插件。**27 个工具、五个数据源**：
+> 给 DeepSeek Harness（DSH）用的美术素材包插件。**28 个工具、五个数据源、一个路由**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
 > 244 条带源码与预览的像素特效、**把你自己那张图拆成元素块、配色和提示词**的本地提取器，
-> 外加 124 张视频镜头配方卡（video-shotcraft，含 54 张海报）。零运行时依赖，装完直接在会话里用。
+> 外加 124 张视频镜头配方卡（video-shotcraft，含 54 张海报）。
+> 外加一个 `anim_design_brief` 路由：做前端 / 界面 / 海报之前一次调用，把风格、镜头、特效、配色揉成一份能照着做的参考包。零运行时依赖，装完直接在会话里用。
 
 | | 内容 | 工具 |
 |---|---|---|
@@ -18,6 +19,7 @@
 | **③ pixelfx 特效** | 244 条像素特效 / 21 个分类 / 244 张预览 / 源码可导出 | `anim_fx_stats` `anim_fx_search` `anim_fx_show` `anim_fx_preview` `anim_fx_export` `anim_fx_random` `anim_fx_guide` |
 | **④ 元素提取**（本机跑） | 你手里那一张图 → 元素块 / 调色板 / 构图 / 两段提示词 | `anim_extract` `anim_extract_guide` |
 | **⑤ 镜头配方卡** | 124 张卡 / 10 分类 / 150 个镜头风格 / 54 张海报（video-shotcraft，Apache-2.0） | `anim_shot_stats` `anim_shot_search` `anim_shot_show` `anim_shot_preview` `anim_shot_export` `anim_shot_random` `anim_shot_guide` |
+| **⑥ 设计路由**（入口） | 一次调用：3 条风格 + 3–6 张镜头卡 + 像素特效 + 配色/版式/动效预算 | `anim_design_brief` |
 
 ![像素特效：史莱姆](assets/fx/previews/critters/slime/contact.png)
 ![像素特效：暴雨](assets/fx/previews/weather/storm/contact.png)
@@ -35,7 +37,7 @@ cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
 node tools/install.mjs --status   # 自检：模块能不能加载、五个数据源各有多少条
-node tools/verify.mjs             # 201 项检查（纯离线，不用联网）
+node tools/verify.mjs             # 214 项检查（纯离线，不用联网）
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -46,7 +48,7 @@ node tools/verify.mjs             # 201 项检查（纯离线，不用联网）
 - 要求 Node ≥ 22；DSH 桌面端自带的 node 也能跑。
 - 插件本体零依赖 —— 没有 `dependencies`，`npm install` 都不用跑。
 
-## 2. 二十七个工具
+## 2. 二十八个工具
 
 ### 本地素材库（7）
 
@@ -120,7 +122,22 @@ node tools/verify.mjs             # 201 项检查（纯离线，不用联网）
 `data` 数据与指标 5、`effects` 光效与强调 15、`rhythm` 节奏与蒙太奇 8、`outro` 收尾 6。
 本插件只带卡与海报，**不带 Remotion 工程、样片、音效与 BGM**；卡里的「参考实现」写着去上游取代码的相对路径。
 
-## 3. 五条典型流程
+### 前端设计参考包（1，做界面时从这里进）
+
+写页面、界面、看板、游戏 HUD、海报、PPT 之前先调它一次，别凭空写样式：
+
+| 工具 | 作用 |
+|---|---|
+| `anim_design_brief` | 输入 `task`（必填）＋可选 `surface`（web-landing / dashboard / app / game-ui / deck / promo / illustration）、`mood`、`palette`、`motion`、`limit`，输出「① 定调 3 条风格 ② 动效配方 3–6 张镜头卡 ③ 现成像素素材 ④ 配色方案 + 版式 + 动效硬指标 ⑤ 下一步调用顺序」，并且每条都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")` 调用 |
+
+它不新造数据，只把上面五组数据源按场景重新排一遍：先从任务描述里拆关键词（中英文都认），
+再按场景给镜头卡分类、特效分类加权，最后配一套 60/30/10 的配色与四条动效硬指标。
+只读参考、不写文件；深读仍然走 `anim_show` / `anim_shot_show` / `anim_fx_show`。
+
+安装器会顺手写一份伴随技能 `~/.agents/skills/frontend-art-reference/SKILL.md`，
+让模型在「做前端 / 界面 / 海报」时想起这条入口（卸载时一并撤掉，手写的同名技能不会被覆盖删除）。
+
+## 3. 六条典型流程
 
 ### 流程一：一句话 → 一段过场动画
 
@@ -190,6 +207,18 @@ node tools/verify.mjs                                       # 这次会多跑 6 
 → 要美术：把卡的关键词丢给 anim_search / anim_ref_search 找风格与参考图
 ~~~
 
+### 流程六：做前端页面之前先取参考
+
+~~~text
+你：做一个深色科技风的 AI 写作产品落地页
+→ anim_design_brief task="深色科技风的 AI 写作产品落地页"
+   （一次拿到：3 条风格 / 4 张镜头卡 / 3 条像素特效 / 配色方案 / 四条动效硬指标 / 下一步顺序）
+→ anim_show id="R6"                       （只挑命中最准的那条读全文，定基调）
+→ anim_shot_show id="ui-entrance/neon-frame-forerun"   （读参数表与已知坑，照节奏写 CSS/JS）
+→ anim_fx_show id="ui/health-bar-hit"     （需要现成动效就取代码，或 anim_fx_export 落地）
+→ 动手写页面：配色按 60/30/10，一屏只留一个动效主角
+~~~
+
 ## 4. 目录结构
 
 ~~~text
@@ -197,7 +226,7 @@ dsh-art/
 ├── package.json              # DSH bundle 声明（dsh.bundle.patch）
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
-│   ├── index.js              # 插件入口：27 个工具注册、配置规范化、渲染成文本卡片（1,401 行）
+│   ├── index.js              # 插件入口：28 个工具注册、配置规范化、渲染成文本卡片（1,433 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
 │   ├── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
@@ -206,6 +235,7 @@ dsh-art/
 │   ├── prompt.js             # 把测量结果写成生图提示词 / 特效提示词 / 检索建议（229 行）
 │   ├── extract.js            # 裁剪、接触表、色板图、report.md 与 brief.json（375 行）
 │   ├── shots.js              # 镜头配方卡：索引加载 / 检索 / 抽读 / 导出（video-shotcraft，400 行）
+│   ├── brief.js              # 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版（442 行）
 │   └── vendor/               # jpeg-js 解码器（BSD-3 / Apache-2.0）+ 两份许可原文
 ├── assets/
 │   ├── catalog.json          # 341 条风格索引（脚本生成，别手改）
@@ -221,10 +251,12 @@ dsh-art/
 │   ├── extract/
 │   │   ├── preview.png       #   README 里那张预览图（1600×1000）
 │   │   └── scene.png         #   预览图用的演示原图，可自己重跑一遍
-│   └── shots/
-│       ├── index.json        # 124 条卡片索引（tools/build-shots.mjs 生成）
-│       ├── cards/            # 124 张镜头配方卡，按 10 个分类分目录
-│       └── posters/          # 54 张 gallery 海报 JPG
+│   ├── shots/
+│   │   ├── index.json        # 124 条卡片索引（tools/build-shots.mjs 生成）
+│   │   ├── cards/            # 124 张镜头配方卡，按 10 个分类分目录
+│   │   └── posters/          # 54 张 gallery 海报 JPG
+│   └── companion/
+│       └── frontend-art-reference/SKILL.md   # 安装时复制到 ~/.agents/skills/ 的伴随技能
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
 │   ├── verify.mjs            # 自检（有镜像 153 项，无镜像 147 项；--refs 再加 12 项联网）
@@ -235,6 +267,7 @@ dsh-art/
 │   ├── fx.md                 # 特效库指南（导出后怎么用、怎么给非 JS 引擎）
 │   ├── extract.md            # 元素提取指南（量了什么、四类图、参数、局限）
 │   ├── shots.md              # 镜头卡指南（卡里有什么、十类分工、挑卡到成片、许可）
+│   ├── design.md             # 前端设计用法（何时先调 brief、五个数据源分工、配色与动效预算）
 │   ├── SKILL.md              # 给 Claude Code / Codex 一类 agent 的技能描述
 │   ├── attribution.md        # 素材与第三方致谢明细
 │   ├── rendering.md          # 代码动画的时间接口与录 MP4
@@ -271,11 +304,12 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：201 项（纯逻辑，不联网；隐藏 pixelfx 镜像后 195 项）
+node tools/verify.mjs                                      # 离线：214 项（纯逻辑，不联网）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
-覆盖：27 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150 的计数与磁盘文件是否一致、
+覆盖：28 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150 的计数与磁盘文件是否一致、
+设计路由是否认得出场景并给出可照抄的下一步调用（含三套索引全空时不崩）、
 索引里的 id 是否都能查到源文件、检索排序（含镜头卡的正文检索与多词 AND）、导出是否拒绝写进库内、
 特效能否在临时目录里真的渲出图，以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 

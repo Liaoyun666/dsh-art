@@ -1,16 +1,16 @@
 # 审查报告 · dsh-art（dsh-anim-pack）
 
-审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02；0.5.0 镜头卡更新：2026-11-03）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
+审查日期：2026-11-01（0.4.0 元素提取更新：2026-11-02；0.5.0 镜头卡更新：2026-11-03；0.6.0 设计路由更新：2026-11-03）　　审查范围：整个仓库　　方式：读源码 + 真跑命令 + 实际渲图看结果
 
 ## 结论
 
 | 维度 | 评分 | 依据 |
 |---|---|---|
-| 功能完整性 | A− | 27 个工具都在跑，五个数据源都有真实内容（341 / 193 / 244 / 本机提取 / 124 张镜头卡） |
-| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,401 行、`vision.js` 1,579 行、无类型约束 |
-| 测试 | B | 201 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
+| 功能完整性 | A− | 28 个工具都在跑，五个数据源都有真实内容（341 / 193 / 244 / 本机提取 / 124 张镜头卡）＋一个设计路由 |
+| 代码质量 | B+ | 模块边界清楚、零运行时依赖、错误信息是人话；短板是 `index.js` 1,433 行、`vision.js` 1,579 行、无类型约束 |
+| 测试 | B | 213 项自检含真渲染、真导出与「合成图 → 解码 → 分割 → 裁剪 → 报告」整链路，但没有单测框架、没有 mock 层 |
 | 可维护性 | B+ | 索引全脚本生成、可重建；缺 lint / format / CI 之外的守护 |
-| 文档 | A− | README / shots.md / SKILL.md / attribution 齐全，命令都能照抄 |
+| 文档 | A− | README / design.md / shots.md / SKILL.md / attribution 齐全，命令都能照抄 |
 | 仓库体积 | C+ | 约 100 MB，其中 59.9 MB 是三个示例 MP4 |
 | 合规 | B+ | 三种许可分得清、字体例外写清楚；素材条款是「禁止付费包装」而非标准开源许可 |
 
@@ -18,7 +18,9 @@
 
 ## 1. 它到底是什么
 
-一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 27 个 `anim_*` 工具，背后接五个数据源：
+一个 DSH 宿主侧插件（**没有客户端代码**），启动时注册 28 个 `anim_*` 工具，背后接五个数据源：
+27 个查数据的工具在前，1 个入口 `anim_design_brief` 把它们按「风格 / 镜头 / 特效 / 配色」
+重新排成一次调用，解决「工具太多、模型想不起来用」的问题。
 
 | 数据源 | 规模 | 实现 |
 |---|---|---|
@@ -27,6 +29,7 @@
 | pixelfx 特效 | 244 条 / 21 分类 / 244 张预览 | `lib/fx.js` + `assets/fx/catalog.json` |
 | 元素提取（本机） | 一张图 → 元素块 / 调色板 / 构图 / 提示词 | `lib/image.js` + `vision.js` + `prompt.js` + `extract.js` |
 | 镜头配方卡 | 124 张 / 10 分类 / 54 张海报（上游 150 个镜头风格） | `lib/shots.js` + `assets/shots/index.json` |
+| 设计路由 | 1 次调用 → 风格 + 镜头 + 特效 + 配色/版式/动效预算 | `lib/brief.js`，跨上面四组做检索与排版 |
 
 设计上有一处值得表扬：**索引与源码分离**。插件从不 `import` 任何特效模块，只读 JSON、源码文本和预渲染的 PNG。
 所以 244 条特效哪怕有语法错误，也不会把插件带崩；代价是索引可能过期（已用 `fxSourcePath()` + 自检兜住）。
@@ -37,7 +40,8 @@
 
 | 文件 | 行数 | 职责 |
 |---|---|---|
-| `lib/index.js` | 1,401 | 插件入口：27 个工具注册、配置规范化、卡片渲染 |
+| `lib/index.js` | 1,433 | 插件入口：28 个工具注册、配置规范化、卡片渲染 |
+| `lib/brief.js` | 442 | 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版 |
 | `lib/shots.js` | 419 | 镜头卡库：加载索引 / frontmatter 解析 / 检索（含正文）/ 导出 |
 | `lib/catalog.js` | 164 | 本地素材库：加载 / 检索 / 抽读 / 导出 |
 | `lib/refs.js` | 289 | 参考图库 HTTP 客户端：搜索 / 详情 / 下载 |
@@ -102,9 +106,9 @@
 
 | 命令 | 结果 |
 |---|---|
-| `node tools/verify.mjs` | **PASS — 201 项**（约 3 s，含真渲图、真提取与 124 张镜头卡） |
-| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 213 项**（201 + 12 项联网：真搜图、真下载两张） |
-| 无镜像时 `node tools/verify.mjs` | **PASS — 195 项**（自动降级，改测失败路径） |
+| `node tools/verify.mjs` | **PASS — 214 项**（约 3 s，含真渲图、真提取、124 张镜头卡与设计路由） |
+| `DSH_REF_BASE=<真实库> node tools/verify.mjs --refs` | **PASS — 226 项**（214 + 12 项联网：真搜图、真下载两张） |
+| 无镜像时 `node tools/verify.mjs` | **PASS — 208 项**（自动降级，改测失败路径） |
 | 七张真实图跑 `anim_extract` | 全部成功，0.03–1.1 s 一张（scene / framed-artwork / texture / sprite-sheet 四类都命中） |
 | `node tools/install.mjs` | 建 junction + 托管块成功；模块自检打印 341/193/10、244/21/73/244、124 张镜头卡 / 10 分类 / 54 海报 |
 | `node tools/build-fx.mjs` | 244 条 → 索引 279 KB，21 分类，244 张预览，无报错 |
@@ -116,7 +120,9 @@
 
 ### 3.2 覆盖到的
 
-- 27 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
+- 28 个工具**是否都注册**，以及**每个都能真的执行**（假 `ctx` 跑 `apply()`）。
+- 设计路由：认得出落地页 / 看板 / 游戏 UI（含中文 surface 名），输出五节齐全、给出可照抄的 `anim_show` / `anim_shot_show`，三套索引全空时给 build 命令而不是崩。
+- 伴随技能：装了就必须提到 `anim_design_brief`；没装则跳过（不假失败）。
 - 计数一致性：341 / 193 / 10、244 / 21 / 244 与磁盘文件逐个对得上。
 - 索引里每条 id 都能在镜像里找到源文件。
 - 检索：精确 id 优先、分类 / 循环 / 角色过滤、未知过滤条件返回空而不是乱给。
@@ -154,7 +160,7 @@
 
 ## 5. 性能
 
-- 自检约 3 s（新增 34 项提取检查，含现场造图与真渲染）；插件启动只读两个 JSON（279 KB + assets/catalog.json），不起服务。
+- 自检约 3 s（新增 34 项提取检查与设计路由检查，含现场造图与真渲染）；插件启动只读几个 JSON（279 KB + assets/catalog.json + 124 张卡索引），不起服务。
 - 元素提取实测（本机 CPU，单线程）：800×450 合成场景 0.40 s、480×269 精灵表 0.20 s、554×800 装裱画 1.03 s、400×560 油画 1.12 s、480×480 贴图 0.63 s、220×300 透明精灵 0.03 s。
   分析统一缩到长边 ≤1024，像素画按真实分辨率算，所以耗时稳定在 1 s 量级。
 - 工具调用是一次性读文件，没有常驻内存的大对象（`fx` 索引 244 条约 1 MB）。
@@ -188,10 +194,13 @@
   `anim_shot_preview` / `anim_shot_export` / `anim_shot_random` / `anim_shot_guide`（共 27 个工具）、`lib/shots.js`、
   `tools/build-shots.mjs`、`docs/shots.md`、`assets/shots/`（124 张卡 + 54 张海报 + 80 KB 索引），
   自检扩到 201 项（无镜像 195 项），README / SKILL.md / NOTICE（Apache-2.0 署名）同步。
+- **0.6.0 新增**：设计路由 `anim_design_brief`（第 28 个工具）＋ `lib/brief.js`、`docs/design.md`、
+  伴随技能 `assets/companion/frontend-art-reference/SKILL.md`（安装器复制到 `~/.agents/skills/`）；
+  27 个工具的描述统一补「什么时候该用」触发词；自检扩到 214 项（无镜像 208 项）。
 
 ## 8. 改进清单（按性价比排序）
 
-1. 拆 `lib/index.js`（1,401 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
+1. 拆 `lib/index.js`（1,433 行）→ `lib/tools/library.js`、`refs.js`、`fx.js`、`extract.js`，卡片渲染抽 `render-card.js`。
 2. 加 `eslint` + `tsc --allowJs --checkJs`，把 JSDoc 变成真的类型检查。
 3. 示例 MP4 移 Release，仓库从 99.1 MB 降到约 39 MB。
 4. 预览 PNG 量化/转 webp（24.2 MB → 6–8 MB）。
@@ -205,8 +214,8 @@
 ~~~bash
 cd dsh-art
 node tools/install.mjs --status          # 模块自检：341 条 / 193 张 / 10 系列；244 条 / 21 分类 / 73 带角色 / 244 预览；124 张镜头卡 / 10 分类 / 54 海报
-node tools/verify.mjs                    # PASS — 201 项（无镜像时 PASS — 195 项）
-node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 213 项
+node tools/verify.mjs                    # PASS — 214 项（无镜像时 PASS — 208 项）
+node tools/verify.mjs --refs             # 需 DSH_REF_BASE 指向真实库：PASS — 226 项
 node tools/build-fx.mjs                  # 重建索引：244 条 → 279 KB
 node tools/extract.mjs <图> --out /tmp/x  # 命令行提取：裁块 + 色板 + 接触表 + report.md
 ~~~
@@ -293,3 +302,57 @@ CI：`.github/workflows/verify.yml` 在 ubuntu-latest + node 22 上跑无镜像�
 - 这张图同时也是一份回归样本：`scene.png` 留在仓库里，谁都能重跑 `node tools/extract.mjs assets/extract/scene.png` 对上号。
 - 老实说：排版用的那个 PIL 脚本是一次性的，没随仓库发（插件要求零依赖，不往里塞 python）。图本身和源图都在，
   要改字改色得重写一遍排版；要重新提取数据则是上面那条命令。
+
+## 12. 0.6.0：前端设计路由（2026-11-03）
+
+### 12.1 为什么加
+
+0.5.0 之后是 27 个工具、五个数据源。**工具多不等于会被用**：原来每条 description 只说明
+「能查什么」，模型在「帮我做个落地页」这类任务里不会主动去翻工具列表，靠用户点名才动。
+这次解决的就是触发率问题，同时把「一次找齐参考」的成本从四五次调用降到一次。
+
+### 12.2 新增了什么
+
+| 文件 | 行数 | 作用 |
+|---|---|---|
+| `lib/brief.js` | 442 | 场景识别（8 种 surface，认 id / 中文名 / 关键词）、关键词加权（英文整词 1.5、中文 2–3 字 n-gram 1–1.6、感觉词扩展 2）、跨三套索引检索、6 套配色预设、4 条动效硬指标、参考包排版 |
+| `lib/index.js` | 1,433 | 新增第 28 个工具 `anim_design_brief`；27 个既有工具 description 统一补触发词 |
+| `assets/companion/frontend-art-reference/SKILL.md` | 40 | 伴随技能：description 带前端/UI/海报触发场景，正文教「先 brief 再深读 2–3 次」 |
+| `tools/install.mjs` | 248 | 安装时写伴随技能、`--status` 报告、`--uninstall` 只删带托管标记的那份 |
+| `docs/design.md` | 164 | 指南：何时调、参数、输出结构、五个数据源分工、配色与动效预算、选型排查、常见坑 |
+
+工具行为：输入 `task`（必填）+ `surface` / `mood` / `palette` / `motion` / `limit`，
+输出 ① 3 条风格 ② 3–6 张镜头卡 ③ 3–4 条像素特效 ④ 配色 + 版式 + 动效硬指标 ⑤ 下一步调用顺序，
+每条候选都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")`。只有一条 6,000 字符上限，不落盘。
+
+### 12.3 怎么验的
+
+- 冒烟（真实索引）：`task="深色科技风的 AI 写作产品落地页"` → `surface=web-landing`、风格 R6/K34/L42、
+  镜头 opening/magician-card-flourish、ui-entrance/neon-frame-forerun、effects/spotlight-sweep-moves、
+  typography/word-relay-filmstrip，配色「冷色科技」；
+  `surface="dashboard"` → data/chart-live-moves 等 4 张；`surface="游戏 UI"` → fx 命中 ui/health-bar-hit；
+  `surface="illustration"`（小王子海报）→ fx critters/wisp、nature/leaf-storm、weather/aurora；
+  「做个好看的页面」→ 退回 generic 也有结果；三套索引全 null → 输出三条 build 命令，不崩。
+- 断言进 `tools/verify.mjs`：注册 28 个工具、brief 五节齐全、给出可照抄调用、显式 surface 优先、
+  中文 surface 名、空任务也给通用包、输出 < 6,000 字符、`resolveSurface` / `tokensOf` 纯函数、
+  空索引降级、伴随技能装了就必须提到 `anim_design_brief`。
+- `node tools/verify.mjs` → **PASS — 214 项**。
+
+### 12.4 踩到并修掉的坑
+
+1. **函数名撞车**：`lib/prompt.js` 早有一个 `buildBrief`（生图提示词），verify 同时 import 两者会重名 ——
+   路由侧改名 `buildDesignBrief`，导出与调用点一起改。
+2. **镜头卡标题是一整句话**：原样塞进 brief 会一条撑到几百字，改成截断 46 字，正文交给 `anim_shot_show`。
+3. **场景判断顺序**：开头写成「先按 task 猜、再被显式 surface 覆盖」，结果显式给了 `dashboard` 仍被
+   task 里的「落地页」抢走 —— 改成 `explicit.id !== 'generic' ? explicit : resolveSurface(task)`。
+4. **特效不看场景**：只看关键词时 HUD 拿不到血条类特效；每类补 `fxHints` 关键词并按场景 +0.9 加权。
+5. **技能正文里嵌套反引号**：最初把 SKILL.md 正文写成 install.mjs 里的模板字符串，反引号直接语法错 ——
+   改成正文随包发在 `assets/companion/`，安装器只负责复制。
+
+### 12.5 已知限制
+
+- 选型是关键词打分，不是语义模型：任务描述太泛时会给不准，补 `surface` / `mood` 通常立刻变好。
+- brief 只读不写：要落盘卡片或特效，仍需 `anim_shot_export` / `anim_fx_export` 并给 `dir`。
+- 伴随技能只是「提醒入口」，不保证每次都被模型读到；真正的兜底仍是用户点名工具。
+- 触发率没有量化指标：只做了新会话手测（问「做个深色风落地页」，第一步是否调 brief），没有 A/B 数据。
+

@@ -1,7 +1,7 @@
 # dsh-anim-pack：把 341 种代码动画风格提示词 + 244 条像素特效 + 124 张镜头配方卡
 # 做成常驻的本地素材包。
 #
-# 宿主侧插件（无 client 代码）：启动时挂 27 个 anim_* 工具。
+# 宿主侧插件（无 client 代码）：启动时挂 28 个 anim_* 工具。
 #   7 个管本地素材库（本包 assets/library/，换库改 config.libraryPath）；
 #   4 个管第二个数据源——自建美术参考图库（anim_ref_sources / anim_ref_search /
 #     anim_ref_show / anim_ref_pick）。地址按 config.refBase → 环境变量 DSH_REF_BASE →
@@ -17,6 +17,10 @@
 #     show / preview / export / random / guide）：124 张卡 / 10 分类 / 54 张海报，
 #     卡片与海报随包发在 assets/shots/，索引由 node tools/build-shots.mjs 生成；
 #     换索引路径改 config.shotsPath，导出缺省目录 config.shotsExportDir。
+#   1 个是路由（anim_design_brief）：把上面几组数据源按「风格 / 镜头 / 特效 / 配色」
+#     揉成一次调用，做前端、界面、海报之前先调它拿参考包。
+#     安装时另写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
+#     让模型在设计工作里主动想起这些工具（卸载时一并撤掉）。
 #
 # 安装（建 junction + 把本文件登记进 profile 补丁层）：
 #   node tools/install.mjs            # 默认 desktop profile

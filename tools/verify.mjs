@@ -8,7 +8,8 @@
  * 编号查找、关键词与系列检索、读提示词、导出到临时目录、拒绝写进库内部，
  * 第二个数据源（自建美术素材库）客户端的离线单测，第三个数据源
  * （镜像进来的 patch-gg/pixelfx：244 个特效）的索引、查找、导出与真渲染，
- * 以及第四个数据源（本地元素提取）的解码、分割、裁剪、提示词与工具入口。
+ * 以及第四个数据源（本地元素提取）的解码、分割、裁剪、提示词与工具入口，
+ * 第五个数据源（video-shotcraft 镜头卡）与前端设计路由 anim_design_brief 的选型逻辑。
  * 全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
  *
  *   node tools/verify.mjs --refs     额外跑联网检查：真的去素材库搜图、取详情、下载一张图。
@@ -17,7 +18,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -82,6 +83,12 @@ import {
   extract,
   upscaleNearest,
 } from '../lib/extract.js'
+
+import {
+  buildDesignBrief as buildDesignBriefPure,
+  resolveSurface,
+  tokensOf,
+} from '../lib/brief.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const EXPECTED_TOTAL = 341
@@ -339,13 +346,14 @@ try {
   rmSync(fxWorkDir, { recursive: true, force: true })
 }
 
-// ── 插件注册：用假 ctx 跑一遍 apply()，27 个工具都得能真的执行 ─────────────
+// ── 插件注册：用假 ctx 跑一遍 apply()，28 个工具都得能真的执行 ─────────────
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
 apply(fakeCtx, {})
 
 const TOOL_NAMES = [
+  'anim_design_brief',
   'anim_list_series', 'anim_search', 'anim_show', 'anim_still', 'anim_export', 'anim_random', 'anim_guide',
   'anim_ref_sources', 'anim_ref_search', 'anim_ref_show', 'anim_ref_pick',
   'anim_fx_stats', 'anim_fx_search', 'anim_fx_show', 'anim_fx_preview', 'anim_fx_export', 'anim_fx_random', 'anim_fx_guide',
@@ -354,7 +362,7 @@ const TOOL_NAMES = [
   'anim_shot_export', 'anim_shot_random', 'anim_shot_guide',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 27 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 28 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -758,6 +766,38 @@ const shotRandomOut = await callTool('anim_shot_random', { category: 'outro' })
 check('anim_shot_random 限定分类能抽到', shotRandomOut.includes('（outro）'), shotRandomOut.slice(0, 80))
 const shotGuide = await callTool('anim_shot_guide')
 check('anim_shot_guide 读到镜头卡指南', shotGuide.length > 2000 && shotGuide.includes('anim_shot_search'), String(shotGuide.length))
+
+// ── 前端设计路由：一次调用给出风格 / 镜头 / 特效 / 配色，且说清下一步调谁 ──
+const briefOut = await callTool('anim_design_brief', { task: '深色科技风的 AI 写作产品落地页' })
+check('anim_design_brief 输出前端设计参考包', briefOut.includes('# 前端设计参考包') && briefOut.includes('## ⑤ 下一步'), briefOut.slice(0, 80))
+check('brief 从任务描述认出落地页场景', briefOut.includes('surface=web-landing'), briefOut.slice(0, 220))
+check('brief 给出能直接照抄的下一次调用',
+  /anim_show\(id="/.test(briefOut) && /anim_shot_show\(id="/.test(briefOut), briefOut.slice(-320))
+check('brief 带配色方案与版式要点',
+  briefOut.includes('## ④ 配色与排版') && briefOut.includes('- 版式：'), briefOut.slice(0, 400))
+
+const dashBrief = await callTool('anim_design_brief', { task: '做个数据看板', surface: 'dashboard' })
+check('显式 surface 优先于从任务猜（dashboard）', dashBrief.includes('surface=dashboard'), dashBrief.slice(0, 200))
+const hudBrief = await callTool('anim_design_brief', { task: 'FPS 血条和准心', surface: '游戏 UI' })
+check('surface 认中文名（游戏 UI → game-ui）', hudBrief.includes('surface=game-ui'), hudBrief.slice(0, 200))
+const blankBrief = await callTool('anim_design_brief', {})
+check('没写任务也照样给通用包', blankBrief.includes('# 前端设计参考包') && blankBrief.includes('（没写'), blankBrief.slice(0, 200))
+check('brief 输出不臃肿（一条 < 6000 字符）', briefOut.length < 6000, String(briefOut.length))
+
+check('resolveSurface 认中文场景名', resolveSurface('仪表盘').id === 'dashboard' && resolveSurface('游戏 UI').id === 'game-ui')
+check('resolveSurface 认不出时回 generic', resolveSurface('乱七八糟的东西').id === 'generic')
+const toks = tokensOf('深色科技风 AI 写作落地页')
+check('tokensOf 拆出中英文关键词并带权重', toks.some((row) => row.token === '科技') && toks.some((row) => row.token === 'ai') && toks.every((row) => row.weight > 0), JSON.stringify(toks.slice(0, 6)))
+const loneBrief = buildDesignBriefPure({ task: '做个页面' }, { styles: null, shots: null, fx: null })
+check('三套索引全空时 brief 给 build 命令而不是崩', /build-catalog\.mjs/.test(loneBrief.text) && /build-shots\.mjs/.test(loneBrief.text) && /build-fx\.mjs/.test(loneBrief.text), loneBrief.text.slice(0, 200))
+
+const companion = join(homedir(), '.agents', 'skills', 'frontend-art-reference', 'SKILL.md')
+if (existsSync(companion)) {
+  const body = readFileSync(companion, 'utf8')
+  check('伴随技能 frontend-art-reference 已安装且提到 brief', body.includes('anim_design_brief'), companion)
+} else {
+  console.log('  · 跳过：伴随技能还没装（node tools/install.mjs 会写）')
+}
 
 // ── 联网检查（node tools/verify.mjs --refs）：真的搜图、看详情、下载一张 ────
 // 只有 --refs 且地址不是占位时才跑：DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs
