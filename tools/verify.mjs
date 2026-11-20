@@ -18,6 +18,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
+import { createContext, Script } from 'node:vm'
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
@@ -909,6 +910,115 @@ if (LIVE) {
     check('联网 · 未知 id 给提示而不是抛错', missingOut.includes('没有 id'), missingOut.slice(0, 80))
   } finally {
     rmSync(liveDir, { recursive: true, force: true })
+  }
+}
+
+// ── 网页卡片（lib/client.js）────────────────────────────────────────────────
+// 前端 bundle 不参与工具逻辑，但它是插件里最容易静默坏掉的一块：语法错、漏注册、
+// 忘了在 package.json 里声明 dsh.client，浏览器里都只是"没反应"。这里在 Node 里
+// 用假的 loader / React 跑一遍，至少保证它能解析、能注册满 31 个视图。
+{
+  const clientPath = join(ROOT, 'lib', 'client.js')
+  check('lib/client.js 存在', existsSync(clientPath))
+  if (existsSync(clientPath)) {
+    const clientSource = readFileSync(clientPath, 'utf8')
+    check('lib/client.js 非空', clientSource.length > 2000, `${clientSource.length} 字节`)
+
+    let compiled
+    try {
+      compiled = new Script(clientSource, { filename: 'client.js' })
+      check('lib/client.js 语法通过', true)
+    } catch (error) {
+      check('lib/client.js 语法通过', false, error.message)
+    }
+
+    if (compiled !== undefined) {
+      const views = new Map()
+      const fakeReact = {
+        createElement: (type, props, ...children) => ({ type, props: props ?? {}, children }),
+        useState: (initial) => [typeof initial === 'function' ? initial() : initial, () => {}],
+        useMemo: (factory) => factory(),
+        useEffect: () => {},
+      }
+      const sandbox = { console, setTimeout, document: { createElement: () => ({ dataset: {}, textContent: '', remove() {} }), head: { appendChild() {} } } }
+      sandbox.window = { __ModuleLoader__: { load: (entry) => { sandbox.entry = entry } } }
+      try {
+        compiled.runInContext(createContext(sandbox))
+        const entry = sandbox.entry
+        check('bundle 走 window.__ModuleLoader__.load', entry?.id === 'dsh-anim-pack', String(entry?.id))
+        const mod = entry.factory((name) => {
+          if (name === 'react') return fakeReact
+          throw new Error('未预期的 require: ' + name)
+        })
+        check('exports.inject = ["slots"]', Array.isArray(mod.inject) && mod.inject.includes('slots'), JSON.stringify(mod.inject))
+        mod.apply({
+          effect: (fn) => fn(),
+          plugin: (plugin) => plugin.apply({
+            slots: {
+              inject: (name, callback) => callback(),
+              register: (options, component) => { views.set(options.key, component) },
+            },
+          }),
+        })
+        const missing = TOOL_NAMES.filter((name) => !views.has(name))
+        check('31 个 anim_* 都注册了卡片视图', missing.length === 0, missing.join(', '))
+        check('注册的视图都是函数组件', [...views.values()].every((component) => typeof component === 'function'))
+
+        // 拿一张卡片真的渲染一次：运行中 / 结算带图 / 失败
+        const render = (node, out = []) => {
+          if (node === null || node === undefined || node === false) return out
+          if (Array.isArray(node)) { node.forEach((child) => render(child, out)); return out }
+          if (typeof node !== 'object') return out
+          if (typeof node.type === 'function') { render(node.type({ ...node.props, children: node.children }), out); return out }
+          out.push(node)
+          render(node.children, out)
+          return out
+        }
+        const view = views.get('anim_fx_preview')
+        const running = render(view({ toolName: 'anim_fx_preview', phase: 'start', block: { argsRaw: '{"ids":["fire/torch"]}' } }))
+        check('运行中显示「运行中…」', running.some((el) => el.props.className === 'dap-sum' && el.children.join('').includes('运行中')))
+
+        const settled = render(view({
+          toolName: 'anim_fx_preview',
+          phase: 'result',
+          openFile: () => {},
+          block: {
+            kind: 'tool-result',
+            isError: false,
+            call: { name: 'anim_fx_preview', argsRaw: '{"ids":["fire/torch"]}' },
+            content: [{ type: 'text', text: '预览拼图：C:\\Temp\\fx.png\n源码：E:\\工作区\\lib\\fx.js' }],
+          },
+        }))
+        check('结算后在行上标出「图 1」', settled.some((el) => el.props.className === 'dap-chip' && el.children.join('') === '图 1'))
+        check('参数出现在摘要里', settled.some((el) => el.props.className === 'dap-sum' && el.children.join('').includes('fire/torch')))
+        check('正常结果默认折叠（不打扰）', settled.every((el) => el.props.className !== 'dap-body'))
+
+        const failed = render(view({
+          toolName: 'anim_fx_preview',
+          phase: 'result',
+          openFile: () => {},
+          block: {
+            kind: 'tool-result',
+            isError: true,
+            error: { name: 'Error', code: 'not_found' },
+            call: { argsRaw: '{}' },
+            content: [{ type: 'text', text: '找不到，参考 C:\\Temp\\fx.png 与 E:\\工作区\\lib\\fx.js' }],
+          },
+        }))
+        check('失败态显示红色「失败」标记', failed.some((el) => String(el.props.className).includes('dap-chip-err')))
+        check('失败态自动展开正文', failed.some((el) => el.props.className === 'dap-body'))
+        check('展开后图片路径变缩略图', failed.filter((el) => el.props.className === 'dap-thumb').length === 1)
+        check('展开后源码路径变可点链接', failed.some((el) => el.props.className === 'dap-link' && el.children.join('').endsWith('fx.js')))
+        check('图片路径在正文里也是链接（点了直接开图）', failed.some((el) => el.props.className === 'dap-link' && el.children.join('').endsWith('fx.png')))
+      } catch (error) {
+        check('bundle 能在假环境里跑起来', false, error.message)
+      }
+    }
+
+    const manifest = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
+    check('package.json 声明了 dsh.client.platform = web', manifest.dsh?.client?.platform === 'web', JSON.stringify(manifest.dsh?.client))
+    check('package.json exports["./client"] 指向 lib/client.js', manifest.exports?.['./client'] === './lib/client.js', String(manifest.exports?.['./client']))
+    check('peerDependencies 带 react', typeof manifest.peerDependencies?.react === 'string')
   }
 }
 

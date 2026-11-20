@@ -153,6 +153,38 @@ node tools/verify.mjs             # 237 项检查（纯离线，不用联网）
 安装器会顺手写一份伴随技能 `~/.agents/skills/frontend-art-reference/SKILL.md`，
 让模型在「做前端 / 界面 / 海报」时想起这条入口（卸载时一并撤掉，手写的同名技能不会被覆盖删除）。
 
+### 网页里的卡片（31 个工具都有）
+
+在 DSH 网页端，每个 `anim_*` 调用是一张自己的卡片，不再是写着「工具调用」的通用行：
+
+- **行**：家族图标 + 中文标题 + 关键参数 + 结果规模。例如 `🎬 检索镜头卡 · 墨线 开场 · 图 6`，失败时多一个红色「失败」。
+- **展开**：参数 chips、图片墙（预览拼图 / 海报 / 缩略图直接出图，点一下开原图）、正文（正文里的绝对路径是可点链接，点了直接开文件）。
+- 失败自动展开，正常结果默认折叠，不打断阅读。
+
+| 图标 | 家族 | 工具 |
+|---|---|---|
+| 🔍 | 检索 | `anim_search` `anim_fx_search` `anim_ref_search` `anim_shot_search` |
+| 📄 | 详情 | `anim_show` `anim_fx_show` |
+| 🖼 | 静帧 / 海报 / 参考图 | `anim_still` `anim_shot_preview` `anim_ref_show` |
+| 🎞 | 预览图 | `anim_fx_preview` |
+| 🎲 | 随机 | `anim_random` `anim_fx_random` `anim_ref_pick` `anim_shot_random` |
+| 📦 | 导出 | `anim_export` `anim_fx_export` `anim_shot_export` |
+| 📊 | 概况 | `anim_fx_stats` `anim_shot_stats` |
+| 🗂 | 系列 / 图库 | `anim_list_series` `anim_ref_sources` |
+| 🧩 | 元素提取 | `anim_extract` |
+| 🎨 | 设计工艺 | `anim_design_brief` `anim_design_anchors` `anim_design_patterns` `anim_design_audit` |
+| 📘 | 指南 | `anim_guide` `anim_fx_guide` `anim_extract_guide` `anim_shot_guide` |
+
+实现只用了一个宿主扩展点和一个只读接口：
+
+- `tool.call.toolview` 插槽，按 wire 名注册（`key: "anim_fx_preview"`），命中即替换整行，所以卡片自己负责运行中 / 失败 / 折叠这几种形态；
+- `GET /api/file?path=<绝对路径>`，本地图片由 DSH 自己鉴权后返回，前端直接 `<img>` 即可，不用把图读成 base64。
+
+样式全部走宿主 CSS 变量（`--dsw-alias-*` / `--dsh-content-*`），明暗主题自动跟随，没有硬编码底色；
+除 `react` 外零依赖，也没有构建步骤——`lib/client.js` 就是手写的浏览器 bundle。
+
+改完 `lib/client.js` 需要**重启 DSH** 才会加载（客户端 bundle 在启动时编入）。`node tools/verify.mjs` 里有一组离线检查会把这份 bundle 在假环境里跑一遍，防止语法错或漏注册。
+
 ## 3. 六条典型流程
 
 ### 流程一：一句话 → 一段过场动画
@@ -246,6 +278,7 @@ dsh-art/
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
 │   ├── index.js              # 插件入口：31 个工具注册、配置规范化、渲染成文本卡片（1,588 行）
+│   ├── client.js             # 浏览器端卡片：tool.call.toolview 视图、图片墙、路径链接（352 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
 │   ├── fx.js                 # 特效库：索引加载 / 检索 / 源码 / 导出小项目（403 行）
@@ -285,7 +318,7 @@ dsh-art/
 │       └── frontend-art-reference/SKILL.md   # 安装时复制到 ~/.agents/skills/ 的伴随技能
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（离线 237 项；--refs 再加 12 项联网）
+│   ├── verify.mjs            # 自检（离线 256 项；--refs 再加 12 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
 │   ├── build-shots.mjs       # 从 assets/shots/cards 重建镜头卡索引（--check 校验）
 │   ├── build-design.mjs      # 校验设计工艺库并重建计数索引（--check 校验）
@@ -332,7 +365,7 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：237 项（纯逻辑，不联网）
+node tools/verify.mjs                                      # 离线：256 项（纯逻辑，不联网）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网
 ~~~
 
@@ -340,7 +373,9 @@ DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项�
 设计路由是否认得出场景并给出可照抄的下一步调用（含三套索引全空时不崩）、
 工艺库每条锚点是否六个 token 齐全、每条模式是否带可抄的 CSS、每条准则是否有查法与严重度、三个工艺工具的输出是否成篇、
 索引里的 id 是否都能查到源文件、检索排序（含镜头卡的正文检索与多词 AND）、导出是否拒绝写进库内、
-特效能否在临时目录里真的渲出图，以及「镜像不在时」的降级路径（要给人话，不能崩）。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
+特效能否在临时目录里真的渲出图、「镜像不在时」的降级路径（要给人话，不能崩），
+以及浏览器卡片那一块：bundle 能否解析、31 个视图是否注册齐、运行中 / 结算 / 失败三种形态是否都长得对、
+图片路径有没有变成缩略图、源码路径有没有变成链接、`package.json` 的 `dsh.client` 声明是否还在。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 
 ## 7. 许可（三种，别混）
 
