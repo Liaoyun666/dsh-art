@@ -1,7 +1,7 @@
-# dsh-anim-pack（V1.0）：把 341 种代码动画风格提示词 + 244 条像素特效 + 124 张镜头配方卡
-# + 一套设计工艺库 + 一个外接素材库做成常驻的本地素材包。
+# dsh-anim-pack（V1.1）：把 341 种代码动画风格提示词 + 244 条像素特效 + 124 张镜头配方卡
+# + 一套设计工艺库 + 一个外接素材库 + 一套文字与前端美化配方做成常驻的本地素材包。
 #
-# 宿主侧插件（无 client 代码）：启动时挂 36 个 anim_* 工具。
+# 宿主侧插件（无 client 代码）：启动时挂 46 个 anim_* 工具。
 #   7 个管本地素材库（本包 assets/library/，换库改 config.libraryPath）；
 #   4 个管第二个数据源——自建美术参考图库（anim_ref_sources / anim_ref_search /
 #     anim_ref_show / anim_ref_pick）。地址按 config.refBase → 环境变量 DSH_REF_BASE →
@@ -26,8 +26,13 @@
 #     + ambientCG / Poly Haven 的 CC0 材质与 HDRI；另有九个外接位（Kenney / LottieFiles
 #     / Google Fonts 等）只登记入口。地址 config.assetBase → 环境变量 DSH_ASSET_BASE；
 #     缓存 config.assetCacheDir；超时 config.assetTimeoutMs。
-#   1 个是路由（anim_design_brief）：把上面几组数据源按「风格 / 镜头 / 特效 / 工艺 / 配色」
-#     揉成一次调用，做前端、界面、海报之前先调它拿参考包。
+#   10 个管第八个数据源——文字与前端美化（anim_type_stats / search / show / export、
+#     anim_font_search / anim_font_css、anim_brand_kit、anim_background、anim_icon_group、
+#     anim_type_audit）：180 条配方（37 艺术字 / 16 文字动效 / 32 装饰件 / 14 背景 /
+#     10 家插画外接）+ 71 条字体种子；数据随包发在 assets/type/（六份 JSON），
+#     换路径改 config.typePath，导出缺省目录 config.typeExportDir。
+#   1 个是路由（anim_design_brief）：把上面几组数据源按「风格 / 镜头 / 特效 / 工艺 /
+#     字体 / 配色」揉成一次调用，做前端、界面、海报之前先调它拿参考包。
 #     安装时另写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
 #     让模型在设计工作里主动想起这些工具（卸载时一并撤掉）。
 #

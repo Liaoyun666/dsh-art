@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:46:44.642Z",
+  "count": 14,
+  "entries": [
+    {
+      "id": "mesh",
+      "name": "网格渐变（Mesh）",
+      "when": "SaaS/AI 首屏，最百搭的一招",
+      "tags": [
+        "渐变",
+        "mesh",
+        "首屏"
+      ],
+      "params": "3–4 个色团，位置分散，不要对称",
+      "defaults": {
+        "c1": "#7c3aed",
+        "c2": "#06b6d4",
+        "c3": "#f472b6",
+        "base": "#0b1020"
+      },
+      "css": "background:radial-gradient(55% 65% at 18% 22%,{c1}cc,transparent 70%),radial-gradient(50% 60% at 82% 28%,{c2}b3,transparent 72%),radial-gradient(60% 70% at 50% 95%,{c3}80,transparent 70%),{base}"
+    },
+    {
+      "id": "aurora",
+      "name": "极光带",
+      "when": "暗色高级感、AI/创作工具落地页",
+      "tags": [
+        "极光",
+        "暗色",
+        "高级"
+      ],
+      "params": "2–3 条斜向光带，blur 40–80px",
+      "defaults": {
+        "c1": "#22d3ee",
+        "c2": "#a78bfa",
+        "base": "#050816"
+      },
+      "css": "background:linear-gradient(115deg,transparent 30%,{c1}55 45%,transparent 55%),linear-gradient(65deg,transparent 35%,{c2}4d 50%,transparent 65%),{base}",
+      "extra": "可再叠 filter:blur(30px) 的伪元素做柔化"
+    },
+    {
+      "id": "noise-gradient",
+      "name": "噪点渐变",
+      "when": "品牌页/封面，想要胶片颗粒",
+      "tags": [
+        "噪点",
+        "渐变",
+        "胶片"
+      ],
+      "params": "双色渐变 + 噪点 8%",
+      "defaults": {
+        "c1": "#1e1b4b",
+        "c2": "#0f766e",
+        "base": "#0a0a0a"
+      },
+      "css": "background:radial-gradient(70% 90% at 20% 10%,{c1},transparent 65%),radial-gradient(60% 80% at 85% 80%,{c2},transparent 65%),{base}",
+      "extra": "叠 .tx-noise（opacity .08）"
+    },
+    {
+      "id": "grid",
+      "name": "细网格",
+      "when": "技术/开发者工具/仪表盘底",
+      "tags": [
+        "网格",
+        "技术",
+        "仪表盘"
+      ],
+      "params": "24–32px 格，线 6% 透明",
+      "defaults": {
+        "c1": "#e4e4e7",
+        "base": "#fafafa",
+        "size": "28px"
+      },
+      "css": "background-color:{base};background-image:linear-gradient({c1} 1px,transparent 1px),linear-gradient(90deg,{c1} 1px,transparent 1px);background-size:{size} {size}"
+    },
+    {
+      "id": "dots",
+      "name": "点阵",
+      "when": "轻量背景、空状态、卡片底",
+      "tags": [
+        "点阵",
+        "轻量",
+        "极简"
+      ],
+      "params": "点 1.5–2px，间距 16–24px",
+      "defaults": {
+        "c1": "#d4d4d8",
+        "base": "#ffffff",
+        "size": "18px"
+      },
+      "css": "background-color:{base};background-image:radial-gradient({c1} 1.4px,transparent 1.6px);background-size:{size} {size}"
+    },
+    {
+      "id": "blueprint",
+      "name": "蓝图",
+      "when": "工程/建筑/硬件产品",
+      "tags": [
+        "蓝图",
+        "工程",
+        "深色"
+      ],
+      "params": "深蓝底 + 白线 10%，可加十字",
+      "defaults": {
+        "c1": "#ffffff22",
+        "base": "#0b2a4a",
+        "size": "24px"
+      },
+      "css": "background-color:{base};background-image:linear-gradient({c1} 1px,transparent 1px),linear-gradient(90deg,{c1} 1px,transparent 1px);background-size:{size} {size};box-shadow:inset 0 0 160px #0009"
+    },
+    {
+      "id": "paper",
+      "name": "纸纹",
+      "when": "国风/书籍/手作/请柬",
+      "tags": [
+        "纸",
+        "国风",
+        "纹理"
+      ],
+      "params": "米白 #faf6ee + 6–10px 网点",
+      "defaults": {
+        "c1": "#e7dfd2",
+        "base": "#faf6ee",
+        "size": "7px"
+      },
+      "css": "background-color:{base};background-image:radial-gradient({c1} 1px,transparent 1px);background-size:{size} {size}"
+    },
+    {
+      "id": "starfield",
+      "name": "星空",
+      "when": "航天/游戏/暗色活动页",
+      "tags": [
+        "星空",
+        "暗色",
+        "游戏"
+      ],
+      "params": "三层不同密度点，尺寸 1–2px",
+      "defaults": {
+        "c1": "#ffffff",
+        "base": "#050510"
+      },
+      "css": "background-color:{base};background-image:radial-gradient(1.5px 1.5px at 20% 30%,{c1},transparent),radial-gradient(1px 1px at 70% 60%,{c1}cc,transparent),radial-gradient(1.2px 1.2px at 40% 80%,{c1}99,transparent);background-size:220px 220px,180px 180px,260px 260px"
+    },
+    {
+      "id": "waves",
+      "name": "同心波",
+      "when": "声波/雷达/数据产品",
+      "tags": [
+        "波纹",
+        "声波",
+        "数据"
+      ],
+      "params": "repeating-radial 20–40px，线 8%",
+      "defaults": {
+        "c1": "#22d3ee",
+        "base": "#06121f"
+      },
+      "css": "background:repeating-radial-gradient(circle at 50% 50%,{c1}22 0 1px,transparent 1px 28px),{base}"
+    },
+    {
+      "id": "conic",
+      "name": "锥形扫光",
+      "when": "加载/科技/放射视觉",
+      "tags": [
+        "锥形",
+        "放射",
+        "科技"
+      ],
+      "params": "conic 0→360，两个亮区",
+      "defaults": {
+        "c1": "#7c3aed",
+        "c2": "#06b6d4",
+        "base": "#0a0a0a"
+      },
+      "css": "background:conic-gradient(from 210deg at 50% 50%,{base},{c1},{base} 40%,{c2},{base} 75%),{base}"
+    },
+    {
+      "id": "spotlight",
+      "name": "顶部聚光",
+      "when": "产品主视觉、舞台、暗色首屏",
+      "tags": [
+        "聚光",
+        "暗色",
+        "舞台"
+      ],
+      "params": "radial 50% 60% at 50% 0",
+      "defaults": {
+        "c1": "#ffffff",
+        "base": "#0a0a0a"
+      },
+      "css": "background:radial-gradient(50% 60% at 50% 0%,{c1}38,transparent 70%),{base}"
+    },
+    {
+      "id": "diagonal",
+      "name": "斜条纹",
+      "when": "公告/促销/复古海报",
+      "tags": [
+        "条纹",
+        "促销",
+        "复古"
+      ],
+      "params": "45°，两色各 8–16px",
+      "defaults": {
+        "c1": "#f59e0b",
+        "c2": "#b45309"
+      },
+      "css": "background:repeating-linear-gradient(45deg,{c1} 0 12px,{c2} 12px 24px)"
+    },
+    {
+      "id": "halftone",
+      "name": "半调网点",
+      "when": "漫画/波普/印刷风",
+      "tags": [
+        "半调",
+        "波普",
+        "印刷"
+      ],
+      "params": "点径随距离变化（用两层反向渐变近似）",
+      "defaults": {
+        "c1": "#111",
+        "base": "#fff"
+      },
+      "css": "background-color:{base};background-image:radial-gradient({c1} 1.5px,transparent 1.6px),radial-gradient({c1} 1px,transparent 1.1px);background-size:10px 10px,10px 10px;background-position:0 0,5px 5px;opacity:.9"
+    },
+    {
+      "id": "topo",
+      "name": "等高线",
+      "when": "户外/地理/数据叙事",
+      "tags": [
+        "等高线",
+        "地理",
+        "户外"
+      ],
+      "params": "多层椭圆环，轻微错位",
+      "defaults": {
+        "c1": "#16a34a",
+        "base": "#f0fdf4"
+      },
+      "css": "background:radial-gradient(60% 45% at 30% 40%,transparent 62%,{c1}33 62.5% 63.5%,transparent 64%),radial-gradient(55% 50% at 62% 60%,transparent 55%,{c1}2e 55.5% 56.5%,transparent 57%),radial-gradient(70% 55% at 45% 75%,transparent 70%,{c1}26 70.5% 71.5%,transparent 72%),{base}"
+    }
+  ]
+}

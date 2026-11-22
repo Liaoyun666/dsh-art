@@ -24,8 +24,9 @@ PPT / 海报 / 插画 / 配色 / 动效 / 转场 / 图标」这类词，**先取
   已有品牌色就写 palette。
 
 返回里依次是：① 3 条风格选型（含 anim_show 调用）② 3–6 张镜头配方卡
-（含 anim_shot_show 调用）③ 像素特效候选 ④ 配色方案 + 版式 + 动效硬指标
-⑤ 下一步调用顺序。**照第 ⑤ 节调 2–3 次就够，不要一口气全读。**
+（含 anim_shot_show 调用）③ 1–2 条美学锚点 ④ 像素特效候选 ⑤ 配色方案 + 版式 + 动效硬指标
+⑥ 字体与文字样式（品牌套件 + 艺术字/动效/装饰/背景配方）⑦ 下一步调用顺序。
+**照第 ⑦ 节调 2–3 次就够，不要一口气全读。**
 
 ## 第二步：按需深读
 
@@ -34,6 +35,13 @@ PPT / 海报 / 插画 / 配色 / 动效 / 转场 / 图标」这类词，**先取
   想看画面就 `anim_shot_preview(ids=[...])`（一次最多 12 张海报）
 - 要能直接跑的动画代码 → `anim_fx_show(id="…")`，要落地就
   `anim_fx_export(ids=[...], dir="<项目里的目录>")`
+- 定整套配色 / 字体 / 圆角 / 间距 → `anim_brand_kit(theme="…")`（5 套色板 + 5 组字体配对 + CSS 变量）
+- 标题要效果、要装饰线/相框/纸纹、要背景纹理 → `anim_type_search(query="…", kind="effect")`
+  挑一条，再 `anim_type_show(id="…")` 抄 HTML/CSS；同名跨类时写 `kind:id`（如 `background:paper`）
+- 引字体 → `anim_font_css(family="…", source="google|fontshare|fontsource|system")`；
+  字体文件不随插件发，许可写在 `anim_font_search` 结果里，进交付物前照抄署名
+- 要成组图标 → `anim_icon_group(group="ui|solid|game|brand|emoji|arrows", query="…", download=true, dir="…")`
+- 交付前端代码前 → `anim_type_audit(scope="page")` 过 15 条排版规则（先修必修项）
 - 找实拍/绘画参考图 → `anim_ref_search(query="…", download=true)`（需自建素材库）
 - 要配图 / 图标 / PBR 贴图 / 纹理 / 色板 → 先 `anim_asset_sources` 看有哪几家，
   再 `anim_asset_search(query="…", category="…")`（中文直接写，插件会换英文同义词）；

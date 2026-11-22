@@ -1,0 +1,244 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:44:17.679Z",
+  "count": 16,
+  "entries": [
+    {
+      "id": "per-char-in",
+      "name": "逐字入场",
+      "category": "entrance",
+      "when": "标题第一次出现；一屏只做一次",
+      "tags": [
+        "入场",
+        "逐字",
+        "标题"
+      ],
+      "params": "每字延迟 30–60ms，位移 12–24px，时长 400–600ms",
+      "html": "<h1 class=\"m-chars\"><span>T</span><span>I</span><span>T</span><span>L</span><span>E</span></h1>",
+      "css": ".m-chars span{display:inline-block;animation:in .5s cubic-bezier(.2,.7,.2,1) both}.m-chars span:nth-child(2){animation-delay:.05s}.m-chars span:nth-child(3){animation-delay:.1s}.m-chars span:nth-child(4){animation-delay:.15s}.m-chars span:nth-child(5){animation-delay:.2s}@keyframes in{from{opacity:0;transform:translateY(16px)}}",
+      "pitfall": "中文逐字要按字切，不是按字母；长标题 >12 字就改按词切，否则等太久"
+    },
+    {
+      "id": "typewriter",
+      "name": "打字机",
+      "category": "entrance",
+      "when": "终端、代码、悬疑叙述",
+      "tags": [
+        "打字机",
+        "终端"
+      ],
+      "params": "步进 40–80ms；用 steps() 或 JS 逐字",
+      "html": "<p class=\"m-type\">Hello, world</p>",
+      "css": ".m-type{font:600 24px/1.5 ui-monospace,monospace;white-space:nowrap;overflow:hidden;border-right:2px solid currentColor;animation:typing 2.4s steps(12) both,caret .8s step-end infinite}@keyframes typing{from{width:0}}@keyframes caret{50%{border-color:transparent}}",
+      "pitfall": "steps 数要等于字符数；中文每字宽度不同，纯 CSS 宽度动画会抖，改用逐字 JS"
+    },
+    {
+      "id": "number-roll",
+      "name": "数字滚动",
+      "category": "data",
+      "when": "数据看板、战绩、价格",
+      "tags": [
+        "数字",
+        "数据",
+        "滚动"
+      ],
+      "params": "时长 800–1200ms，ease-out；大数用千分位",
+      "html": "<div class=\"m-roll\" data-to=\"1280\">0</div>",
+      "css": ".m-roll{font:800 56px/1 ui-monospace,monospace;font-variant-numeric:tabular-nums}/* JS: 用 requestAnimationFrame 在 1s 内从 0 插值到 data-to */",
+      "pitfall": "别用 setInterval 改文本（会跳帧）；滚动时宽度要锁死，否则布局抖动"
+    },
+    {
+      "id": "stroke-write",
+      "name": "描边书写",
+      "category": "entrance",
+      "when": "LOGO 揭示、书法感标题",
+      "tags": [
+        "描边",
+        "书写",
+        "svg"
+      ],
+      "params": "dashoffset 从全长到 0，1.2–2s",
+      "html": "<svg viewBox=\"0 0 300 100\"><text x=\"10\" y=\"72\" class=\"m-write\">WRITE</text></svg>",
+      "css": ".m-write{font:900 64px system-ui;fill:none;stroke:#f472b6;stroke-width:2;stroke-dasharray:800;stroke-dashoffset:800;animation:w 1.8s ease-in-out forwards}@keyframes w{to{stroke-dashoffset:0}}",
+      "pitfall": "完成后要补填充色，否则一直只有线；中文字形复杂时线宽 1.5px 更干净"
+    },
+    {
+      "id": "mask-wipe",
+      "name": "遮罩擦除",
+      "category": "entrance",
+      "when": "高级感标题揭示、图文过渡",
+      "tags": [
+        "遮罩",
+        "擦除",
+        "高级"
+      ],
+      "params": "clip-path inset 从左到右，600–900ms",
+      "html": "<h1 class=\"m-wipe\">REVEAL</h1>",
+      "css": ".m-wipe{font:800 64px/1 system-ui;animation:wipe .8s cubic-bezier(.2,.8,.2,1) both}@keyframes wipe{from{clip-path:inset(0 100% 0 0)}}",
+      "pitfall": "遮罩里若有发光/阴影会被裁掉，给外层留 padding"
+    },
+    {
+      "id": "blur-focus",
+      "name": "模糊聚焦",
+      "category": "entrance",
+      "when": "电影感开场、封面标题",
+      "tags": [
+        "模糊",
+        "聚焦",
+        "电影"
+      ],
+      "params": "blur 12px → 0，同时 opacity 0 → 1，700ms",
+      "html": "<h1 class=\"m-blur\">FOCUS</h1>",
+      "css": ".m-blur{font:700 64px/1 system-ui;animation:bf .7s ease-out both}@keyframes bf{from{opacity:0;filter:blur(14px);letter-spacing:.2em}}",
+      "pitfall": "字距从大到小会和字体回退打架，中文字体先加载完再播"
+    },
+    {
+      "id": "glitch-flash",
+      "name": "故障闪现",
+      "category": "accent",
+      "when": "错误态、赛博活动页；一屏 ≤1 次",
+      "tags": [
+        "故障",
+        "闪现"
+      ],
+      "params": "3 帧抖动 + clip-path 切片，总时长 300–500ms",
+      "html": "<h1 class=\"m-glitch\" data-text=\"404\">404</h1>",
+      "css": ".m-glitch{position:relative;font:900 72px/1 system-ui}.m-glitch::after{content:attr(data-text);position:absolute;inset:0;color:#22d3ee;animation:g .4s steps(2) 2}@keyframes g{25%{transform:translate(-4px,2px);clip-path:inset(10% 0 60% 0)}75%{transform:translate(4px,-2px);clip-path:inset(55% 0 15% 0)}}",
+      "pitfall": "常驻闪烁会引发不适；prefers-reduced-motion 必须停"
+    },
+    {
+      "id": "wave-letters",
+      "name": "波浪字",
+      "category": "loop",
+      "when": "轻松品牌、儿童、音乐",
+      "tags": [
+        "波浪",
+        "循环",
+        "轻松"
+      ],
+      "params": "每字延迟 60–90ms，位移 4–8px，循环 2–3s",
+      "html": "<h1 class=\"m-wave\"><span>W</span><span>A</span><span>V</span><span>E</span></h1>",
+      "css": ".m-wave span{display:inline-block;animation:wv 2.4s ease-in-out infinite}.m-wave span:nth-child(2){animation-delay:.08s}.m-wave span:nth-child(3){animation-delay:.16s}.m-wave span:nth-child(4){animation-delay:.24s}@keyframes wv{50%{transform:translateY(-8px)}}",
+      "pitfall": "循环动画别超过 2 个同时出现；正文附近会分心"
+    },
+    {
+      "id": "split-flap",
+      "name": "翻牌字",
+      "category": "entrance",
+      "when": "机场牌/排行榜/倒计时",
+      "tags": [
+        "翻牌",
+        "机械",
+        "数据"
+      ],
+      "params": "上翻 120ms + 下翻 120ms，间隔 60ms",
+      "html": "<div class=\"m-flap\"><span>8</span><span>4</span></div>",
+      "css": ".m-flap span{display:inline-grid;place-items:center;width:1.2em;height:1.4em;background:#111;color:#fafafa;font:700 40px/1 ui-monospace,monospace;transform-origin:bottom;animation:flap .5s both}.m-flap span+span{animation-delay:.08s}@keyframes flap{from{transform:rotateX(-90deg);opacity:0}}",
+      "pitfall": "需要 perspective，否则翻转像压扁；数字宽度用等宽字体锁死"
+    },
+    {
+      "id": "gradient-shift",
+      "name": "渐变流动",
+      "category": "loop",
+      "when": "科技标题背景、加载中",
+      "tags": [
+        "渐变",
+        "流动",
+        "循环"
+      ],
+      "params": "background-size 200%，8–16s 线性循环",
+      "html": "<h1 class=\"m-shift\">FLOW</h1>",
+      "css": ".m-shift{font:800 64px/1 system-ui;background:linear-gradient(90deg,#7c3aed,#22d3ee,#7c3aed);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 8s linear infinite}@keyframes sh{to{background-position:200% 0}}",
+      "pitfall": "低性能设备上 background-position 动画会掉帧，可改为 3 色静态渐变"
+    },
+    {
+      "id": "underline-grow",
+      "name": "下划线生长",
+      "category": "accent",
+      "when": "链接悬停、标签强调",
+      "tags": [
+        "下划线",
+        "悬停",
+        "微交互"
+      ],
+      "params": "scaleX 0→1，origin left，200–300ms",
+      "html": "<a class=\"m-underline\" href=\"#\">Read more</a>",
+      "css": ".m-underline{position:relative;text-decoration:none;color:inherit;font-weight:600}.m-underline::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .25s ease}.m-underline:hover::after{transform:scaleX(1)}",
+      "pitfall": "移动端没有 hover，用 :focus-visible 补一份"
+    },
+    {
+      "id": "stagger-blur",
+      "name": "错位模糊入场",
+      "category": "entrance",
+      "when": "列表、卡片标题、导航项",
+      "tags": [
+        "错位",
+        "模糊",
+        "列表"
+      ],
+      "params": "每项延迟 40–70ms，blur 8px + 位移 10px",
+      "html": "<ul class=\"m-stagger\"><li>One</li><li>Two</li><li>Three</li></ul>",
+      "css": ".m-stagger li{opacity:0;animation:st .5s ease-out forwards}.m-stagger li:nth-child(2){animation-delay:.07s}.m-stagger li:nth-child(3){animation-delay:.14s}@keyframes st{to{opacity:1;filter:blur(0);transform:none}from{filter:blur(8px);transform:translateY(10px)}}",
+      "pitfall": "列表长时总时长会拖到几秒，超过 8 项就改成只做前 5 项"
+    },
+    {
+      "id": "marquee",
+      "name": "跑马灯",
+      "category": "loop",
+      "when": "公告条、品牌 slogan 带",
+      "tags": [
+        "跑马灯",
+        "循环",
+        "公告"
+      ],
+      "params": "速度 20–40px/s；两份内容首尾相接",
+      "html": "<div class=\"m-marquee\"><span>SHIP IT · SHIP IT · </span><span aria-hidden=\"true\">SHIP IT · SHIP IT · </span></div>",
+      "css": ".m-marquee{display:flex;gap:0;overflow:hidden;white-space:nowrap}.m-marquee span{animation:mq 12s linear infinite;padding-right:0}@keyframes mq{to{transform:translateX(-100%)}}",
+      "pitfall": "第二份必须 aria-hidden；速度和字号要匹配，太快像故障"
+    },
+    {
+      "id": "cursor-blink",
+      "name": "光标闪烁",
+      "category": "accent",
+      "when": "终端、输入框、打字机收尾",
+      "tags": [
+        "光标",
+        "终端"
+      ],
+      "params": "1s step-end 循环；不要用 fade",
+      "html": "<span class=\"m-caret\">_</span>",
+      "css": ".m-caret{animation:blink 1s step-end infinite}@keyframes blink{50%{opacity:0}}",
+      "pitfall": "用 opacity 会让光标看起来在呼吸，step-end 才像真光标"
+    },
+    {
+      "id": "scramble",
+      "name": "乱码解码",
+      "category": "accent",
+      "when": "黑客/解密叙事、加载揭示",
+      "tags": [
+        "乱码",
+        "解码",
+        "黑客"
+      ],
+      "params": "逐字替换随机字符，80ms 一轮，2–4 轮后定格",
+      "html": "<h1 class=\"m-scramble\" data-text=\"ACCESS\">ACCESS</h1>",
+      "css": ".m-scramble{font:700 48px/1 ui-monospace,monospace}/* JS: 每 80ms 把未定格的字符换成随机符号，逐步锁定 */",
+      "pitfall": "纯 CSS 做不到随机字符，必须 JS；停止条件要写死，别无限跑"
+    },
+    {
+      "id": "tilt-follow",
+      "name": "3D 倾斜跟随",
+      "category": "accent",
+      "when": "产品卡、游戏 HUD、鼠标交互",
+      "tags": [
+        "3d",
+        "跟随",
+        "交互"
+      ],
+      "params": "±8°，transition 120ms，perspective 800px",
+      "html": "<div class=\"m-tilt\">TILT</div>",
+      "css": ".m-tilt{font:900 64px/1 system-ui;transform-style:preserve-3d;transition:transform .12s ease;perspective:800px}/* JS: mousemove 时按指针位置设 rotateX/rotateY（±8deg） */",
+      "pitfall": "移动端要关掉；transform 会创建层，文字发虚时加 translateZ(0)"
+    }
+  ]
+}

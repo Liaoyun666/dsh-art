@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:43:23.930Z",
+  "count": 37,
+  "entries": [
+    {
+      "id": "outline",
+      "name": "空心描边字",
+      "category": "stroke",
+      "when": "标题要跳出来、背景花但字要稳；海报主标题、按钮文字",
+      "tags": [
+        "描边",
+        "标题",
+        "outline"
+      ],
+      "params": "字重 700–900；描边 2–4px；描边色与底色反差 ≥4.5:1",
+      "html": "<h1 class=\"fx-outline\">TITLE</h1>",
+      "css": ".fx-outline{font:900 clamp(2rem,8vw,6rem)/1 system-ui;color:transparent;-webkit-text-stroke:3px #111}",
+      "pitfall": "-webkit-text-stroke 只描外轮廓，细字重会糊；中文小字号（<24px）别用 3px 以上描边"
+    },
+    {
+      "id": "double-outline",
+      "name": "双描边贴纸字",
+      "category": "stroke",
+      "when": "贴纸、玩具感、儿童/活动页主标题",
+      "tags": [
+        "贴纸",
+        "描边",
+        "sticker"
+      ],
+      "params": "内白边 6–10px + 外色边 3px；圆角感靠描边不用圆角",
+      "html": "<span class=\"fx-sticker\">NEW</span>",
+      "css": ".fx-sticker{font:900 64px/1 system-ui;color:#ffd166;text-shadow:0 0 0 #fff,0 0 0 #fff; -webkit-text-stroke:10px #fff; paint-order:stroke fill}",
+      "pitfall": "paint-order:stroke fill 让描边画在填充下面，Chrome/Safari 支持，Firefox 旧版要加前缀兜底"
+    },
+    {
+      "id": "hard-shadow",
+      "name": "硬投影字",
+      "category": "shadow",
+      "when": "复古、波普、漫画感；要一点手作厚重感",
+      "tags": [
+        "投影",
+        "复古",
+        "pop"
+      ],
+      "params": "偏移 4–10px，无模糊",
+      "html": "<h1 class=\"fx-hard\">POP</h1>",
+      "css": ".fx-hard{font:900 72px/1 system-ui;color:#111;text-shadow:6px 6px 0 #ff5d5d}",
+      "pitfall": "投影色别用纯黑，用主色的深一档更协调；字号小于 32px 时偏移减半"
+    },
+    {
+      "id": "long-shadow",
+      "name": "长投影字",
+      "category": "shadow",
+      "when": "立体感标题、游戏 LOGO、活动主视觉",
+      "tags": [
+        "投影",
+        "立体"
+      ],
+      "params": "20–40 层 1px 叠加，或 12 层 2px",
+      "html": "<h1 class=\"fx-long\">LEVEL</h1>",
+      "css": ".fx-long{font:900 64px/1 system-ui;color:#fff;text-shadow:1px 1px 0 #7c3aed,2px 2px 0 #7c3aed,3px 3px 0 #6d28d9,4px 4px 0 #6d28d9,5px 5px 0 #5b21b6,6px 6px 0 #5b21b6,7px 7px 0 #4c1d95,8px 8px 0 #4c1d95,9px 9px 0 #3b0f7a,10px 10px 0 #2e0b5e}",
+      "pitfall": "层数多了很吃渲染；中文笔画密，建议 ≤12 层并放大字号"
+    },
+    {
+      "id": "gradient-text",
+      "name": "渐变裁切字",
+      "category": "fill",
+      "when": "科技感、SaaS 首屏大标题（最常见的一招）",
+      "tags": [
+        "渐变",
+        "标题",
+        "科技"
+      ],
+      "params": "两到三色；角度 90–135deg；深色底用亮渐变",
+      "html": "<h1 class=\"fx-grad\">Build faster</h1>",
+      "css": ".fx-grad{font:800 clamp(2rem,7vw,5rem)/1.05 system-ui;background:linear-gradient(120deg,#7c3aed,#06b6d4 60%,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}",
+      "pitfall": "必须给 color:transparent 兜底；渐变里别放低对比色，浅色底会读不清"
+    },
+    {
+      "id": "image-fill",
+      "name": "图片填充字",
+      "category": "fill",
+      "when": "旅行/摄影/美食页大标题，图上取字",
+      "tags": [
+        "图片",
+        "填充",
+        "摄影"
+      ],
+      "params": "背景图需高对比区域；可叠一层深色遮罩",
+      "html": "<h1 class=\"fx-img\">WANDER</h1>",
+      "css": ".fx-img{font:900 clamp(2.5rem,10vw,7rem)/1 system-ui;background:url('photo.jpg') center/cover; -webkit-background-clip:text;background-clip:text;color:transparent; filter:contrast(1.1)}",
+      "pitfall": "背景图授权要跟素材库授权一起记；图片亮部太多时加 linear-gradient 遮罩压一档"
+    },
+    {
+      "id": "metal",
+      "name": "金属镀铬字",
+      "category": "fill",
+      "when": "潮牌、Y2K、汽车/硬件产品页",
+      "tags": [
+        "金属",
+        "y2k",
+        "镀铬"
+      ],
+      "params": "4–6 段线性渐变：#fff → #9ca3af → #f9fafb → #6b7280",
+      "html": "<h1 class=\"fx-metal\">CHROME</h1>",
+      "css": ".fx-metal{font:900 88px/1 'Arial Black',system-ui;background:linear-gradient(180deg,#f8fafc 0%,#cbd5e1 22%,#ffffff 40%,#94a3b8 52%,#e2e8f0 62%,#64748b 82%,#f1f5f9 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #334155)}",
+      "pitfall": "镀铬靠「亮-暗-亮」节奏，段太少就像灰字；drop-shadow 别用模糊"
+    },
+    {
+      "id": "noise-fill",
+      "name": "噪点颗粒字",
+      "category": "fill",
+      "when": "胶片、独立杂志、hand-made 品牌",
+      "tags": [
+        "噪点",
+        "胶片",
+        "纹理"
+      ],
+      "params": "SVG feTurbulence 叠在文字上，opacity 0.15–0.3",
+      "html": "<div class=\"fx-noise\"><h1>GRAIN</h1><svg class=\"grain\"><filter id=\"n\"><feTurbulence baseFrequency=\"0.8\" numOctaves=\"3\"/></filter><rect width=\"100%\" height=\"100%\" filter=\"url(#n)\"/></svg></div>",
+      "css": ".fx-noise{position:relative;display:inline-block}.fx-noise h1{font:900 80px/1 system-ui;margin:0}.fx-noise .grain{position:absolute;inset:0;mix-blend-mode:overlay;opacity:.25;pointer-events:none}",
+      "pitfall": "mix-blend-mode 会跟父级 isolation 打架；导出截图时噪点可能被浏览器降采样"
+    },
+    {
+      "id": "extrude",
+      "name": "多层挤压立体字",
+      "category": "3d",
+      "when": "游戏标题、活动 banner、需要「厚」的感觉",
+      "tags": [
+        "3d",
+        "立体",
+        "标题"
+      ],
+      "params": "10–16 层 text-shadow，每层偏移 1px、明度递减",
+      "html": "<h1 class=\"fx-extrude\">BLOCK</h1>",
+      "css": ".fx-extrude{font:900 64px/1 system-ui;color:#fde68a;text-shadow:1px 1px 0 #f59e0b,2px 2px 0 #f59e0b,3px 3px 0 #d97706,4px 4px 0 #d97706,5px 5px 0 #b45309,6px 6px 0 #b45309,7px 7px 0 #92400e,8px 8px 0 #78350f}",
+      "pitfall": "别用纯灰阶做侧面，会显得脏；侧面色 = 主色降明度 + 微调色相"
+    },
+    {
+      "id": "isometric",
+      "name": "等距 3D 字",
+      "category": "3d",
+      "when": "科技/数据产品主视觉，想要空间感",
+      "tags": [
+        "3d",
+        "等距",
+        "科技"
+      ],
+      "params": "skew + 多层 translate；透视角度固定 30°",
+      "html": "<h1 class=\"fx-iso\">DATA</h1>",
+      "css": ".fx-iso{font:900 64px/1 system-ui;color:#22d3ee;transform:skewY(-6deg) rotate(-2deg);text-shadow:1px 1px 0 #0891b2,2px 2px 0 #0e7490,3px 3px 0 #155e75,6px 8px 24px rgba(34,211,238,.45)}",
+      "pitfall": "skew 会把中文压扁，中文场景改用 3D transform 或只倾斜西文"
+    },
+    {
+      "id": "emboss",
+      "name": "凸起/内凹字",
+      "category": "3d",
+      "when": "拟物 UI、皮革/金属面板上的字",
+      "tags": [
+        "拟物",
+        "浮雕"
+      ],
+      "params": "上亮下暗（凸）/ 上暗下亮（凹），偏移 1px、模糊 0–1px",
+      "html": "<h1 class=\"fx-emboss\">EMBOSS</h1>",
+      "css": ".fx-emboss{font:800 56px/1 system-ui;color:#d1d5db;background:#e5e7eb;padding:.3em .6em;border-radius:14px;text-shadow:1px 1px 0 #fff,-1px -1px 0 #9ca3af}",
+      "pitfall": "底色与字色差太小会糊；无障碍场景别用在正文"
+    },
+    {
+      "id": "neon",
+      "name": "霓虹灯字",
+      "category": "glow",
+      "when": "夜店/游戏/赛博夜城，深色底",
+      "tags": [
+        "霓虹",
+        "发光",
+        "夜景"
+      ],
+      "params": "3 层 shadow：近 2px、中 12px、远 40px；色相统一",
+      "html": "<h1 class=\"fx-neon\">NIGHT</h1>",
+      "css": ".fx-neon{font:900 72px/1 system-ui;color:#f0abfc;text-shadow:0 0 4px #f0abfc,0 0 12px #e879f9,0 0 32px #c026d3,0 0 64px #a21caf}",
+      "pitfall": "浅底上几乎不可见；发光半径大时注意别糊住字形"
+    },
+    {
+      "id": "soft-glow",
+      "name": "柔光字",
+      "category": "glow",
+      "when": "高级感、香氛/珠宝/暗色 SaaS",
+      "tags": [
+        "发光",
+        "高级"
+      ],
+      "params": "blur 20–60px、opacity 0.4–0.7",
+      "html": "<h1 class=\"fx-soft\">AURORA</h1>",
+      "css": ".fx-soft{font:300 clamp(2rem,6vw,4.5rem)/1.1 'Instrument Serif',serif;color:#f8fafc;text-shadow:0 0 28px rgba(148,163,184,.65),0 0 72px rgba(99,102,241,.45)}",
+      "pitfall": "柔光需要深底；打印场景不要用（发光出不来）"
+    },
+    {
+      "id": "glass",
+      "name": "玻璃反光字",
+      "category": "glow",
+      "when": "玻璃拟态卡片标题、iOS 风",
+      "tags": [
+        "玻璃",
+        "反光",
+        "拟态"
+      ],
+      "params": "上白下透明渐变 + 轻微 drop-shadow",
+      "html": "<h1 class=\"fx-glass\">GLASS</h1>",
+      "css": ".fx-glass{font:800 64px/1 system-ui;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.35));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 6px rgba(15,23,42,.35))}",
+      "pitfall": "背后必须有内容/渐变，否则玻璃感不成立；对比度容易不达标，正文别用"
+    },
+    {
+      "id": "rgb-split",
+      "name": "RGB 分离字",
+      "category": "glitch",
+      "when": "故障艺术、音乐/游戏活动页",
+      "tags": [
+        "故障",
+        "glitch"
+      ],
+      "params": "红蓝各偏移 2–4px，mix-blend-mode:screen",
+      "html": "<h1 class=\"fx-rgb\">SIGNAL</h1>",
+      "css": ".fx-rgb{position:relative;font:900 72px/1 system-ui;color:#e5e7eb}.fx-rgb::before,.fx-rgb::after{content:attr(data-text);position:absolute;inset:0}.fx-rgb::before{color:#f43f5e;transform:translate(-3px,0);mix-blend-mode:screen}.fx-rgb::after{color:#22d3ee;transform:translate(3px,0);mix-blend-mode:screen}",
+      "pitfall": "需要 data-text 同步文字；无障碍读屏会读两遍，给伪元素加 aria-hidden 不行，改用装饰层"
+    },
+    {
+      "id": "glitch-clip",
+      "name": "切片抖动字",
+      "category": "glitch",
+      "when": "赛博/故障主题的动态标题",
+      "tags": [
+        "故障",
+        "动画"
+      ],
+      "params": "3 条 clip-path 带 + 错位 2–6px，动画 0.2–0.6s 随机",
+      "html": "<h1 class=\"fx-glitch\" data-text=\"ERROR\">ERROR</h1>",
+      "css": ".fx-glitch{position:relative;font:900 72px/1 system-ui;color:#fff}.fx-glitch::after{content:attr(data-text);position:absolute;inset:0;color:#22d3ee;clip-path:inset(20% 0 55% 0);animation:gl 1.2s steps(2) infinite}@keyframes gl{50%{transform:translateX(-6px);clip-path:inset(60% 0 12% 0)}}",
+      "pitfall": "动画别常驻（耗电、干扰阅读）；prefers-reduced-motion 下停掉"
+    },
+    {
+      "id": "scanline",
+      "name": "扫描线字",
+      "category": "glitch",
+      "when": "CRT/复古游戏/HUD",
+      "tags": [
+        "扫描线",
+        "复古",
+        "crt"
+      ],
+      "params": "repeating-linear-gradient 2–4px 间隔，叠在文字上",
+      "html": "<div class=\"fx-scan\"><h1>CRT</h1></div>",
+      "css": ".fx-scan{position:relative;display:inline-block}.fx-scan h1{margin:0;font:900 72px/1 'JetBrains Mono',monospace;color:#a3e635}.fx-scan::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 2px,rgba(0,0,0,.35) 2px 3px);pointer-events:none}",
+      "pitfall": "浅底上像脏点；深色底 + 亮字才对"
+    },
+    {
+      "id": "displace",
+      "name": "湍流位移字",
+      "category": "glitch",
+      "when": "液体/火焰/故障质感（SVG 滤镜）",
+      "tags": [
+        "svg",
+        "滤镜",
+        "位移"
+      ],
+      "params": "feTurbulence baseFrequency 0.02–0.06 + feDisplacementMap scale 6–20",
+      "html": "<svg class=\"fx-disp\" viewBox=\"0 0 400 120\"><filter id=\"d\"><feTurbulence baseFrequency=\".04\" numOctaves=\"2\" seed=\"7\"/><feDisplacementMap in=\"SourceGraphic\" scale=\"12\"/></filter><text x=\"20\" y=\"80\" filter=\"url(#d)\">LIQUID</text></svg>",
+      "css": ".fx-disp text{font:900 72px system-ui;fill:#f472b6}",
+      "pitfall": "滤镜作用在文字上会吃掉可读性；动画化 baseFrequency 很吃 GPU，别全屏跑"
+    },
+    {
+      "id": "retro-chrome",
+      "name": "80s 镀铬字",
+      "category": "retro",
+      "when": "Y2K/复古未来/潮牌",
+      "tags": [
+        "复古",
+        "镀铬",
+        "80s"
+      ],
+      "params": "紫粉渐变 + 白色高光 + 投影",
+      "html": "<h1 class=\"fx-retro\">RETRO</h1>",
+      "css": ".fx-retro{font:900 84px/1 'Arial Black',system-ui;font-style:italic;background:linear-gradient(180deg,#fff 0%,#c4b5fd 18%,#7c3aed 42%,#f0abfc 55%,#fff 62%,#a855f7 80%,#4c1d95 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 4px 0 rgba(30,27,75,.6)}",
+      "pitfall": "text-shadow 与 background-clip:text 同用时阴影会盖住填充，改用 drop-shadow"
+    },
+    {
+      "id": "stripe-70s",
+      "name": "70s 条纹字",
+      "category": "retro",
+      "when": "复古海报、唱片/咖啡品牌",
+      "tags": [
+        "复古",
+        "条纹",
+        "70s"
+      ],
+      "params": "repeating-linear-gradient 斜 45°，两色",
+      "html": "<h1 class=\"fx-70s\">SOUL</h1>",
+      "css": ".fx-70s{font:900 80px/1 'Archivo Black',system-ui;background:repeating-linear-gradient(45deg,#f59e0b 0 8px,#b45309 8px 16px);-webkit-background-clip:text;background-clip:text;color:transparent}",
+      "pitfall": "近色条纹会摩尔纹；不同缩放下 8px 间隔可能变糊，改用 em 单位"
+    },
+    {
+      "id": "misprint",
+      "name": "套色错位字",
+      "category": "retro",
+      "when": "印刷/riso/独立杂志风",
+      "tags": [
+        "印刷",
+        "错位",
+        "riso"
+      ],
+      "params": "两色各偏移 1–3px，multiply 混合",
+      "html": "<h1 class=\"fx-mis\" data-text=\"PRINT\">PRINT</h1>",
+      "css": ".fx-mis{position:relative;font:900 72px/1 system-ui;color:#111}.fx-mis::after{content:attr(data-text);position:absolute;inset:0;color:#f43f5e;mix-blend-mode:multiply;transform:translate(2px,-2px)}",
+      "pitfall": "multiply 在深色底上失效；小字号错位看起来像重影 bug，别用"
+    },
+    {
+      "id": "stamp",
+      "name": "印章/火漆字",
+      "category": "retro",
+      "when": "认证徽章、限定款、复古包装",
+      "tags": [
+        "印章",
+        "徽章",
+        "复古"
+      ],
+      "params": "双层圆环 + 旋转 -6°，纹理做旧",
+      "html": "<div class=\"fx-seal\"><span>CERTIFIED</span></div>",
+      "css": ".fx-seal{width:120px;height:120px;border:3px double #b91c1c;border-radius:50%;display:grid;place-items:center;transform:rotate(-8deg);color:#b91c1c;font:800 14px/1.2 system-ui;text-align:center;box-shadow:inset 0 0 0 2px #b91c1c}",
+      "pitfall": "真火漆要纹理，纯 CSS 只能近似；导出给印刷时用 SVG 更稳"
+    },
+    {
+      "id": "distressed",
+      "name": "做旧做脏字",
+      "category": "retro",
+      "when": "复古/工业/手作品牌",
+      "tags": [
+        "做旧",
+        "纹理",
+        "工业"
+      ],
+      "params": "噪点遮罩 + 轻微位移 + 低饱和",
+      "html": "<h1 class=\"fx-old\">VINTAGE</h1>",
+      "css": ".fx-old{font:900 72px/1 'Bebas Neue',system-ui;color:#e7e5e4;filter:url(#rough);letter-spacing:.04em}/* svg filter: feTurbulence + feDisplacementMap scale 3 */",
+      "pitfall": "滤镜叠多了会糊；做旧不等于低对比，别把可读性一起做没"
+    },
+    {
+      "id": "marker",
+      "name": "马克笔高亮",
+      "category": "hand",
+      "when": "正文强调、教学/笔记风",
+      "tags": [
+        "手作",
+        "高亮",
+        "笔记"
+      ],
+      "params": "背景渐变条 60% 高、底部对齐",
+      "html": "<p class=\"fx-mark\">这句<mark>要强调</mark>的话</p>",
+      "css": ".fx-mark mark{background:linear-gradient(transparent 55%,#fde68a 55% 92%,transparent 92%);color:inherit;padding:0 .15em}",
+      "pitfall": "用 mark 保留语义；高亮色要与正文对比 ≥4.5:1"
+    },
+    {
+      "id": "hand-circle",
+      "name": "手绘圈注",
+      "category": "hand",
+      "when": "批注、教程步骤、轻量强调",
+      "tags": [
+        "手作",
+        "圈注",
+        "svg"
+      ],
+      "params": "SVG path 抖动 + stroke-dasharray",
+      "html": "<span class=\"fx-circle\">重点<svg viewBox=\"0 0 200 80\" preserveAspectRatio=\"none\"><path d=\"M10 45 C30 10,170 8,190 40 C196 62,120 76,60 72 C20 69,12 58,18 46\"/></svg></span>",
+      "css": ".fx-circle{position:relative;padding:0 .2em}.fx-circle svg{position:absolute;inset:-.2em -.3em;width:calc(100% + .6em);height:calc(100% + .4em)}.fx-circle path{fill:none;stroke:#f43f5e;stroke-width:3;stroke-linecap:round}",
+      "pitfall": "preserveAspectRatio=none 会让笔画拉伸，路径要做宽高适配"
+    },
+    {
+      "id": "tape",
+      "name": "胶带贴字",
+      "category": "hand",
+      "when": "手帐、活动海报、便签墙",
+      "tags": [
+        "胶带",
+        "贴纸",
+        "手作"
+      ],
+      "params": "半透明黄色 + 轻微旋转 + 撕边",
+      "html": "<div class=\"fx-tape\">TODAY</div>",
+      "css": ".fx-tape{display:inline-block;padding:.5em 1.2em;background:rgba(250,204,21,.75);transform:rotate(-3deg);font:800 32px/1 system-ui;box-shadow:0 2px 6px rgba(0,0,0,.12);clip-path:polygon(2% 0,98% 2%,100% 96%,0 100%)}",
+      "pitfall": "clip-path 撕边要手调，别做成规则矩形；背景透明时胶带感就没了"
+    },
+    {
+      "id": "note",
+      "name": "便签贴字",
+      "category": "hand",
+      "when": "提示卡、to-do、轻量信息块",
+      "tags": [
+        "便签",
+        "卡片"
+      ],
+      "params": "便签色 + 上沿贴纸 + 轻旋转",
+      "html": "<div class=\"fx-note\">记得喝水</div>",
+      "css": ".fx-note{width:180px;padding:24px 16px;background:#fef3c7;transform:rotate(2deg);font:500 16px/1.6 system-ui;box-shadow:0 8px 20px rgba(0,0,0,.12);position:relative}.fx-note::before{content:'';position:absolute;top:-8px;left:50%;translate:-50% 0;width:64px;height:16px;background:rgba(255,255,255,.6);transform:rotate(-2deg)}",
+      "pitfall": "旋转角度 ≤3°，多了像排版错误"
+    },
+    {
+      "id": "pixel",
+      "name": "像素字",
+      "category": "game",
+      "when": "像素游戏、复古 UI",
+      "tags": [
+        "像素",
+        "游戏",
+        "复古"
+      ],
+      "params": "位图字体（如 Press Start 2P）+ image-rendering:pixelated",
+      "html": "<h1 class=\"fx-pixel\">INSERT COIN</h1>",
+      "css": ".fx-pixel{font:400 32px/1.4 'Press Start 2P',monospace;image-rendering:pixelated;color:#fde047;text-shadow:2px 2px 0 #a16207}",
+      "pitfall": "像素字体缩放必须整数倍，否则糊；中文没有像素字体，需用图片或点阵方案"
+    },
+    {
+      "id": "crt",
+      "name": "CRT 显像管字",
+      "category": "game",
+      "when": "复古游戏/终端/HUD",
+      "tags": [
+        "crt",
+        "终端",
+        "游戏"
+      ],
+      "params": "扫描线 + 轻微色散 + 屏幕弧度（可选）",
+      "html": "<div class=\"fx-crt\"><pre>READY_</pre></div>",
+      "css": ".fx-crt{background:#04140b;padding:24px;border-radius:8px}.fx-crt pre{margin:0;font:700 28px/1.5 'JetBrains Mono',monospace;color:#4ade80;text-shadow:0 0 8px rgba(74,222,128,.8);filter:contrast(1.1)}.fx-crt::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 2px,rgba(0,0,0,.3) 2px 4px);pointer-events:none}",
+      "pitfall": "文字阴影 + 扫描线在 4K 上会闪烁，用奇数像素间隔更稳"
+    },
+    {
+      "id": "hud",
+      "name": "游戏 HUD 描边字",
+      "category": "game",
+      "when": "血条、准心、任务提示",
+      "tags": [
+        "hud",
+        "游戏",
+        "描边"
+      ],
+      "params": "1px 描边 + 小投影，字距拉开",
+      "html": "<div class=\"fx-hud\">AMMO 30/30</div>",
+      "css": ".fx-hud{font:700 18px/1 'Rajdhani',system-ui;letter-spacing:.18em;color:#e5e7eb;text-shadow:0 0 0 #000,1px 0 0 #000,-1px 0 0 #000,0 1px 0 #000,0 -1px 0 #000,0 2px 6px rgba(0,0,0,.5)}",
+      "pitfall": "四个方向 shadow 描边比 text-stroke 兼容性好；字距大要配 tabular-nums"
+    },
+    {
+      "id": "stroke-draw",
+      "name": "描边逐笔描画",
+      "category": "motion",
+      "when": "标题出场、LOGO 揭示",
+      "tags": [
+        "动画",
+        "描边",
+        "svg"
+      ],
+      "params": "stroke-dasharray = 路径长；1–2s，ease-in-out",
+      "html": "<svg viewBox=\"0 0 300 100\"><text x=\"10\" y=\"72\" class=\"draw\">DRAW</text></svg>",
+      "css": ".draw{font:900 64px system-ui;fill:none;stroke:#22d3ee;stroke-width:2;stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.6s ease-in-out forwards}@keyframes draw{to{stroke-dashoffset:0}}",
+      "pitfall": "dasharray 要大于实际路径长；SVG text 的路径长得用 getTotalLength 量"
+    },
+    {
+      "id": "big-type",
+      "name": "大标题混排",
+      "category": "layout",
+      "when": "编辑风/杂志风首屏，标题要占版面",
+      "tags": [
+        "排版",
+        "标题",
+        "编辑"
+      ],
+      "params": "主标题 88–160px，行高 0.9–1.0，字距 -0.03em",
+      "html": "<h1 class=\"fx-editorial\">Design<br><em>with</em> intent</h1>",
+      "css": ".fx-editorial{font:800 clamp(3rem,12vw,9rem)/.92 'Fraunces',serif;letter-spacing:-.03em}.fx-editorial em{font-style:italic;font-weight:300;color:#a78bfa}",
+      "pitfall": "中西混排时中文行高要单独加到 1.05–1.15，否则挤"
+    },
+    {
+      "id": "vertical",
+      "name": "竖排文字",
+      "category": "layout",
+      "when": "国风、书籍封面、侧边装饰",
+      "tags": [
+        "竖排",
+        "国风",
+        "排版"
+      ],
+      "params": "writing-mode:vertical-rl；标点用 full-width",
+      "html": "<p class=\"fx-vertical\">山高水长，风月同天。</p>",
+      "css": ".fx-vertical{writing-mode:vertical-rl;text-orientation:upright;font:500 24px/1.9 'Noto Serif SC',serif;letter-spacing:.12em;height:320px}",
+      "pitfall": "西文竖排要 text-combine-upright:all 处理数字；标点会自动旋转，检查避头尾"
+    },
+    {
+      "id": "tabular",
+      "name": "等宽数字对齐",
+      "category": "layout",
+      "when": "价格、比分、倒计时、数据卡",
+      "tags": [
+        "数字",
+        "对齐",
+        "数据"
+      ],
+      "params": "font-variant-numeric:tabular-nums；数字列右对齐",
+      "html": "<div class=\"fx-num\">1,280.50<br>99.00<br>12,004.75</div>",
+      "css": ".fx-num{font:700 28px/1.6 ui-monospace,monospace;font-variant-numeric:tabular-nums;text-align:right;min-width:9ch}",
+      "pitfall": "很多字体默认比例数字，必须显式开 tabular-nums；monospace 只是兜底"
+    },
+    {
+      "id": "duotone",
+      "name": "双色叠加字",
+      "category": "fill",
+      "when": "潮流海报、音乐封面",
+      "tags": [
+        "双色",
+        "潮流",
+        "混合"
+      ],
+      "params": "两层文字 + mix-blend-mode:difference/screen",
+      "html": "<h1 class=\"fx-duo\" data-text=\"WAVE\">WAVE</h1>",
+      "css": ".fx-duo{position:relative;font:900 80px/1 system-ui;color:#f0abfc;mix-blend-mode:screen}.fx-duo::after{content:attr(data-text);position:absolute;inset:0;color:#22d3ee;mix-blend-mode:difference}",
+      "pitfall": "混合模式依赖背后底色，换底就变样；导出前在目标底色上验收"
+    },
+    {
+      "id": "split-color",
+      "name": "上下分色字",
+      "category": "fill",
+      "when": "潮牌、运动、双色品牌",
+      "tags": [
+        "双色",
+        "品牌"
+      ],
+      "params": "上半主色、下半强调色，分界 50–55%",
+      "html": "<h1 class=\"fx-split\">HALF</h1>",
+      "css": ".fx-split{font:900 80px/1 system-ui;background:linear-gradient(180deg,#111 0 52%,#f43f5e 52% 100%);-webkit-background-clip:text;background-clip:text;color:transparent}",
+      "pitfall": "分界要落在笔画中段，太高像掉色；中文横画多，52% 更稳"
+    },
+    {
+      "id": "outline-glow",
+      "name": "描边+外发光",
+      "category": "glow",
+      "when": "暗色电竞/科技标题",
+      "tags": [
+        "描边",
+        "发光",
+        "电竞"
+      ],
+      "params": "2px 描边 + 24px 光晕，色相一致",
+      "html": "<h1 class=\"fx-og\">ARENA</h1>",
+      "css": ".fx-og{font:900 64px/1 system-ui;color:transparent;-webkit-text-stroke:2px #67e8f9;filter:drop-shadow(0 0 10px #06b6d4) drop-shadow(0 0 26px rgba(6,182,212,.6))}",
+      "pitfall": "text-stroke 与 drop-shadow 一起用时阴影会描整块，不是只发光边缘，需调小模糊"
+    }
+  ]
+}

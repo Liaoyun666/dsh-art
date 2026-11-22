@@ -1,6 +1,6 @@
 ---
 name: code-animation-prompts
-description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效、124 张 video-shotcraft 镜头配方卡、一套设计工艺库（8 条美学锚点 / 24 条 CSS 版式模式 / 15 条可用性审查准则）与一个外接素材库（liaoyunart 16,900+ 条参考图、Iconify 20 万+ 图标、ambientCG / Poly Haven 的 PBR 材质与 HDRI，共登记 13 家）制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包，要配图/图标/贴图时用 anim_asset_search 找并看授权，再用 anim_design_anchors 定调、anim_design_patterns 抄 CSS、anim_design_audit 自检；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
+description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效、124 张 video-shotcraft 镜头配方卡、一套设计工艺库（8 条美学锚点 / 24 条 CSS 版式模式 / 15 条可用性审查准则）一个外接素材库（liaoyunart 16,900+ 条参考图、Iconify 20 万+ 图标、ambientCG / Poly Haven 的 PBR 材质与 HDRI，共登记 13 家）与一套文字与前端美化配方（180 条艺术字·文字动效·装饰件·背景 + 71 条字体种子）制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包，要标题效果/字体/配色/背景时用 anim_type_search 与 anim_brand_kit，要配图/图标/贴图时用 anim_asset_search 找并看授权，再用 anim_design_anchors 定调、anim_design_patterns 抄 CSS、anim_design_audit 自检；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
 ---
 
 # Code Animation Prompts
@@ -17,12 +17,13 @@ anim_design_brief(task="深色科技风的 AI 写作产品落地页")
 anim_design_brief(task="数据看板，指标卡 + 折线图", surface="dashboard", mood="克制冷灰")
 ```
 
-一次调用拿到六节：① 定调 ② 3–6 张镜头配方卡 ③ 1–2 条美学锚点 ④ 现成素材（风格 / 特效）
-⑤ 配色原型（变量脚手架）+ 版式模式 + 四条动效硬指标 ⑥ 下一步调用顺序。**照第 ⑥ 节再调 2–3 次就够**，
+一次调用拿到七节：① 定调 ② 3–6 张镜头配方卡 ③ 1–2 条美学锚点 ④ 现成素材（风格 / 特效）
+⑤ 配色原型（变量脚手架）+ 版式模式 + 四条动效硬指标 ⑥ 字体与文字样式（品牌套件 + 3 条配方）
+⑦ 下一步调用顺序。**照第 ⑦ 节再调 2–3 次就够**，
 不要一口气把库全读一遍。`surface` 可写 `web-landing` / `dashboard` / `app` / `game-ui` /
 `deck` / `promo` / `illustration`（也认中文），它优先于从 `task` 猜测。
 
-细节见 [design.md](design.md)：参数、输出结构、六个随包数据源分工、配色预设、排查选型。
+细节见 [design.md](design.md)：参数、输出结构、七个随包数据源分工、配色预设、排查选型。
 
 ## 定调、抄版式、交付前自检
 
@@ -137,6 +138,24 @@ Transparent Textures / Lospec / unDraw，工具会说明为什么只能外接）
 liaoyunart 的整份目录会缓存到本地（`~/.dsh/cache/anim-pack-assets/`），断网也能搜，但图片要联网取。
 细节见 [assets.md](assets.md)。
 
+## 要标题效果 / 字体 / 整套视觉
+
+第八个数据源随包发在 `assets/type/`（不联网，只有查图标走 Iconify）：180 条配方 + 71 条字体种子。
+写页面时最费时间的「标题怎么做出效果」「这套配色字体怎么定」「首屏背景用什么」，在这里都是现成 HTML / CSS。
+
+- `anim_type_search`：搜配方，`kind`（`effect` 艺术字 / `motion` 文字动效 / `decor` 装饰件 / `background` 背景 /
+  `illustration` 插画库 / `font` 字体）+ `category` + 多标签 AND；中文口语自动展开同义词（水墨→国风/书法、霓虹→发光）。
+- `anim_type_show`：一条配方的 HTML + CSS + 参数 + 已知坑；同名跨类时用 `kind:id`（如 `background:paper`）。
+- `anim_brand_kit`：**整套视觉先定这个** —— 主题词自动选 5 套色板之一与 5 组字体配对之一，给圆角 / 间距 / 字阶 / 阴影的 CSS 变量。
+- `anim_font_css`：字体引入（`@import` / `<link>` / 系统兜底栈），`source` 支持 google / fontshare / fontsource / system；
+  字体文件不随包发，只登记官方文件名与许可。
+- `anim_background`：14 种背景预设按你的色板换色（mesh / 极光 / 噪点 / 网格 / 纸纹 / 星空…）。
+- `anim_icon_group`：6 组图标（ui / solid / game / brand / emoji / arrows）取 SVG，可换色、可批量落盘。
+- `anim_type_audit`：排版 15 条（字阶 ≤5 档、行高 1.5–1.7、行长 45–75、字重 ≤3、对比度 4.5:1、避头尾…），按必修/该修/可选分级。
+- `anim_type_stats` / `anim_type_export`：家底与「导成单文件 HTML 画廊对比」。
+
+顺序：**brand_kit 定 token → type_search 挑 2–3 条 → type_show 抄 → type_audit 收尾**。
+字体许可要当真：Google 多为 OFL，Fontshare 受 ITF FFL 约束，系统字体只保证「装了才有」。细节见 [type.md](type.md)。
 ## 从提示词到可编辑动画
 
 从用户要求中提取内容、时长、画幅、字幕及声音选择。遵循用户已经给定的参数；缺失且不影响内容时可采用 12 秒、1920×1080、30 fps、无声预览，并说明假设。不要把无声预览描述成已经配音或配乐的成片。

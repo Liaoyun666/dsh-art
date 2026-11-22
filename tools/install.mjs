@@ -2,8 +2,8 @@
 /**
  * dsh-anim-pack 安装器 / 卸载器。
  *
- * 素材（76MB / 346 个 md / 193 张 jpg，外加 124 张镜头配方卡、54 张海报、设计工艺库与
- * 外接素材库登记表）就放在本包的
+ * 素材（76MB / 346 个 md / 193 张 jpg，外加 124 张镜头配方卡、54 张海报、设计工艺库、
+ * 外接素材库登记表与 180 条文字美化配方 + 71 条字体种子）就放在本包的
  * assets/ 里，安装只做三件轻事：
  *   1. 在 profile 的 node_modules 建 junction（Loader 靠它把 `dsh-anim-pack` 解析到本包）；
  *   2. 把托管块追加进 profile 自己的 cordis.patch.yml（默认 patch 方式）；
@@ -89,7 +89,11 @@ const BLOCK = `${BLOCK_BEGIN}
 # DSH_ASSET_BASE，缓存 config.assetCacheDir，超时 config.assetTimeoutMs。
 # 检索支持中文（水墨→ink 这类中英同义词自动换词），anim_asset_fetch 可用 ids 一次
 # 批量落 12 条；结果头部给「本页区间 / 本页授权分布 / 翻页 offset」。
-# 路由：anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计时先调它；
+# 文字：文字与前端美化（anim_type_stats / search / show / export、anim_font_search /
+# anim_font_css、anim_brand_kit、anim_background、anim_icon_group、anim_type_audit）——
+# 180 条配方（37 艺术字 / 16 文字动效 / 32 装饰件 / 14 背景 / 10 家插画外接）+ 71 条
+# 字体种子，随包发在 assets/type/；路径 config.typePath，导出缺省 config.typeExportDir。
+# 路由：anim_design_brief 一次给出风格/镜头/特效/工艺/字体/配色参考包，做前端设计时先调它；
 # 安装时还会写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
 # 让模型在写页面、界面、海报之前想起这些工具。
 - insert:
@@ -204,9 +208,17 @@ async function selfCheck() {
   try {
     const { PROVIDERS } = await import(pathToFileURL(join(pluginDir, 'lib', 'assets.js')).href)
     const live = PROVIDERS.filter((row) => row.mode !== 'link')
-    lines.push(`  素材库    : ${PROVIDERS.length} 个登记源（${live.length} 个可检索：${live.map((row) => row.id).join(' / ')}；其余为外接位）`)
+    lines.push(`  外接素材  : ${PROVIDERS.length} 个登记源（${live.length} 个可检索：${live.map((row) => row.id).join(' / ')}；其余为外接位）`)
   } catch (error) {
-    lines.push(`  素材库失败: ${error?.message ?? error}`)
+    lines.push(`  外接素材失败: ${error?.message ?? error}`)
+  }
+  try {
+    const { loadTypeLibrary, typeStats } = await import(pathToFileURL(join(pluginDir, 'lib', 'type.js')).href)
+    const type = typeStats(loadTypeLibrary(pluginDir))
+    const counts = type.counts
+    lines.push(`  文字美化  : ${counts.total} 条配方（${counts.effect} 艺术字 / ${counts.motion} 动效 / ${counts.decor} 装饰 / ${counts.background} 背景 / ${counts.illustration} 插画外接）/ ${counts.font} 条字体种子`)
+  } catch (error) {
+    lines.push(`  文字美化失败: ${error?.message ?? error}`)
   }
   return lines.join('\n')
 }

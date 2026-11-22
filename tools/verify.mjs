@@ -12,7 +12,9 @@
  * 第五个数据源（video-shotcraft 镜头卡）与前端设计路由 anim_design_brief 的选型逻辑，
  * 第六个数据源（设计工艺库：八锚点 / 24 条 CSS 模式 / 15 条审查准则 / 规则集），
  * 以及第七个数据源（外接素材库：liaoyunart 目录解析 / 授权分级 / 色调 / 多条件检索，
- * 加四个工具的入口与提示）。全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
+ * 加四个工具的入口与提示），以及第八个数据源（文字与前端美化：37 艺术字 / 16 文字动效 /
+ * 32 装饰件 / 14 背景 / 10 家插画外接 / 71 条字体种子，加十种工具的入口）。全部通过打印 PASS，
+ * 有任何一条不过就以退出码 1 结束。
  *
  *   node tools/verify.mjs --refs     额外跑联网检查：真的去素材库搜图、取详情、下载一张图。
  *                                    地址取 DSH_REF_BASE / config.refBase；不联网时不要加。
@@ -117,6 +119,21 @@ import {
   splitAssetId,
   summarizeAsset,
 } from '../lib/assets.js'
+
+import {
+  ICON_GROUPS,
+  TYPOGRAPHY_RULES,
+  brandKit,
+  exportTypeGallery,
+  fontCss,
+  generateBackground,
+  loadTypeLibrary,
+  resolveType as resolveTypeEntry,
+  searchFonts,
+  searchType,
+  typeAudit,
+  typeStats,
+} from '../lib/type.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const EXPECTED_TOTAL = 341
@@ -374,7 +391,7 @@ try {
   rmSync(fxWorkDir, { recursive: true, force: true })
 }
 
-// ── 插件注册：用假 ctx 跑一遍 apply()，31 个工具都得能真的执行 ─────────────
+// ── 插件注册：用假 ctx 跑一遍 apply()，46 个工具都得能真的执行 ─────────────
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
@@ -395,9 +412,11 @@ const TOOL_NAMES = [
   'anim_shot_stats', 'anim_shot_search', 'anim_shot_show', 'anim_shot_preview',
   'anim_shot_export', 'anim_shot_random', 'anim_shot_guide',
   'anim_asset_sources', 'anim_asset_search', 'anim_asset_show', 'anim_asset_fetch', 'anim_asset_guide',
+  'anim_type_stats', 'anim_type_search', 'anim_type_show', 'anim_type_export', 'anim_font_search',
+  'anim_font_css', 'anim_brand_kit', 'anim_background', 'anim_icon_group', 'anim_type_audit',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 36 个工具', registered.length === 36 && TOOL_NAMES.length === 36, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 46 个工具', registered.length === 46 && TOOL_NAMES.length === 46, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -804,7 +823,9 @@ check('anim_shot_guide 读到镜头卡指南', shotGuide.length > 2000 && shotGu
 
 // ── 前端设计路由：一次调用给出风格 / 镜头 / 特效 / 配色，且说清下一步调谁 ──
 const briefOut = await callTool('anim_design_brief', { task: '深色科技风的 AI 写作产品落地页' })
-check('anim_design_brief 输出前端设计参考包', briefOut.includes('# 前端设计参考包') && briefOut.includes('## ⑥ 下一步'), briefOut.slice(0, 80))
+check('anim_design_brief 输出前端设计参考包', briefOut.includes('# 前端设计参考包') && briefOut.includes('## ⑦ 下一步'), briefOut.slice(0, 80))
+check('brief 带字体与文字样式段（可照抄的特效与字体提示）',
+  briefOut.includes('## ⑥ 字体与文字样式') && briefOut.includes('anim_font_css(family=') && /anim_type_show\(id="/.test(briefOut), briefOut.slice(0, 700))
 check('brief 从任务描述认出落地页场景', briefOut.includes('surface=web-landing'), briefOut.slice(0, 220))
 check('brief 给出能直接照抄的下一次调用',
   /anim_show\(id="/.test(briefOut) && /anim_shot_show\(id="/.test(briefOut), briefOut.slice(-320))
@@ -1058,6 +1079,113 @@ check('anim_asset_guide 给出缓存路径与换地址办法',
   assetGuideOut.includes('liaoyunart-catalog.json') && assetGuideOut.includes('DSH_ASSET_BASE'), assetGuideOut.slice(0, 400))
 check('anim_asset_guide 与 docs/assets.md 都在', existsSync(join(ROOT, 'docs', 'assets.md')) && existsSync(join(ROOT, 'assets', 'companion', 'frontend-art-reference', 'SKILL.md')))
 
+// ── 文字与美化：数据完整性 + 检索 + 十种工具的入口 ─────────────────────────
+const typeLib = loadTypeLibrary(ROOT)
+const typeCounts = typeStats(typeLib).counts
+check('文字美化素材 6 类 180 条（37 特效 / 16 动效 / 32 装饰 / 14 背景 / 10 插画 / 71 字体）',
+  typeCounts.total === 180 && typeCounts.effect === 37 && typeCounts.motion === 16 && typeCounts.decor === 32 &&
+    typeCounts.background === 14 && typeCounts.illustration === 10 && typeCounts.font === 71, JSON.stringify(typeCounts))
+check('六份数据都读到了（没有缺文件）', typeLib.errors.filter((line) => /缺文件/.test(line)).length === 0, typeLib.errors.join('；'))
+check('每条配方都有 id / 名字 / 何时用 / CSS',
+  typeLib.effects.concat(typeLib.motion, typeLib.decor, typeLib.background).every((row) => row.id && row.name && row.when && row.css),
+  '缺字段的：' + typeLib.effects.concat(typeLib.motion, typeLib.decor, typeLib.background).filter((row) => !row.id || !row.css).map((row) => row.id).join('、'))
+check('字体种子带来源与许可（引用官方文件名）',
+  typeLib.fonts.every((row) => row.family && row.source && row.license),
+  typeLib.fonts.filter((row) => !row.license).map((row) => row.family).join('、'))
+check('同 id 跨类时能用 kind:id 精确指定',
+  resolveTypeEntry(typeLib, 'background:paper').entry?.kind === 'background' &&
+    resolveTypeEntry(typeLib, 'paper').entry !== undefined, '背景与装饰都有 paper')
+check('resolveTypeEntry 认 id 与名字，认不出时不乱给',
+  resolveTypeEntry(typeLib, 'vertical').entry?.id === 'vertical' &&
+    resolveTypeEntry(typeLib, '竖排文字').entry?.id === 'vertical' &&
+    resolveTypeEntry(typeLib, 'zzz-zzz').entry === null)
+
+const inkType = searchType(typeLib, { query: '水墨', limit: 5 })
+check('searchType 中文口语按同义词展开（水墨 → 国风 / 书法）',
+  inkType.total >= 3 && inkType.expanded.some((row) => row.startsWith('水墨→')), JSON.stringify(inkType.expanded))
+check('searchType 每词都要命中，搜不到就 0 条', searchType(typeLib, { query: 'zzzqqq' }).total === 0)
+check('searchType 英文关键词照常命中', searchType(typeLib, { query: 'glow', limit: 5 }).total > 0)
+check('searchType 能按类别筛（kind=effect）',
+  searchType(typeLib, { kind: 'effect', limit: 40 }).rows.every((row) => row.entry.kind === 'effect'))
+
+const warmKit = brandKit({ theme: '咖啡店官网' })
+check('brandKit 从主题词认出暖色板与字体搭配',
+  warmKit.palette.id === 'warm' && typeof warmKit.pairing.name === 'string' && warmKit.tokens.color.bg.startsWith('#'),
+  JSON.stringify({ palette: warmKit.palette, pairing: warmKit.pairing.name }))
+check('brandKit 的 CSS 变量含圆角 / 字体 / 间距',
+  /--r-md:\d+px/.test(warmKit.cssVars) && /--font-display:/.test(warmKit.cssVars) && /--s-4:/.test(warmKit.cssVars))
+check('brandKit 深色档能切', brandKit({ theme: '科技', dark: true }).palette.dark === true)
+
+check('searchFonts 认得「中文」这类条件', searchFonts(typeLib, { query: '中文' }).total > 0)
+check('searchFonts 中文字体种子 ≥ 15 条', searchFonts(typeLib, { cjk: true, limit: 80 }).total >= 15, String(searchFonts(typeLib, { cjk: true, limit: 80 }).total))
+const noto = fontCss({ family: 'Noto Sans SC', weights: ['400', '700'] })
+check('fontCss 给 @import 与 Google css2 地址',
+  noto.url.includes('fonts.googleapis.com/css2') && noto.css.includes('@import') && noto.url.includes('wght@400;700'), noto.url)
+check('fontCss 不认识的源报错而不静默', (() => { try { fontCss({ family: 'X', source: 'nope' }); return false } catch (error) { return /不认识的字体源/.test(String(error?.message ?? error)) } })())
+
+const auroraEntry = typeLib.background.find((row) => row.id === 'aurora')
+const auroraBg = generateBackground(auroraEntry, ['#000000', '#ff0066'])
+check('generateBackground 把给定色替换进 CSS',
+  auroraBg.css.includes('#000000') && auroraBg.css.includes('background'), auroraBg.css.slice(0, 120))
+check('generateBackground 支持纯自定义 CSS', generateBackground({ id: 'x', name: 'x', css: 'background:#123456' }, []).css.includes('#123456'))
+
+const audit15 = typeAudit({})
+check('typeAudit 出 15 条排版准则并分级',
+  audit15.rules.length === 15 && TYPOGRAPHY_RULES.length === 15 && audit15.rules.every((row) => ['1', '2', '3'].includes(String(row.severity))),
+  String(audit15.rules.length))
+check('六组图标都带集合与适用场景', ICON_GROUPS.length === 6 && ICON_GROUPS.every((row) => row.prefixes.length > 0 && row.when))
+
+const typeWorkDir = mkdtempSync(join(tmpdir(), 'anim-pack-type-'))
+try {
+  const gallery = exportTypeGallery(typeLib, { ids: ['vertical', 'neon-glow', 'aurora'], dir: join(typeWorkDir, 'gallery') })
+  check('exportTypeGallery 生成单文件画廊', gallery.count >= 1 && existsSync(gallery.file), JSON.stringify(gallery))
+  check('画廊用 iframe srcdoc 隔离每条样式', readFileSync(gallery.file, 'utf8').includes('srcdoc='))
+
+  const statsOut = await callTool('anim_type_stats')
+  check('anim_type_stats 报出 180 条与分类分布', statsOut.includes('180 条') && statsOut.includes('艺术字'), statsOut.slice(0, 80))
+
+  const typeSearchOut = await callTool('anim_type_search', { query: '水墨', limit: 2 })
+  check('anim_type_search 出同义词提示与可照抄的 id',
+    typeSearchOut.includes('同义词展开：水墨→') && /anim_type_show\(id="/.test(typeSearchOut), typeSearchOut.slice(0, 200))
+
+  const typeShowOut = await callTool('anim_type_show', { id: 'vertical' })
+  check('anim_type_show 给 HTML 与 CSS', typeShowOut.includes('## HTML') && typeShowOut.includes('writing-mode'), typeShowOut.slice(0, 120))
+  check('anim_type_show 未知 id 给提示', (await callTool('anim_type_show', { id: 'zzz-nope' })).includes('没找到'))
+  check('anim_type_show 能收 kind:id 形式', (await callTool('anim_type_show', { id: 'background:paper' })).includes('纸纹'))
+
+  const typeExportOut = await callTool('anim_type_export', { ids: ['vertical', 'sticker-tape'], dir: join(typeWorkDir, 'tool-gallery') })
+  check('anim_type_export 真的落盘', existsSync(join(typeWorkDir, 'tool-gallery', 'gallery.html')), typeExportOut.slice(0, 160))
+
+  const fontSearchOut = await callTool('anim_font_search', { query: '中文', limit: 2 })
+  check('anim_font_search 给许可与下一步', fontSearchOut.includes('# 字体检索') && fontSearchOut.includes('anim_font_css'), fontSearchOut.slice(0, 120))
+
+  const fontCssOut = await callTool('anim_font_css', { family: 'Noto Sans SC', weights: ['400', '700'] })
+  check('anim_font_css 三段都能直接抄',
+    fontCssOut.includes('用法 A · @import') && fontCssOut.includes('用法 B · <link>') && fontCssOut.includes('## 字体栈'), fontCssOut.slice(0, 80))
+
+  const kitOut = await callTool('anim_brand_kit', { theme: '咖啡店官网' })
+  check('anim_brand_kit 出色板 / 字体 / CSS 变量',
+    kitOut.includes('## 色板') && kitOut.includes('## CSS 变量') && kitOut.includes('--bg:'), kitOut.slice(0, 120))
+
+  const bgOut = await callTool('anim_background', { preset: 'aurora', colors: ['#000000', '#ff0066'] })
+  check('anim_background 换色后给出用法', bgOut.includes('#000000') && bgOut.includes('::before'), bgOut.slice(0, 160))
+  check('anim_background 不认识的预设列可选值', (await callTool('anim_background', { preset: 'zzz' })).includes('不认识的背景预设'))
+
+  const iconGroupsOut = await callTool('anim_icon_group', {})
+  check('anim_icon_group 不给关键词时列出六组（不空手打 API）',
+    iconGroupsOut.includes('图标组 · 6 组') && iconGroupsOut.includes('game-icons') || iconGroupsOut.includes('game'), iconGroupsOut.slice(0, 160))
+
+  const typeAuditOut = await callTool('anim_type_audit')
+  check('anim_type_audit 分必修 / 该修 / 可选',
+    typeAuditOut.includes('必修') && typeAuditOut.includes('该修') && typeAuditOut.includes('可选'), typeAuditOut.slice(0, 120))
+
+  check('anim_type_search 描述写清何时该调',
+    /做标题|海报/.test(toolsByName.get('anim_type_search').description) && /这里找现成配方/.test(toolsByName.get('anim_type_search').description))
+  check('anim_font_css 描述提「字体」与「中文」',
+    /字体/.test(toolsByName.get('anim_font_css').description) && /中文/.test(toolsByName.get('anim_font_css').description))
+} finally {
+  rmSync(typeWorkDir, { recursive: true, force: true })
+}
 // ── 联网检查（node tools/verify.mjs --refs）：真的搜图、看详情、下载一张 ────
 // 只有 --refs 且地址不是占位时才跑：DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs
 const LIVE = process.argv.includes('--refs') && !/^(127[.]0[.]0[.]1|localhost)$/.test(new URL(refDefaults.base).hostname)
@@ -1263,4 +1391,4 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  · ${failure}`)
   process.exit(1)
 }
-console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 124 张镜头卡 / ${PROVIDERS.length} 个外接素材源 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}${ASSETS ? ' / 外接素材库联网已验' : ''}）`)
+console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 124 张镜头卡 / ${PROVIDERS.length} 个外接素材源 / 180 条文字配方 + 71 字体种子 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}${ASSETS ? ' / 外接素材库联网已验' : ''}）`)

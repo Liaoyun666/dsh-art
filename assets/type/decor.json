@@ -1,0 +1,486 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:46:08.469Z",
+  "count": 32,
+  "entries": [
+    {
+      "id": "wave-divider",
+      "name": "波浪分隔",
+      "category": "divider",
+      "when": "段落之间想松一口气；生活方式/儿童页",
+      "tags": [
+        "分隔",
+        "波浪",
+        "svg"
+      ],
+      "params": "SVG path 宽 100%，高 40–80px，填充=下一节底色",
+      "html": "<svg class=\"dv-wave\" viewBox=\"0 0 1200 80\" preserveAspectRatio=\"none\"><path d=\"M0 40 C150 90,350 -10,600 40 C850 90,1050 -10,1200 40 L1200 80 L0 80Z\"/></svg>",
+      "css": ".dv-wave{display:block;width:100%;height:64px;fill:#f5f3ff}",
+      "pitfall": "波浪填充色必须等于下面那节的底色，否则露出缝；preserveAspectRatio=none 才不会左右留白"
+    },
+    {
+      "id": "zigzag-divider",
+      "name": "锯齿分隔",
+      "category": "divider",
+      "when": "复古/票据/运动风",
+      "tags": [
+        "分隔",
+        "锯齿",
+        "票据"
+      ],
+      "params": "clip-path polygon，齿宽 20–40px",
+      "html": "<div class=\"dv-zig\"></div>",
+      "css": ".dv-zig{height:24px;background:#111;clip-path:polygon(0 0,100% 0,100% 100%,97.5% 0,95% 100%,92.5% 0,90% 100%,87.5% 0,85% 100%,82.5% 0,80% 100%,77.5% 0,75% 100%,72.5% 0,70% 100%,67.5% 0,65% 100%,62.5% 0,60% 100%,57.5% 0,55% 100%,52.5% 0,50% 100%,47.5% 0,45% 100%,42.5% 0,40% 100%,37.5% 0,35% 100%,32.5% 0,30% 100%,27.5% 0,25% 100%,22.5% 0,20% 100%,17.5% 0,15% 100%,12.5% 0,10% 100%,7.5% 0,5% 100%,2.5% 0)}",
+      "pitfall": "polygon 点太多难维护，实际项目用 repeating-linear-gradient 或 SVG 更省"
+    },
+    {
+      "id": "torn-divider",
+      "name": "撕纸分隔",
+      "category": "divider",
+      "when": "手帐/杂志/独立品牌",
+      "tags": [
+        "分隔",
+        "撕纸",
+        "手作"
+      ],
+      "params": "SVG 不规则边缘 + 轻微阴影",
+      "html": "<div class=\"dv-torn\"></div>",
+      "css": ".dv-torn{height:28px;background:#fff;clip-path:polygon(0 0,100% 0,100% 40%,96% 70%,92% 45%,88% 80%,83% 50%,78% 75%,72% 45%,66% 70%,60% 50%,54% 80%,48% 50%,42% 72%,36% 45%,30% 78%,24% 50%,18% 74%,12% 45%,6% 70%,0 50%)}",
+      "pitfall": "撕边点要随机但不均匀，等距会像锯齿；配纸纹理更真"
+    },
+    {
+      "id": "dashed-divider",
+      "name": "虚线分隔",
+      "category": "divider",
+      "when": "技术文档、表单分区、极简页",
+      "tags": [
+        "分隔",
+        "虚线",
+        "极简"
+      ],
+      "params": "1px dashed，间距 24–40px",
+      "html": "<hr class=\"dv-dash\">",
+      "css": ".dv-dash{border:0;border-top:1px dashed #d4d4d8;margin:32px 0}",
+      "pitfall": "虚线在 Retina 上会变灰，用 1.5px 或改用 repeating-linear-gradient"
+    },
+    {
+      "id": "dots-divider",
+      "name": "点线分隔",
+      "category": "divider",
+      "when": "目录、页脚、装饰性留白",
+      "tags": [
+        "分隔",
+        "点",
+        "装饰"
+      ],
+      "params": "圆点 4px，间距 12px",
+      "html": "<div class=\"dv-dots\"></div>",
+      "css": ".dv-dots{height:4px;background:radial-gradient(circle,#a1a1aa 2px,transparent 2.5px) 0 0/16px 4px repeat-x}",
+      "pitfall": "background-repeat 写法漏了 repeat-x 会平铺成整块"
+    },
+    {
+      "id": "ornament-divider",
+      "name": "花饰分隔",
+      "category": "divider",
+      "when": "书籍/国风/婚礼/古典",
+      "tags": [
+        "分隔",
+        "花饰",
+        "古典"
+      ],
+      "params": "中线 + 两侧菱形/花纹，宽 240–400px",
+      "html": "<div class=\"dv-orn\"><i></i><span>❖</span><i></i></div>",
+      "css": ".dv-orn{display:flex;align-items:center;gap:14px;color:#a78bfa;justify-content:center}.dv-orn i{height:1px;width:120px;background:currentColor;opacity:.5}.dv-orn span{font-size:18px}",
+      "pitfall": "装饰字符在不同字体里字形不同，跨平台会变样；重要场合用 SVG"
+    },
+    {
+      "id": "corner-ornament",
+      "name": "四角花边",
+      "category": "border",
+      "when": "证书/请柬/国风卡片",
+      "tags": [
+        "边框",
+        "花边",
+        "国风"
+      ],
+      "params": "四角 SVG 或 border-image，线宽 1–2px",
+      "html": "<div class=\"bd-corner\">内容</div>",
+      "css": ".bd-corner{position:relative;padding:32px;border:1px solid #d6d3d1}.bd-corner::before,.bd-corner::after{content:'';position:absolute;width:16px;height:16px;border:2px solid #b45309}.bd-corner::before{top:6px;left:6px;border-right:0;border-bottom:0}.bd-corner::after{bottom:6px;right:6px;border-left:0;border-top:0}",
+      "pitfall": "只做两个角会显得没做完，四个角要补全或用 border-image"
+    },
+    {
+      "id": "double-border",
+      "name": "双层细边框",
+      "category": "border",
+      "when": "编辑风卡片、价目表、极简品牌",
+      "tags": [
+        "边框",
+        "双层",
+        "极简"
+      ],
+      "params": "外层 1px + 内层 1px，间距 4–6px",
+      "html": "<div class=\"bd-double\">内容</div>",
+      "css": ".bd-double{padding:20px;border:1px solid #18181b;box-shadow:inset 0 0 0 1px #fff,inset 0 0 0 2px #18181b}",
+      "pitfall": "内层用 box-shadow 不占布局；padding 要大于 2 倍间距"
+    },
+    {
+      "id": "ticket-edge",
+      "name": "票券齿边",
+      "category": "border",
+      "when": "优惠券/门票/活动卡",
+      "tags": [
+        "票券",
+        "齿边",
+        "卡片"
+      ],
+      "params": "左右各 8–12 个半圆缺口，半径 6–10px",
+      "html": "<div class=\"bd-ticket\">ADMIT ONE</div>",
+      "css": ".bd-ticket{padding:24px 32px;background:#fef3c7;--r:8px;mask:radial-gradient(circle var(--r) at 0 50%,transparent 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--r) at 100% 50%,transparent 98%,#000) right/51% 100% no-repeat}",
+      "pitfall": "mask 两半要在 50% 处接缝，重叠会露线；底色透明时齿边才明显"
+    },
+    {
+      "id": "photo-frame",
+      "name": "照片细框",
+      "category": "frame",
+      "when": "作品集、画廊、图文卡",
+      "tags": [
+        "相框",
+        "作品集"
+      ],
+      "params": "白边 8–16px + 极浅投影",
+      "html": "<figure class=\"bd-photo\"><img src=\"photo.jpg\" alt=\"\"><figcaption>Caption</figcaption></figure>",
+      "css": ".bd-photo{margin:0;padding:12px 12px 40px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.08)}.bd-photo img{display:block;width:100%}.bd-photo figcaption{margin-top:10px;font-size:13px;color:#71717a}",
+      "pitfall": "图片比例不统一时先 object-fit:cover 锁比例，否则卡片高低不齐"
+    },
+    {
+      "id": "polaroid",
+      "name": "拍立得",
+      "category": "frame",
+      "when": "回忆/旅行/生活记录",
+      "tags": [
+        "拍立得",
+        "照片",
+        "手作"
+      ],
+      "params": "上左右 12px、下 48px 白边，轻旋转",
+      "html": "<figure class=\"bd-polaroid\"><img src=\"photo.jpg\" alt=\"\"><figcaption>summer</figcaption></figure>",
+      "css": ".bd-polaroid{margin:0;padding:12px 12px 46px;background:#fff;transform:rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.16);font-family:'Caveat',cursive}.bd-polaroid img{width:100%;display:block}",
+      "pitfall": "旋转后阴影方向要一致，否则像贴纸浮空"
+    },
+    {
+      "id": "badge-seal",
+      "name": "圆形徽章",
+      "category": "frame",
+      "when": "认证/评分/限定标签",
+      "tags": [
+        "徽章",
+        "标签",
+        "认证"
+      ],
+      "params": "直径 72–120px，环 2–3px，文字 10–12px",
+      "html": "<div class=\"bd-badge\"><b>4.9</b><span>RATING</span></div>",
+      "css": ".bd-badge{width:96px;height:96px;border-radius:50%;border:2px solid #f59e0b;display:grid;place-items:center;text-align:center;color:#b45309;background:#fffbeb}.bd-badge b{font:800 28px/1 system-ui}.bd-badge span{font:600 9px/1 system-ui;letter-spacing:.16em}",
+      "pitfall": "环内文字超 8 个字符就挤，改两行或缩字号"
+    },
+    {
+      "id": "noise-overlay",
+      "name": "噪点覆盖层",
+      "category": "texture",
+      "when": "任何页面想加一点胶片质感",
+      "tags": [
+        "噪点",
+        "纹理",
+        "胶片"
+      ],
+      "params": "opacity 0.06–0.15，mix-blend-mode:overlay",
+      "html": "<div class=\"tx-noise\"></div>",
+      "css": ".tx-noise{position:fixed;inset:0;pointer-events:none;opacity:.08;mix-blend-mode:overlay;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")}",
+      "pitfall": "fixed 全屏噪点会拖慢滚动，改成 background-image 铺在容器上"
+    },
+    {
+      "id": "grain",
+      "name": "颗粒渐变",
+      "category": "texture",
+      "when": "暗色高级感页面、封面",
+      "tags": [
+        "颗粒",
+        "渐变",
+        "高级"
+      ],
+      "params": "双色渐变 + 噪点 + 低饱和",
+      "html": "<div class=\"tx-grain\"></div>",
+      "css": ".tx-grain{height:320px;background:radial-gradient(60% 80% at 20% 20%,#312e81,transparent),radial-gradient(50% 60% at 80% 30%,#0e7490,transparent),#0b1020;filter:saturate(.9)}.tx-grain::after{content:'';position:absolute;inset:0;background:url(noise.png);opacity:.12;mix-blend-mode:soft-light}",
+      "pitfall": "颗粒图要可平铺，否则接缝明显；用 SVG data URI 最省请求"
+    },
+    {
+      "id": "paper",
+      "name": "纸张纹理",
+      "category": "texture",
+      "when": "手帐/书页/国风/请柬",
+      "tags": [
+        "纸张",
+        "纹理",
+        "国风"
+      ],
+      "params": "米色底 + 纤维噪点 + 轻微黄边",
+      "html": "<div class=\"tx-paper\">纸上文字</div>",
+      "css": ".tx-paper{padding:36px;background-color:#faf6ee;background-image:radial-gradient(#e7dfd2 1px,transparent 1px);background-size:6px 6px;box-shadow:inset 0 0 60px rgba(180,160,120,.18);font-family:'Noto Serif SC',serif}",
+      "pitfall": "纸纹过密会脏，6–10px 网点刚好；文字对比别低于 7:1"
+    },
+    {
+      "id": "grid-paper",
+      "name": "网格纸",
+      "category": "texture",
+      "when": "技术/教程/蓝图风",
+      "tags": [
+        "网格",
+        "蓝图",
+        "技术"
+      ],
+      "params": "20–32px 格，线色 5–10% 透明",
+      "html": "<div class=\"tx-grid\"></div>",
+      "css": ".tx-grid{height:240px;background-image:linear-gradient(#e4e4e7 1px,transparent 1px),linear-gradient(90deg,#e4e4e7 1px,transparent 1px);background-size:28px 28px}",
+      "pitfall": "网格线在缩放时会有摩尔纹，用半像素偏移或 SVG pattern"
+    },
+    {
+      "id": "blueprint",
+      "name": "蓝图底",
+      "category": "texture",
+      "when": "工程/建筑/产品拆解图",
+      "tags": [
+        "蓝图",
+        "工程",
+        "技术"
+      ],
+      "params": "深蓝底 + 白细线 + 十字标",
+      "html": "<div class=\"tx-blue\"></div>",
+      "css": ".tx-blue{height:280px;background-color:#0b2a4a;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:24px 24px;box-shadow:inset 0 0 120px rgba(0,0,0,.5)}",
+      "pitfall": "蓝图网格别太亮，否则抢主体；文字用等宽字体更像图纸"
+    },
+    {
+      "id": "spotlight",
+      "name": "聚光灯",
+      "category": "light",
+      "when": "舞台/产品主视觉/暗色首屏",
+      "tags": [
+        "光",
+        "聚光",
+        "暗色"
+      ],
+      "params": "radial-gradient 40–60% 透明到黑",
+      "html": "<div class=\"lt-spot\"></div>",
+      "css": ".lt-spot{height:360px;background:radial-gradient(50% 60% at 50% 0%,rgba(255,255,255,.22),transparent 70%),#0a0a0a}",
+      "pitfall": "光斑位置跟主体对齐，偏了像漏光"
+    },
+    {
+      "id": "glow-orb",
+      "name": "光球",
+      "category": "light",
+      "when": "SaaS 首屏装饰、AI 产品",
+      "tags": [
+        "光球",
+        "装饰",
+        "科技"
+      ],
+      "params": "blur 60–120px，两三个不同色",
+      "html": "<div class=\"lt-orb\"></div>",
+      "css": ".lt-orb{position:relative;height:360px;overflow:hidden}.lt-orb::before,.lt-orb::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;filter:blur(80px)}.lt-orb::before{background:#7c3aed;top:-60px;left:10%}.lt-orb::after{background:#06b6d4;bottom:-80px;right:8%}",
+      "pitfall": "blur 很吃 GPU，移动端减到 40px 或换预渲染图"
+    },
+    {
+      "id": "lens-flare",
+      "name": "镜头光晕",
+      "category": "light",
+      "when": "摄影/电影感封面",
+      "tags": [
+        "光晕",
+        "摄影",
+        "电影"
+      ],
+      "params": "线性渐变斜条 + 小圆点，screen 混合",
+      "html": "<div class=\"lt-flare\"></div>",
+      "css": ".lt-flare{height:280px;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.5) 48%,transparent 52%),radial-gradient(circle at 70% 40%,rgba(255,220,150,.65),transparent 45%),#0f172a;mix-blend-mode:screen}",
+      "pitfall": "光晕别横穿文字，压在主标题上会掉对比"
+    },
+    {
+      "id": "scanlines",
+      "name": "扫描线覆层",
+      "category": "light",
+      "when": "CRT/复古/游戏界面",
+      "tags": [
+        "扫描线",
+        "复古",
+        "crt"
+      ],
+      "params": "2px 间隔，黑 25–35%",
+      "html": "<div class=\"lt-scan\"></div>",
+      "css": ".lt-scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px)}",
+      "pitfall": "奇数间隔更稳；别盖住按钮可点区域"
+    },
+    {
+      "id": "vignette",
+      "name": "暗角",
+      "category": "light",
+      "when": "照片/封面/游戏画面聚焦",
+      "tags": [
+        "暗角",
+        "聚焦",
+        "摄影"
+      ],
+      "params": "inset 阴影 80–160px，透明度 30–50%",
+      "html": "<div class=\"lt-vig\"></div>",
+      "css": ".lt-vig{height:320px;box-shadow:inset 0 0 140px 40px rgba(0,0,0,.55);background:#1c1917}",
+      "pitfall": "暗角太重会吃掉四角信息（尤其是截图类内容）"
+    },
+    {
+      "id": "tape-strip",
+      "name": "胶带条",
+      "category": "sticker",
+      "when": "手帐/便签/照片墙",
+      "tags": [
+        "胶带",
+        "手作",
+        "装饰"
+      ],
+      "params": "宽 24–40px，斜 45°，半透明",
+      "html": "<i class=\"st-tape\"></i>",
+      "css": ".st-tape{display:block;width:120px;height:32px;background:rgba(250,204,21,.7);transform:rotate(-6deg);box-shadow:0 1px 3px rgba(0,0,0,.12)}",
+      "pitfall": "胶带要压住被贴物边缘才真，悬空像色块"
+    },
+    {
+      "id": "stamp-badge",
+      "name": "邮戳",
+      "category": "sticker",
+      "when": "旅行/明信片/复古认证",
+      "tags": [
+        "邮戳",
+        "复古",
+        "认证"
+      ],
+      "params": "双环 + 日期 + 波浪线，旋转 -8°",
+      "html": "<div class=\"st-post\">POSTED<br><b>2026.11</b></div>",
+      "css": ".st-post{width:110px;height:110px;border:2px solid #1d4ed8;border-radius:50%;display:grid;place-items:center;text-align:center;color:#1d4ed8;font:700 11px/1.5 ui-monospace,monospace;transform:rotate(-8deg);opacity:.85}",
+      "pitfall": "邮戳别做太清晰，真实邮戳有断墨；可加 mask 噪点"
+    },
+    {
+      "id": "tag-label",
+      "name": "吊牌标签",
+      "category": "sticker",
+      "when": "价格/新品/分类标记",
+      "tags": [
+        "标签",
+        "价格",
+        "电商"
+      ],
+      "params": "左侧打孔 + 右侧斜角，高 28–36px",
+      "html": "<span class=\"st-tag\">NEW</span>",
+      "css": ".st-tag{display:inline-block;padding:6px 14px 6px 22px;background:#111;color:#fff;font:700 12px/1 system-ui;letter-spacing:.08em;clip-path:polygon(12px 0,100% 0,100% 100%,12px 100%,0 50%)}",
+      "pitfall": "打孔位要留白，字别贴左边"
+    },
+    {
+      "id": "ribbon",
+      "name": "绶带角标",
+      "category": "sticker",
+      "when": "促销/限定/SALE",
+      "tags": [
+        "角标",
+        "促销",
+        "ribbon"
+      ],
+      "params": "右上角 45°，宽 120px",
+      "html": "<div class=\"st-ribbon\">SALE</div>",
+      "css": ".st-ribbon{position:absolute;top:18px;right:-36px;width:150px;padding:6px 0;background:#e11d48;color:#fff;text-align:center;font:800 12px/1 system-ui;letter-spacing:.14em;transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.2)}",
+      "pitfall": "父容器要 overflow:hidden，否则绶带戳出页面"
+    },
+    {
+      "id": "chat-bubble",
+      "name": "对话气泡",
+      "category": "sticker",
+      "when": "用户评价/客服/教程对话",
+      "tags": [
+        "气泡",
+        "对话",
+        "评价"
+      ],
+      "params": "圆角 14–18px + 尾巴 10px",
+      "html": "<div class=\"st-bubble\">这也太好用了吧</div>",
+      "css": ".st-bubble{position:relative;max-width:280px;padding:12px 16px;background:#f4f4f5;border-radius:16px;font:500 14px/1.6 system-ui}.st-bubble::after{content:'';position:absolute;left:24px;bottom:-8px;border:8px solid transparent;border-top-color:#f4f4f5;border-bottom:0}",
+      "pitfall": "尾巴三角形用 border 做，圆角处会有一点硬边，可改用 SVG"
+    },
+    {
+      "id": "sticky-note",
+      "name": "便签卡",
+      "category": "sticker",
+      "when": "清单/提示/批注",
+      "tags": [
+        "便签",
+        "清单",
+        "手作"
+      ],
+      "params": "便签色 + 上沿胶带 + 轻旋转",
+      "html": "<div class=\"st-note\">TODO<br>· 对齐基线<br>· 收字距</div>",
+      "css": ".st-note{width:180px;padding:18px 16px;background:#fef9c3;transform:rotate(-2deg);font:500 13px/1.8 system-ui;box-shadow:0 6px 16px rgba(0,0,0,.12)}",
+      "pitfall": "便签色和页面主色相近时分会糊，加深 8%"
+    },
+    {
+      "id": "sticker-outline",
+      "name": "贴纸描边",
+      "category": "sticker",
+      "when": "把图标/人物做成贴纸",
+      "tags": [
+        "贴纸",
+        "描边",
+        "图标"
+      ],
+      "params": "白色 4–8px 描边 + 轻投影",
+      "html": "<img class=\"st-out\" src=\"icon.svg\" alt=\"\">",
+      "css": ".st-out{width:96px;filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 0 #fff) drop-shadow(0 2px 6px rgba(0,0,0,.25))}",
+      "pitfall": "drop-shadow 0 模糊做描边会吃掉细节，图要够大；复杂图用 SVG stroke"
+    },
+    {
+      "id": "arrow-doodle",
+      "name": "手绘箭头",
+      "category": "sticker",
+      "when": "指向重点/教程步骤",
+      "tags": [
+        "箭头",
+        "手绘",
+        "标注"
+      ],
+      "params": "SVG 二次贝塞尔 + 圆头",
+      "html": "<svg class=\"st-arrow\" viewBox=\"0 0 120 60\"><path d=\"M6 44 C30 10,70 8,104 30\"/><path d=\"M92 20 L106 30 L90 38\"/></svg>",
+      "css": ".st-arrow{width:120px;fill:none;stroke:#f43f5e;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}",
+      "pitfall": "箭头头部两笔要接上主干，否则断头"
+    },
+    {
+      "id": "circle-doodle",
+      "name": "手绘圈选",
+      "category": "sticker",
+      "when": "强调关键词/批注",
+      "tags": [
+        "圈选",
+        "手绘",
+        "强调"
+      ],
+      "params": "椭圆路径两圈不闭合，stroke 2–3px",
+      "html": "<span class=\"st-circle\">重点<svg viewBox=\"0 0 200 80\" preserveAspectRatio=\"none\"><path d=\"M14 40 C24 12,176 10,188 36 C196 60,60 76,26 62\"/></svg></span>",
+      "css": ".st-circle{position:relative;padding:0 .2em}.st-circle svg{position:absolute;inset:-6px -8px;width:calc(100% + 16px);height:calc(100% + 12px)}.st-circle path{fill:none;stroke:#f43f5e;stroke-width:3;stroke-linecap:round}",
+      "pitfall": "两圈要有轻微错位才像手画；完全重合像边框"
+    },
+    {
+      "id": "star-burst",
+      "name": "爆炸星标",
+      "category": "sticker",
+      "when": "促销/新品/价格强调",
+      "tags": [
+        "星标",
+        "促销",
+        "强调"
+      ],
+      "params": "12–16 角星，旋转 10°",
+      "html": "<div class=\"st-star\">-30%</div>",
+      "css": ".st-star{width:88px;height:88px;display:grid;place-items:center;background:#facc15;color:#111;font:900 18px/1 system-ui;clip-path:polygon(50% 0,61% 18%,82% 12%,78% 34%,100% 42%,84% 58%,96% 78%,73% 76%,68% 100%,50% 84%,32% 100%,27% 76%,4% 78%,16% 58%,0 42%,22% 34%,18% 12%,39% 18%)}",
+      "pitfall": "角数太多像齿轮，12–16 角最像爆炸贴"
+    }
+  ]
+}

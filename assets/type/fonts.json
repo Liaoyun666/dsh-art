@@ -1,0 +1,889 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:47:45.890Z",
+  "count": 71,
+  "entries": [
+    {
+      "family": "Inter",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "UI",
+        "中性",
+        "最稳"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1",
+      "pair": "Instrument Serif / Fraunces",
+      "note": "默认 UI 字体，数字有 tabular-nums"
+    },
+    {
+      "family": "Manrope",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "几何",
+        "友好",
+        "SaaS"
+      ],
+      "weights": "200–800 variable",
+      "license": "OFL 1.1",
+      "note": "圆润但不幼稚，适合工具类产品"
+    },
+    {
+      "family": "Space Grotesk",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "科技",
+        "标题",
+        "可变"
+      ],
+      "weights": "300–700 variable",
+      "license": "OFL 1.1",
+      "note": "字腔开阔，做科技标题很出效果"
+    },
+    {
+      "family": "Outfit",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "几何",
+        "现代",
+        "品牌"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Sora",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "科技",
+        "未来",
+        "标题"
+      ],
+      "weights": "100–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "DM Sans",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "友好",
+        "圆润",
+        "正文"
+      ],
+      "weights": "100–1000 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "现代",
+        "品牌",
+        "正文"
+      ],
+      "weights": "200–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Figtree",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "干净",
+        "UI",
+        "正文"
+      ],
+      "weights": "300–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Rubik",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "圆角",
+        "亲和",
+        "正文"
+      ],
+      "weights": "300–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Nunito",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "圆润",
+        "儿童",
+        "友好"
+      ],
+      "weights": "200–1000 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Poppins",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "几何",
+        "流行",
+        "标题"
+      ],
+      "weights": "100–900",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Work Sans",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "中性",
+        "正文",
+        "编辑"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Archivo",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "窄体",
+        "标题",
+        "编辑"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Archivo Black",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "超粗",
+        "标题",
+        "海报"
+      ],
+      "weights": "400",
+      "license": "OFL 1.1",
+      "note": "只有一档，专做大标题"
+    },
+    {
+      "family": "Anton",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "压缩",
+        "海报",
+        "粗"
+      ],
+      "weights": "400",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Bebas Neue",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "压缩",
+        "海报",
+        "大写"
+      ],
+      "weights": "400",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Oswald",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "压缩",
+        "标题",
+        "新闻"
+      ],
+      "weights": "200–700 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Bricolage Grotesque",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "怪趣",
+        "编辑",
+        "品牌"
+      ],
+      "weights": "200–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Unbounded",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "未来",
+        "科技",
+        "宽"
+      ],
+      "weights": "200–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Syne",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "艺术",
+        "潮牌",
+        "标题"
+      ],
+      "weights": "400–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Chakra Petch",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "游戏",
+        "HUD",
+        "科技"
+      ],
+      "weights": "300–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Rajdhani",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "游戏",
+        "HUD",
+        "窄"
+      ],
+      "weights": "300–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Instrument Serif",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "编辑",
+        "优雅",
+        "标题"
+      ],
+      "weights": "400 + italic",
+      "license": "OFL 1.1",
+      "note": "单字重，靠字号和斜体做层级"
+    },
+    {
+      "family": "Fraunces",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "编辑",
+        "复古",
+        "可变"
+      ],
+      "weights": "100–900 variable + SOFT/WONK 轴",
+      "license": "OFL 1.1",
+      "note": "SOFT/WONK 轴能调出怪味，做品牌很灵"
+    },
+    {
+      "family": "Playfair Display",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "高对比",
+        "杂志",
+        "标题"
+      ],
+      "weights": "400–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Libre Baskerville",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "正文",
+        "书卷",
+        "可读"
+      ],
+      "weights": "400/700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Lora",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "正文",
+        "柔和",
+        "博客"
+      ],
+      "weights": "400–700 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Newsreader",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "编辑",
+        "新闻",
+        "正文"
+      ],
+      "weights": "200–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "DM Serif Display",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "高对比",
+        "标题",
+        "优雅"
+      ],
+      "weights": "400",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Cormorant Garamond",
+      "source": "google",
+      "category": "serif",
+      "tags": [
+        "纤细",
+        "高雅",
+        "婚礼"
+      ],
+      "weights": "300–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "JetBrains Mono",
+      "source": "google",
+      "category": "mono",
+      "tags": [
+        "代码",
+        "等宽",
+        "可读"
+      ],
+      "weights": "100–800 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "IBM Plex Mono",
+      "source": "google",
+      "category": "mono",
+      "tags": [
+        "终端",
+        "工程",
+        "等宽"
+      ],
+      "weights": "100–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Space Mono",
+      "source": "google",
+      "category": "mono",
+      "tags": [
+        "怪趣",
+        "复古",
+        "等宽"
+      ],
+      "weights": "400/700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Fira Code",
+      "source": "google",
+      "category": "mono",
+      "tags": [
+        "代码",
+        "连字"
+      ],
+      "weights": "300–700 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "IBM Plex Sans",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "企业",
+        "中性",
+        "多语"
+      ],
+      "weights": "100–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Public Sans",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "政务",
+        "中性",
+        "可读"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Red Hat Display",
+      "source": "google",
+      "category": "display",
+      "tags": [
+        "品牌",
+        "友好",
+        "标题"
+      ],
+      "weights": "300–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Schibsted Grotesk",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "现代",
+        "编辑",
+        "中性"
+      ],
+      "weights": "400–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Onest",
+      "source": "google",
+      "category": "sans",
+      "tags": [
+        "现代",
+        "干净",
+        "多语"
+      ],
+      "weights": "100–900 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Caveat",
+      "source": "google",
+      "category": "hand",
+      "tags": [
+        "手写",
+        "便签",
+        "随意"
+      ],
+      "weights": "400–700 variable",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Kalam",
+      "source": "google",
+      "category": "hand",
+      "tags": [
+        "手写",
+        "印度",
+        "轻松"
+      ],
+      "weights": "300–700",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Patrick Hand",
+      "source": "google",
+      "category": "hand",
+      "tags": [
+        "手写",
+        "笔记",
+        "亲和"
+      ],
+      "weights": "400",
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Noto Sans SC",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "黑体",
+        "正文"
+      ],
+      "weights": "100–900",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "中文正文首选；css2 分 100+ 子集，靠 unicode-range 按需加载"
+    },
+    {
+      "family": "Noto Serif SC",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "宋体",
+        "书卷"
+      ],
+      "weights": "200–900",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Noto Sans Mono CJK SC",
+      "source": "google",
+      "category": "mono",
+      "tags": [
+        "中文",
+        "等宽",
+        "代码"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Ma Shan Zheng",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "毛笔",
+        "书法",
+        "招牌"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "毛笔楷体，做国风标题；字重只有一档"
+    },
+    {
+      "family": "Zhi Mang Xing",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "行书",
+        "书法",
+        "手写"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Long Cang",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "草书",
+        "书法",
+        "写意"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Liu Jian Mao Cao",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "毛草",
+        "书法",
+        "艺术"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "艺术性极强，正文不可用"
+    },
+    {
+      "family": "ZCOOL KuaiLe",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "圆体",
+        "可爱",
+        "活动"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "ZCOOL XiaoWei",
+      "source": "google",
+      "category": "cjk",
+      "tags": [
+        "宋体",
+        "文艺",
+        "标题"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1"
+    },
+    {
+      "family": "Satoshi",
+      "source": "fontshare",
+      "category": "sans",
+      "tags": [
+        "现代",
+        "UI",
+        "品牌"
+      ],
+      "weights": "300–900 variable",
+      "license": "Fontshare 免费商用许可（ITF FFL）",
+      "note": "最像 Inter 但更有性格，自带 variable"
+    },
+    {
+      "family": "General Sans",
+      "source": "fontshare",
+      "category": "sans",
+      "tags": [
+        "中性",
+        "UI",
+        "多语"
+      ],
+      "weights": "200–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Clash Display",
+      "source": "fontshare",
+      "category": "display",
+      "tags": [
+        "潮牌",
+        "粗标题",
+        "时尚"
+      ],
+      "weights": "200–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Clash Grotesk",
+      "source": "fontshare",
+      "category": "sans",
+      "tags": [
+        "现代",
+        "标题",
+        "品牌"
+      ],
+      "weights": "200–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Cabinet Grotesk",
+      "source": "fontshare",
+      "category": "display",
+      "tags": [
+        "编辑",
+        "怪趣",
+        "标题"
+      ],
+      "weights": "100–900 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Switzer",
+      "source": "fontshare",
+      "category": "sans",
+      "tags": [
+        "瑞士",
+        "中性",
+        "正文"
+      ],
+      "weights": "100–900 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Ranade",
+      "source": "fontshare",
+      "category": "sans",
+      "tags": [
+        "圆润",
+        "友好",
+        "品牌"
+      ],
+      "weights": "300–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Bespoke Serif",
+      "source": "fontshare",
+      "category": "serif",
+      "tags": [
+        "编辑",
+        "优雅",
+        "可变"
+      ],
+      "weights": "300–800 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Gambetta",
+      "source": "fontshare",
+      "category": "serif",
+      "tags": [
+        "高对比",
+        "杂志",
+        "标题"
+      ],
+      "weights": "300–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Zodiak",
+      "source": "fontshare",
+      "category": "serif",
+      "tags": [
+        "编辑",
+        "锐利",
+        "标题"
+      ],
+      "weights": "400–900 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Erode",
+      "source": "fontshare",
+      "category": "serif",
+      "tags": [
+        "柔和",
+        "正文",
+        "博客"
+      ],
+      "weights": "300–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Tanker",
+      "source": "fontshare",
+      "category": "display",
+      "tags": [
+        "超粗",
+        "海报",
+        "标题"
+      ],
+      "weights": "400",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "Melodrama",
+      "source": "fontshare",
+      "category": "display",
+      "tags": [
+        "戏剧",
+        "复古",
+        "标题"
+      ],
+      "weights": "300–700 variable",
+      "license": "ITF FFL"
+    },
+    {
+      "family": "system-ui 栈",
+      "source": "system",
+      "category": "sans",
+      "tags": [
+        "零请求",
+        "最快",
+        "兜底"
+      ],
+      "weights": "随系统",
+      "license": "随系统",
+      "note": "font-family: system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans SC',sans-serif"
+    },
+    {
+      "family": "思源黑体 / 思源宋体",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "免费商用",
+        "本地"
+      ],
+      "weights": "多字重",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "Adobe/Google 开源，装本地或走 Noto 同名字体"
+    },
+    {
+      "family": "Smiley Sans 得意黑",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "斜体",
+        "活动"
+      ],
+      "weights": "400",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "免费开源的斜体黑体，做活动标题很抓眼；需自行下载安装"
+    },
+    {
+      "family": "LXGW WenKai 霞鹜文楷",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "楷体",
+        "文艺"
+      ],
+      "weights": "300/400/500",
+      "cjk": true,
+      "license": "OFL 1.1",
+      "note": "开源楷体，长文阅读舒服；可走 CDN 或本地安装"
+    },
+    {
+      "family": "HarmonyOS Sans",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "现代",
+        "多语"
+      ],
+      "weights": "多字重",
+      "cjk": true,
+      "license": "华为免费商用（需遵守其许可）",
+      "note": "设计干净，适合 App/系统界面"
+    },
+    {
+      "family": "MiSans",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "现代",
+        "UI"
+      ],
+      "weights": "多字重",
+      "cjk": true,
+      "license": "小米免费商用（需遵守其许可）"
+    },
+    {
+      "family": "Alibaba PuHuiTi 3",
+      "source": "system",
+      "category": "cjk",
+      "tags": [
+        "中文",
+        "企业",
+        "UI"
+      ],
+      "weights": "多字重",
+      "cjk": true,
+      "license": "阿里免费商用（需遵守其许可）"
+    }
+  ]
+}

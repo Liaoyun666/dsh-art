@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-22T10:46:44.643Z",
+  "count": 10,
+  "entries": [
+    {
+      "id": "undraw",
+      "name": "unDraw",
+      "site": "https://undraw.co/illustrations",
+      "kind": "svg",
+      "license": "可商用免署名（其条款允许修改与商用；禁止转售/再分发为素材库）",
+      "note": "单色可改主色，风格统一，最适合 SaaS/工具站首屏",
+      "how": "站内改色后下载 SVG；插件不代抓（CDN 直链不稳）"
+    },
+    {
+      "id": "storyset",
+      "name": "Storyset (Freepik)",
+      "site": "https://storyset.com/",
+      "kind": "svg",
+      "license": "免费版需署名 Freepik；免署名需付费",
+      "note": "人物场景最全，可切扁平/线框/rafiki 风格",
+      "how": "下载 SVG 后在页脚署名"
+    },
+    {
+      "id": "opendoodles",
+      "name": "Open Doodles",
+      "site": "https://www.opendoodles.com/",
+      "kind": "svg",
+      "license": "CC0（公有领域）",
+      "note": "手绘线稿人物/物件，适合轻松品牌",
+      "how": "直接下载 SVG/PNG，可随意改"
+    },
+    {
+      "id": "humaaans",
+      "name": "Humaaans",
+      "site": "https://www.humaaans.com/",
+      "kind": "svg",
+      "license": "CC BY 4.0（需署名）",
+      "note": "可拼装的人物组件（发型/姿势/衣服）",
+      "how": "站内拼好后导出 SVG"
+    },
+    {
+      "id": "drawkit",
+      "name": "DrawKit",
+      "site": "https://www.drawkit.com/",
+      "kind": "svg",
+      "license": "免费包可商用免署名；部分包需付费",
+      "note": "插画质量高，偏 editorial/科技",
+      "how": "按包下载，注意单个包的授权说明"
+    },
+    {
+      "id": "iradesign",
+      "name": "IRA Design",
+      "site": "https://iradesign.io/",
+      "kind": "svg",
+      "license": "免费可商用（需看具体包）",
+      "note": "渐变风人物插画，可在线调色",
+      "how": "在线调色后下载"
+    },
+    {
+      "id": "blush",
+      "name": "Blush",
+      "site": "https://blush.design/",
+      "kind": "svg",
+      "license": "免费层需署名；付费免署名",
+      "note": "可组合的插画系统（人物/场景/物件）",
+      "how": "选 collection 后导出"
+    },
+    {
+      "id": "openpeeps",
+      "name": "Open Peeps",
+      "site": "https://www.openpeeps.com/",
+      "kind": "svg",
+      "license": "CC0",
+      "note": "手绘黑白人物，适合编辑风/博客",
+      "how": "下载 SVG，配色后可做双色"
+    },
+    {
+      "id": "manypixels",
+      "name": "ManyPixels Gallery",
+      "site": "https://www.manypixels.co/gallery",
+      "kind": "svg",
+      "license": "免费可商用（其条款允许，禁止转售）",
+      "note": "单色/双色场景插画，风格偏商务",
+      "how": "下载 SVG 后改主色"
+    },
+    {
+      "id": "illlustrations",
+      "name": "illlustrations.co",
+      "site": "https://illlustrations.co/",
+      "kind": "png/svg",
+      "license": "CC0（作者声明免费商用）",
+      "note": "100 张复古扁平插画，适合活动页",
+      "how": "整包下载"
+    }
+  ]
+}

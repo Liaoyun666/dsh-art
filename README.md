@@ -6,14 +6,16 @@
 
 > 公开仓：<https://github.com/Liaoyun666/dsh-art>（代码 MIT；`assets/` 下素材另按 [NOTICE.md](https://github.com/Liaoyun666/dsh-art/blob/main/NOTICE.md)）
 >
-> 给 DeepSeek Harness（DSH）用的美术素材包插件。**36 个工具、七个数据源、一个路由**：
+> 给 DeepSeek Harness（DSH）用的美术素材包插件。**46 个工具、八个数据源、一个路由**：
 > 341 种「代码动画」风格提示词（193 张参考静帧）、一个可选的参考图库客户端、
 > 244 条带源码与预览的像素特效、**把你自己那张图拆成元素块、配色和提示词**的本地提取器、
 > 124 张视频镜头配方卡（video-shotcraft，含 54 张海报），
 > 一套**设计工艺库**（8 条美学锚点 / 24 条可抄的 CSS 版式模式 / 15 条可用性审查准则），
-> 以及一个**外接素材库**：liaoyunart.com 的 16,900+ 条实拍 / 绘画 / 图标 / 贴图（21 个来源、30 个分类、每张带授权），
-> 加 Iconify 的 20 万+ 图标、ambientCG 的 2,900+ PBR 材质、Poly Haven 的 HDRI / 贴图 / 模型，一共登记 13 家。
-> 外加一个 `anim_design_brief` 路由：做前端 / 界面 / 海报之前一次调用，把风格、镜头、特效、工艺、配色揉成一份能照着做的参考包。零运行时依赖，装完直接在会话里用。
+> 一个**外接素材库**：liaoyunart.com 的 16,900+ 条实拍 / 绘画 / 图标 / 贴图（21 个来源、30 个分类、每张带授权），
+> 加 Iconify 的 20 万+ 图标、ambientCG 的 2,900+ PBR 材质、Poly Haven 的 HDRI / 贴图 / 模型，一共登记 13 家；
+> 以及一套**文字与前端美化**：180 条配方（37 艺术字 / 16 文字动效 / 32 装饰件 / 14 背景 / 10 家插画外接）+ 71 条字体种子，
+> 从标题样式、装饰线、背景纹理到字体引入、品牌套件、图标集合、排版体检都直接给可抄的 HTML / CSS。
+> 外加一个 `anim_design_brief` 路由：做前端 / 界面 / 海报之前一次调用，把风格、镜头、特效、工艺、字体、配色揉成一份能照着做的参考包。零运行时依赖，装完直接在会话里用。
 
 | | 内容 | 工具 |
 |---|---|---|
@@ -24,7 +26,8 @@
 | **⑤ 镜头配方卡** | 124 张卡 / 10 分类 / 150 个镜头风格 / 54 张海报（video-shotcraft，Apache-2.0） | `anim_shot_stats` `anim_shot_search` `anim_shot_show` `anim_shot_preview` `anim_shot_export` `anim_shot_random` `anim_shot_guide` |
 | **⑥ 设计工艺库** | 8 条美学锚点（各锁六个 token）/ 24 条 CSS 版式模式 / 15 条审查准则 + 反 AI 味规则 | `anim_design_anchors` `anim_design_patterns` `anim_design_audit` |
 | **⑦ 外接素材库** | 13 个来源登记（4 家可检索取图）：liaoyunart 16,900+ 条 / Iconify 20 万+ 图标 / ambientCG 2,900+ 材质 / Poly Haven 998 HDRI | `anim_asset_sources` `anim_asset_search` `anim_asset_show` `anim_asset_fetch` `anim_asset_guide` |
-| **⑧ 设计路由**（入口） | 一次调用：3 条风格 + 3–6 张镜头卡 + 2 条锚点 + 像素特效 + 配色/版式/动效预算 | `anim_design_brief` |
+| **⑧ 文字与前端美化** | 180 条配方（37 艺术字 / 16 文字动效 / 32 装饰件 / 14 背景 / 10 家插画外接）+ 71 条字体种子 | `anim_type_*` ×4 `anim_font_*` ×2 `anim_brand_kit` `anim_background` `anim_icon_group` `anim_type_audit` |
+| **⑨ 设计路由**（入口） | 一次调用：3 条风格 + 3–6 张镜头卡 + 2 条锚点 + 像素特效 + 3 条字体/文字样式 + 配色/版式/动效预算 | `anim_design_brief` |
 
 ![像素特效：史莱姆](assets/fx/previews/critters/slime/contact.png)
 ![像素特效：暴雨](assets/fx/previews/weather/storm/contact.png)
@@ -41,8 +44,8 @@ git clone https://github.com/Liaoyun666/dsh-art.git
 cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
-node tools/install.mjs --status   # 自检：模块能不能加载、七个数据源各有多少条
-node tools/verify.mjs             # 298 项检查（纯离线，不用联网）
+node tools/install.mjs --status   # 自检：模块能不能加载、八个数据源各有多少条
+node tools/verify.mjs             # 337 项检查（纯离线，不用联网）
 node tools/verify.mjs --assets    # 再加 9 项：真拉 liaoyunart 目录、中文检索、批量落盘、四家各搜一条
 ~~~
 
@@ -54,7 +57,7 @@ node tools/verify.mjs --assets    # 再加 9 项：真拉 liaoyunart 目录、�
 - 要求 Node ≥ 22；DSH 桌面端自带的 node 也能跑。
 - 插件本体零依赖 —— 没有 `dependencies`，`npm install` 都不用跑。
 
-## 2. 三十六个工具
+## 2. 四十六个工具
 
 ### 本地素材库（7）
 
@@ -160,6 +163,37 @@ liaoyunart 的目录是一份 11.6 MB 的 `data/catalog.js`，首次拉下来落
 `relaxed`，英文查询保持严格（不会因为放宽而误命中）。挑好一批图用
 `anim_asset_fetch(ids=["…","…"])` 一次落盘（最多 12 条），不用一条条来回调。
 
+### 文字与前端美化（10，标题 / 装饰 / 背景 / 字体 / 品牌 / 图标 / 排版）
+
+随包发在 `assets/type/`，六份 JSON、180 条配方 + 71 条字体种子，不联网（只有查图标才走 Iconify）。
+这是 V1.1 的主菜：写页面时最耗时间的「标题怎么做出效果」「这套配色字体怎么定」「首屏背景用什么」，
+在这里都是现成的 HTML / CSS，挑一条抄走就行。
+
+| 工具 | 作用 |
+|---|---|
+| `anim_type_stats` | 家底：6 类各多少条、每类的分类分布、字体来源（Google / Fontshare / 系统）、中文字体数 |
+| `anim_type_search` | 搜 180 条配方：`kind`（effect / motion / decor / background / illustration / font）+ `category` + 多标签 AND；中文口语自动展开同义词（水墨→国风/书法、霓虹→发光/neon、高级→柔光/衬线）。返回 id、何时用、参数提示，以及可照抄的 `anim_type_show(id="…")` |
+| `anim_type_show` | 一条配方的全文：HTML + CSS + 参数 + 已知坑 + 同族 3 条。支持 `kind:id`（例如 `background:paper`），因为装饰件和背景里都有 paper |
+| `anim_type_export` | 把几条配方导成**单文件 HTML 画廊**（每条 iframe `srcdoc` 隔离，样式互不污染），浏览器里直接比 |
+| `anim_font_search` | 71 条字体种子：按关键词 / 来源 / 分类 / 是否含中文筛，给字重、许可、搭配建议 |
+| `anim_font_css` | 要引入代码时：`@import` / `<link>` / `font-family` 兜底栈三段，`source=google / fontshare / fontsource / system`；`dir` 时顺手写 CSS 文件 |
+| `anim_brand_kit` | 整套视觉定调：5 套色板（ink / warm / forest / candy / mono，主题词自动选）+ 5 组字体配对（编辑 / 科技 / 瑞士 / 人文 / 中文优先）+ 圆角 / 间距 / 字阶 / 阴影，输出 `tokens.css` 式 CSS 变量 |
+| `anim_background` | 14 种背景预设（mesh 渐变、极光、噪声、网格、点阵、蓝图、纸纹、星空、波浪、锥形、聚光、斜纹、半调、等高线）按你的色板换色，给 CSS + `::before` 用法 + 预览页 |
+| `anim_icon_group` | 6 组图标集合（ui / solid / game / brand / emoji / arrows）走 Iconify 取 SVG，可换色、可批量落盘；不给关键词时只列六组，不空手撞 API |
+| `anim_type_audit` | 排版体检 15 条（字阶 ≤5 档、行高 1.5–1.7、行长 45–75 字符、字重 ≤3 种、中英混排留白、数字等宽、对比度 4.5:1、避头尾、字体兜底…），按必修 / 该修 / 可选分级给修法 |
+
+~~~text
+anim_brand_kit(theme="咖啡店官网", dir="out")        → 色板 warm + 中文优先字体 + tokens.css
+anim_type_search(query="水墨 竖排", kind="effect")   → 挑一条
+anim_type_show(id="vertical")                        → 抄 HTML + CSS
+anim_background(preset="paper", colors=["#faf6ee"])
+anim_icon_group(group="ui", query="arrow", download=true, dir="assets/icons")
+anim_type_audit(scope="page")                        → 交付前过 15 条
+~~~
+
+字体许可要当真：Google 字体多为 OFL，Fontshare 受 ITF FFL 约束，系统字体只保证「装了才有」；
+字体种子里的 `license` 是登记值，进交付物前仍要看官方页面。指南见 [docs/type.md](docs/type.md)。
+
 ### 设计工艺库（3，定调 / 抄版式 / 交付前自检）
 
 随包发在 `assets/design/`，不联网、不下载。数据是按三个 MIT 项目的要点**重写的中文 JSON**，
@@ -180,16 +214,16 @@ liaoyunart 的目录是一份 11.6 MB 的 `data/catalog.js`，首次拉下来落
 
 | 工具 | 作用 |
 |---|---|
-| `anim_design_brief` | 输入 `task`（必填）＋可选 `surface`（web-landing / dashboard / app / game-ui / deck / promo / illustration）、`mood`、`palette`、`motion`、`limit`，输出「① 定调 3 条风格 ② 动效配方 3–6 张镜头卡 ③ 1–2 条美学锚点 ④ 现成像素素材 ⑤ 配色原型（变量脚手架）+ 版式模式 + 动效硬指标 ⑥ 下一步调用顺序」，并且每条都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")` / `anim_design_anchors(query="…")` 调用 |
+| `anim_design_brief` | 输入 `task`（必填）＋可选 `surface`（web-landing / dashboard / app / game-ui / deck / promo / illustration）、`mood`、`palette`、`motion`、`limit`，输出「① 定调 3 条风格 ② 动效配方 3–6 张镜头卡 ③ 1–2 条美学锚点 ④ 现成像素素材 ⑤ 配色原型（变量脚手架）+ 版式模式 + 动效硬指标 ⑥ 字体与文字样式（品牌套件 + 3 条艺术字 / 动效 / 装饰 / 背景配方）⑦ 下一步调用顺序」，并且每条都带可直接照抄的 `anim_show(id="…")` / `anim_shot_show(id="…")` / `anim_design_anchors(query="…")` / `anim_type_show(id="…")` 调用 |
 
-它不新造数据，只把上面六组随包数据源按场景重新排一遍：先从任务描述里拆关键词（中英文都认），
+它不新造数据，只把上面七组随包数据源按场景重新排一遍：先从任务描述里拆关键词（中英文都认），
 再按场景给镜头卡分类、特效分类、版式模式加权，最后配一套 60/30/10 的配色与四条动效硬指标。
-只读参考、不写文件；深读仍然走 `anim_show` / `anim_shot_show` / `anim_fx_show` / `anim_design_* `。
+只读参考、不写文件；深读仍然走 `anim_show` / `anim_shot_show` / `anim_fx_show` / `anim_type_show` / `anim_font_css` / `anim_design_* `。
 
 安装器会顺手写一份伴随技能 `~/.agents/skills/frontend-art-reference/SKILL.md`，
 让模型在「做前端 / 界面 / 海报」时想起这条入口（卸载时一并撤掉，手写的同名技能不会被覆盖删除）。
 
-### 网页里的卡片（36 个工具都有）
+### 网页里的卡片（46 个工具都有）
 
 在 DSH 网页端，每个 `anim_*` 调用是一张自己的卡片，不再是写着「工具调用」的通用行：
 
@@ -199,17 +233,17 @@ liaoyunart 的目录是一份 11.6 MB 的 `data/catalog.js`，首次拉下来落
 
 | 图标 | 家族 | 工具 |
 |---|---|---|
-| 🔍 | 检索 | `anim_search` `anim_fx_search` `anim_ref_search` `anim_shot_search` `anim_asset_search` |
-| 📄 | 详情 | `anim_show` `anim_fx_show` |
+| 🔍 | 检索 | `anim_search` `anim_fx_search` `anim_ref_search` `anim_shot_search` `anim_asset_search` `anim_type_search` `anim_font_search` |
+| 📄 | 详情 | `anim_show` `anim_fx_show` `anim_type_show` |
 | 🖼 | 静帧 / 海报 / 参考图 / 素材 | `anim_still` `anim_shot_preview` `anim_ref_show` `anim_asset_show` |
 | ⬇ | 下载 | `anim_asset_fetch` |
 | 🎞 | 预览图 | `anim_fx_preview` |
 | 🎲 | 随机 | `anim_random` `anim_fx_random` `anim_ref_pick` `anim_shot_random` |
-| 📦 | 导出 | `anim_export` `anim_fx_export` `anim_shot_export` |
-| 📊 | 概况 | `anim_fx_stats` `anim_shot_stats` |
-| 🗂 | 系列 / 图库 / 素材源 | `anim_list_series` `anim_ref_sources` `anim_asset_sources` |
+| 📦 | 导出 | `anim_export` `anim_fx_export` `anim_shot_export` `anim_type_export` |
+| 📊 | 概况 | `anim_fx_stats` `anim_shot_stats` `anim_type_stats` |
+| 🗂 | 系列 / 图库 / 素材源 | `anim_list_series` `anim_ref_sources` `anim_asset_sources` `anim_type_stats` |
 | 🧩 | 元素提取 | `anim_extract` |
-| 🎨 | 设计工艺 | `anim_design_brief` `anim_design_anchors` `anim_design_patterns` `anim_design_audit` |
+| 🎨 | 设计工艺 / 品牌 / 背景 / 图标 / 排版 | `anim_design_brief` `anim_design_anchors` `anim_design_patterns` `anim_design_audit` `anim_brand_kit` `anim_background` `anim_icon_group` `anim_type_audit` |
 | 📘 | 指南 | `anim_guide` `anim_fx_guide` `anim_extract_guide` `anim_shot_guide` `anim_asset_guide` |
 
 实现只用了一个宿主扩展点和一个只读接口：
@@ -327,7 +361,7 @@ dsh-art/
 ├── package.json              # DSH bundle 声明（dsh.bundle.patch）
 ├── cordis.patch.yml          # 补丁层片段：- insert: [{id: anim-pack, name: dsh-anim-pack}]
 ├── lib/
-│   ├── index.js              # 插件入口：36 个工具注册、配置规范化、渲染成文本卡片（1,916 行）
+│   ├── index.js              # 插件入口：46 个工具注册、配置规范化、渲染成文本卡片（约 2,010 行）
 │   ├── client.js             # 浏览器端卡片：tool.call.toolview 视图、图片墙、路径链接（356 行）
 │   ├── catalog.js            # 本地素材库：索引加载 / 检索 / 抽读 / 导出（164 行）
 │   ├── refs.js               # 参考图库客户端：搜索 / 详情 / 下载（289 行）
@@ -339,6 +373,8 @@ dsh-art/
 │   ├── shots.js              # 镜头配方卡：索引加载 / 检索 / 抽读 / 导出（video-shotcraft，419 行）
 │   ├── assets.js             # 外接素材库：liaoyunart 目录解析索引检索 + Iconify / ambientCG / Poly Haven 客户端（859 行）
 │   ├── brief.js              # 设计路由：场景识别 / 关键词加权 / 配色与动效预算 / 参考包排版（493 行）
+│   ├── type.js               # 文字与美化：六份 JSON 加载 / 检索 / 渲染 / 品牌套件 / 字体 CSS / 背景 / 排版体检（约 800 行）
+│   ├── type-tools.js         # 上面那 10 个工具的实现：参数、输出排版、落盘（约 620 行）
 │   ├── design.js             # 设计工艺库：锚点/模式/准则加载、打分、审查清单（380 行）
 │   └── vendor/               # jpeg-js 解码器（BSD-3 / Apache-2.0）+ 两份许可原文
 ├── assets/
@@ -349,7 +385,7 @@ dsh-art/
 │   │   ├── 第三方许可/        #   三份 MIT 原文
 │   │   ├── 许可与来源.md      #   素材包本身的使用条款（重要，见第 7 节）
 │   │   └── 风格挑选.html      #   一页看全 341 条的小工具
-│   └── fx/
+│   ├── fx/
 │       ├── catalog.json      # 244 条特效索引（tools/build-fx.mjs 生成）
 │       └── previews/         # 244 张接触表 PNG（每条一张）
 │   ├── extract/
@@ -365,11 +401,18 @@ dsh-art/
 │   │   ├── patterns.json     # 24 条 CSS 版式模式（MIT 译写）
 │   │   ├── heuristics.json   # 15 条可用性准则 + 0–4 严重度（MIT 译写）
 │   │   └── rules.json        # 反 AI 味 / 配色原型 / 字体配对 / 动效时长 / 字号间距
+│   ├── type/
+│   │   ├── effects.json      # 37 条艺术字 / 文字特效配方（HTML + CSS + 参数 + 坑）
+│   │   ├── motion.json       # 16 条文字动效
+│   │   ├── decor.json        # 32 条装饰件（分隔线 / 边框 / 相框 / 纹理 / 光效 / 贴纸）
+│   │   ├── background.json   # 14 条背景预设（带 {c1}{c2}{c3}{base}{size} 占位）
+│   │   ├── illustration.json # 10 家免费插画库登记
+│   │   └── fonts.json        # 71 条字体种子（Google / Fontshare / 系统）
 │   └── companion/
 │       └── frontend-art-reference/SKILL.md   # 安装时复制到 ~/.agents/skills/ 的伴随技能
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（离线 298 项；--assets 再加 9 项联网）
+│   ├── verify.mjs            # 自检（离线 337 项；--assets 再加 9 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
 │   ├── build-shots.mjs       # 从 assets/shots/cards 重建镜头卡索引（--check 校验）
 │   ├── build-design.mjs      # 校验设计工艺库并重建计数索引（--check 校验）
@@ -379,7 +422,8 @@ dsh-art/
 │   ├── extract.md            # 元素提取指南（量了什么、四类图、参数、局限）
 │   ├── shots.md              # 镜头卡指南（卡里有什么、十类分工、挑卡到成片、许可）
 │   ├── assets.md             # 外接素材库指南（13 家各能做什么、四步走、授权纪律、离线与自建镜像）
-│   ├── design.md             # 前端设计用法（何时先调 brief、六个数据源分工、配色与动效预算）
+│   ├── design.md             # 前端设计用法（何时先调 brief、七个数据源分工、配色与动效预算）
+│   ├── type.md               # 文字与美化指南（180 条配方、字体许可、15 条排版规则、坑）
 │   ├── design-library.md     # 设计工艺库指南（八锚点、CSS 模式、审查清单、改数据）
 │   ├── SKILL.md              # 给 Claude Code / Codex 一类 agent 的技能描述
 │   ├── attribution.md        # 素材与第三方致谢明细
@@ -388,10 +432,10 @@ dsh-art/
 └── .github/workflows/verify.yml
 ~~~
 
-仓库现实：**1,027 个文件 / 101 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
+仓库现实：**1,036 个文件 / 101 MB**（三个示例 MP4 就占 59.9 MB，244 张预览 23.9 MB，193 张静帧 12.2 MB）。
 clone 慢是这个原因，不是代码。
 
-## 5. 配置（十二个键）
+## 5. 配置（十四个键）
 
 写在 profile 的 `cordis.patch.yml` 里 `dsh-anim-pack` 那一行下面：
 
@@ -412,27 +456,29 @@ clone 慢是这个原因，不是代码。
         assetBase: <liaoyunart 镜像地址，默认 https://liaoyunart.com>
         assetCacheDir: <目录缓存位置，默认 <DSH_HOME>/cache/anim-pack-assets>
         assetTimeoutMs: 25000
+        typePath: <换成别的文字配方目录>
+        typeExportDir: <默认 <cwd>/anim-type>
 ~~~
 
-十二个键全部可选，不填走缺省。`fxPath` 的解析顺序是：配置值 → 索引里记的相对路径 → 插件根下的 `pixelfx/`。
+十四个键全部可选，不填走缺省。`fxPath` 的解析顺序是：配置值 → 索引里记的相对路径 → 插件根下的 `pixelfx/`。
 改完刷新页面生效。
 
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：298 项（纯逻辑，不联网）
+node tools/verify.mjs                                      # 离线：337 项（纯逻辑，不联网）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网（自建参考图库）
-node tools/verify.mjs --assets                              # 再加 6 项联网（外接素材库四家）
+node tools/verify.mjs --assets                              # 再加 9 项联网（外接素材库四家）
 ~~~
 
-覆盖：36 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150、8/24/15 的计数与磁盘文件是否一致、
+覆盖：46 个工具是否都注册、每个工具是否真能跑、341/193/10、244/21/244、124/10/54/150、8/24/15、180/71/6 的计数与磁盘文件是否一致、
 外接素材库：目录解析 / 四档授权 / 色调与聚类 / 多条件检索 / 离线兜底的三句人话、13 家登记齐全（四家可检索、九家只给入口）、
-真联网那 6 项验的是「拉得到目录、搜得到条目、下载真落盘、指引真存在」、
+真联网那 6 项验的是「拉得到目录、搜得到条目、下载真落盘、指引真存在」（另有 1 项验中文查询与 2 项验批量落盘）、
 设计路由是否认得出场景并给出可照抄的下一步调用（含三套索引全空时不崩）、
-工艺库每条锚点是否六个 token 齐全、每条模式是否带可抄的 CSS、每条准则是否有查法与严重度、三个工艺工具的输出是否成篇、
+文字与美化：六份 JSON 是否齐、同义词展开（水墨→国风/书法）、`kind:id` 消歧（background:paper）、品牌套件自动选色板（咖啡→warm）、背景预设换色、字体 CSS（Google / Fontshare / Fontsource / 系统四种源）、排版 15 条规则、图标 6 组、画廊能否真落盘、
 索引里的 id 是否都能查到源文件、检索排序（含镜头卡的正文检索与多词 AND）、导出是否拒绝写进库内、
 特效能否在临时目录里真的渲出图、「镜像不在时」的降级路径（要给人话，不能崩），
-以及浏览器卡片那一块：bundle 能否解析、36 个视图是否注册齐、运行中 / 结算 / 失败三种形态是否都长得对、
+以及浏览器卡片那一块：bundle 能否解析、46 个视图是否注册齐、运行中 / 结算 / 失败三种形态是否都长得对、
 图片路径有没有变成缩略图、源码路径有没有变成链接、`package.json` 的 `dsh.client` 声明是否还在。CI（`.github/workflows/verify.yml`）每次 push 跑一遍。
 
 ## 7. 许可（三种，别混）
@@ -456,7 +502,7 @@ node tools/verify.mjs --assets                              # 再加 6 项联网
 
 - **能用、可维护**：模块边界清楚（catalog / refs / fx / shots / design / assets 各管一个数据源）、零依赖、错误信息是人话、
   导出有防呆（拒绝往库内写）、服务地址不写死。
-- **测试是真的**：298 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
+- **测试是真的**：337 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
 - **元素提取是本机算的**：一张 720p 图约 0.2–1.1 s，纯 CPU、不联网、零依赖；
   像素画会先认倍率再分析，裁剪按整数倍放大。
 - **设计工艺库是离线 JSON**：8 条锚点 / 24 条模式 / 15 条准则随包发，检索是关键词打分（不是语义），
@@ -486,25 +532,26 @@ node tools/verify.mjs --assets                              # 再加 6 项联网
 
 ## English
 
-**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **36 `anim_*` tools** over seven
+**dsh-art** is an art asset pack plugin for DeepSeek Harness. It registers **46 `anim_*` tools** over eight
 data sources: 341 code-animation style prompts (with 193 reference stills), an optional art-reference library
 client, 244 pixel-art effects with source and rendered previews, a local image extractor that turns one
 picture into element crops, a palette and ready-to-paste prompts, 124 storyboard shot cards from
 video-shotcraft (with 54 posters), a design-craft library (8 aesthetic anchors, 24 copy-paste CSS
-layout patterns, 15 usability heuristics, plus palette / type / motion rules), and an **external asset
+layout patterns, 15 usability heuristics, plus palette / type / motion rules), an **external asset
 library** that searches four live sources (liaoyunart.com's 16,900+ reference images, Iconify's 200k+ icons,
-ambientCG's 2,900+ PBR materials, Poly Haven's HDRIs / textures / models) and registers nine more.
-Zero runtime dependencies.
-
+ambientCG's 2,900+ PBR materials, Poly Haven's HDRIs / textures / models) and registers nine more, and a
+**typography kit**: 180 copy-paste recipes (37 text effects, 16 text animations, 32 decorations, 14 CSS
+backgrounds, 10 illustration libraries) plus 71 font seeds, a brand-kit generator, parsed-icon groups and a
+15-rule typography audit. Zero runtime dependencies.
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art
 node tools/install.mjs        # junction into the DSH profile + patch entry
-node tools/verify.mjs         # 298 offline checks
+node tools/verify.mjs         # 337 offline checks
 ~~~
 
 Code is MIT. The prompt library under `assets/library/` keeps its own terms (free to use and share, not to be
 resold as a course or paid skill pack). Effects are MIT via `patch-gg/pixelfx`; shot cards are Apache-2.0 via
-`Vincentwei1021/video-shotcraft`; the design library is a Chinese rewrite of MIT material (see NOTICE.md §6).
-External assets are never redistributed: per-item licences are reported by the tools themselves
-(see `docs/assets.md`).
+`Vincentwei1021/video-shotcraft`; the design library is a Chinese rewrite of MIT material (see NOTICE.md §6);
+the typography recipes and font seeds are our own, and no font files are bundled (only official family names).
+External assets are never redistributed: per-item licences are reported by the tools themselves (see `docs/assets.md`).
 See [NOTICE.md](NOTICE.md).

@@ -107,3 +107,18 @@ pixelfx 上游的 `gallery/fonts/PatchPixel-Regular.woff2` 是 Patch 自己的�
 
 用到交付物里之前，按**每一条自己的授权**判断：CC0 / 公有领域可直接用；署名类必须写出处与许可；
 非商业不进商业项目；© 或授权不明只当参考。详见 [docs/assets.md](docs/assets.md) 与 [docs/attribution.md](docs/attribution.md)。
+
+## 8. 文字与前端美化配方（第八个数据源，自写）
+
+`assets/type/` 下六份 JSON（`effects.json` 37 / `motion.json` 16 / `decor.json` 32 /
+`background.json` 14 / `illustration.json` 10 / `fonts.json` 71）与 `lib/type.js`、`lib/type-tools.js`
+一起随 MIT 发布：**配方是本仓库自写的**（HTML / CSS / 参数 / 注意事项），不是从别处复制的文件。
+
+- **字体**：只登记 family 名、字重、许可与官方取用地址，**不包含任何字体文件**。
+  Google Fonts 多为 OFL / Apache-2.0，Fontshare 受 ITF Free Font License 约束，
+  系统字体（苹方 / 微软雅黑 / Segoe 等）只保证「装了才有」，不能随交付物分发。
+  引用前看清楚 `fonts.json` 的 `license` 字段，并把许可写进交付物。
+- **插画库**（`illustration.json`）：只是 10 家免费插画站点的登记（unDraw、Storyset、Open Doodles、
+  Humaaans、DrawKit、IRA Design、Blush、Open Peeps、ManyPixels、illllustrations），
+  不含它们的任何图片；各站的署名与商用条款不同，取图前看各自的许可页。
+- **图标**：`anim_icon_group` 走 Iconify API，授权按图标集（同第 7 节）。
