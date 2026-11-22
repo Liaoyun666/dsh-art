@@ -1,6 +1,6 @@
 ---
 name: code-animation-prompts
-description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效、124 张 video-shotcraft 镜头配方卡与一套设计工艺库（8 条美学锚点 / 24 条 CSS 版式模式 / 15 条可用性审查准则）制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包，再用 anim_design_anchors 定调、anim_design_patterns 抄 CSS、anim_design_audit 自检；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
+description: 使用 341 种风格提示词、参考静帧、8,496 张参考图、244 条像素特效、124 张 video-shotcraft 镜头配方卡、一套设计工艺库（8 条美学锚点 / 24 条 CSS 版式模式 / 15 条可用性审查准则）与一个外接素材库（liaoyunart 16,900+ 条参考图、Iconify 20 万+ 图标、ambientCG / Poly Haven 的 PBR 材质与 HDRI，共登记 13 家）制作代码动画与前端视觉，并能从一张图反推元素、配色与提示词。做网页/界面/看板/游戏 UI/海报/PPT 前先用 anim_design_brief 取参考包，要配图/图标/贴图时用 anim_asset_search 找并看授权，再用 anim_design_anchors 定调、anim_design_patterns 抄 CSS、anim_design_audit 自检；也适用于按风格编号选型、组合视觉风格、找像素特效、挑分镜镜头、拆解参考图，把内容转成可编辑动画并渲染成片。
 ---
 
 # Code Animation Prompts
@@ -22,7 +22,7 @@ anim_design_brief(task="数据看板，指标卡 + 折线图", surface="dashboar
 不要一口气把库全读一遍。`surface` 可写 `web-landing` / `dashboard` / `app` / `game-ui` /
 `deck` / `promo` / `illustration`（也认中文），它优先于从 `task` 猜测。
 
-细节见 [design.md](design.md)：参数、输出结构、六个数据源分工、配色预设、排查选型。
+细节见 [design.md](design.md)：参数、输出结构、六个随包数据源分工、配色预设、排查选型。
 
 ## 定调、抄版式、交付前自检
 
@@ -114,6 +114,26 @@ python "<技能目录>/scripts/styles.py" list --series Z
 - `anim_shot_guide`：十类怎么分工、从挑卡到成片的四步、和另外四组怎么搭、许可与维护。
 
 用法：用户说「要一条开场很贵的产品片」「这个转场太生硬」时，按分类挑 3–5 张卡当分镜，卡里的参数表直接是时间轴数据；要真出片就导出去写 Remotion。卡只描述镜头，不含 Remotion 工程、样片、音效与 BGM —— 别答应「直接给我 mp4」。
+
+## 要配图 / 图标 / 贴图 / 纹样
+
+第七个数据源是**外接**素材库：素材不进仓库，插件只提供统一检索口。四家能直接查、直接取图，
+九家只登记入口（Kenney / OpenGameArt / LottieFiles / game-icons / Google Fonts / Hero Patterns /
+Transparent Textures / Lospec / unDraw，工具会说明为什么只能外接）。
+
+- `anim_asset_sources`：先看 13 家各能做什么；liaoyunart 那一节给规模、分类、来源、配色聚类与授权分布。
+- `anim_asset_search`：关键词 + `category` / `source` / `tone` / `cluster` / `license` / `kind` 收窄；
+  `provider: "iconify" | "ambientcg" | "polyhaven" | "all"` 查另外三家。
+- `anim_asset_show`：看授权、主色板、各尺寸直链、来源页；`download: true` 顺手落一张小图。
+- `anim_asset_fetch`：要进项目再下原图 / 贴图 / SVG（`dir` 指到项目的 assets 目录，`variant` 选尺寸）。
+- `anim_asset_guide`：四步走与授权纪律。
+
+授权纪律（做交付物时按这个判）：**CC0 / 公有领域**可直接用；**署名类**（CC BY、OFL、MIT、Apache…）
+必须按条目写署名与许可；**非商业（NC）**不能进商业交付物；**© / 授权不明**只当参考看配色与构图，
+不进交付物。工具会把判断写在每一条结果上，别把「这个库大多 CC0」当成「这张也 CC0」。
+
+liaoyunart 的整份目录会缓存到本地（`~/.dsh/cache/anim-pack-assets/`），断网也能搜，但图片要联网取。
+细节见 [assets.md](assets.md)。
 
 ## 从提示词到可编辑动画
 

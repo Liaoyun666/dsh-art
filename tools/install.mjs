@@ -2,7 +2,8 @@
 /**
  * dsh-anim-pack 安装器 / 卸载器。
  *
- * 素材库（76MB / 346 个 md / 193 张 jpg，外加 124 张镜头配方卡与 54 张海报）就放在本包的
+ * 素材（76MB / 346 个 md / 193 张 jpg，外加 124 张镜头配方卡、54 张海报、设计工艺库与
+ * 外接素材库登记表）就放在本包的
  * assets/ 里，安装只做三件轻事：
  *   1. 在 profile 的 node_modules 建 junction（Loader 靠它把 `dsh-anim-pack` 解析到本包）；
  *   2. 把托管块追加进 profile 自己的 cordis.patch.yml（默认 patch 方式）；
@@ -81,6 +82,11 @@ const BLOCK = `${BLOCK_BEGIN}
 # 工艺：设计工艺库的 8 条美学锚点 / 24 条 CSS 模式 / 15 条审查准则
 # （anim_design_anchors / anim_design_patterns / anim_design_audit），随包发在
 # assets/design/，不需要额外下载。
+# 素材：外接素材库（anim_asset_sources / search / show / fetch）—— liaoyunart.com 的
+# 1.6 万条整份目录（首次联网拉取后缓存到 <cacheDir>/liaoyunart-catalog.json，之后离线
+# 可搜）+ Iconify 图标 + ambientCG / Poly Haven 的 CC0 材质与 HDRI；另有 Kenney /
+# LottieFiles / Google Fonts 等九个外接位只登记入口。地址 config.assetBase →
+# DSH_ASSET_BASE，缓存 config.assetCacheDir，超时 config.assetTimeoutMs。
 # 路由：anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计时先调它；
 # 安装时还会写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
 # 让模型在写页面、界面、海报之前想起这些工具。
@@ -192,6 +198,13 @@ async function selfCheck() {
     lines.push(`  工艺库    : ${design.anchors} 条锚点 / ${design.patterns} 条模式 / ${design.heuristics} 条准则（${design.palettes} 套配色 / ${design.typePairings} 组字体配对）`)
   } catch (error) {
     lines.push(`  工艺库失败: ${error?.message ?? error}`)
+  }
+  try {
+    const { PROVIDERS } = await import(pathToFileURL(join(pluginDir, 'lib', 'assets.js')).href)
+    const live = PROVIDERS.filter((row) => row.mode !== 'link')
+    lines.push(`  素材库    : ${PROVIDERS.length} 个登记源（${live.length} 个可检索：${live.map((row) => row.id).join(' / ')}；其余为外接位）`)
+  } catch (error) {
+    lines.push(`  素材库失败: ${error?.message ?? error}`)
   }
   return lines.join('\n')
 }

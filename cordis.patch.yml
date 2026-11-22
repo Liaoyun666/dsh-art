@@ -1,7 +1,7 @@
-# dsh-anim-pack：把 341 种代码动画风格提示词 + 244 条像素特效 + 124 张镜头配方卡
-# + 一套设计工艺库做成常驻的本地素材包。
+# dsh-anim-pack（V1.0）：把 341 种代码动画风格提示词 + 244 条像素特效 + 124 张镜头配方卡
+# + 一套设计工艺库 + 一个外接素材库做成常驻的本地素材包。
 #
-# 宿主侧插件（无 client 代码）：启动时挂 31 个 anim_* 工具。
+# 宿主侧插件（无 client 代码）：启动时挂 36 个 anim_* 工具。
 #   7 个管本地素材库（本包 assets/library/，换库改 config.libraryPath）；
 #   4 个管第二个数据源——自建美术参考图库（anim_ref_sources / anim_ref_search /
 #     anim_ref_show / anim_ref_pick）。地址按 config.refBase → 环境变量 DSH_REF_BASE →
@@ -21,6 +21,11 @@
 #     anim_design_audit）：8 条美学锚点、24 条可直接抄的 CSS 版式模式、15 条可用性
 #     审查准则 + 反 AI 味与配色/字体规则。数据随包发在 assets/design/（四份 JSON，
 #     MIT 译写），校验与索引重建用 node tools/build-design.mjs。
+#   5 个管第七个数据源——外接素材库（anim_asset_sources / search / show / fetch / guide）：
+#     liaoyunart.com 的整份目录（1.6 万条，拉一次落盘缓存后离线可搜）+ Iconify 图标
+#     + ambientCG / Poly Haven 的 CC0 材质与 HDRI；另有九个外接位（Kenney / LottieFiles
+#     / Google Fonts 等）只登记入口。地址 config.assetBase → 环境变量 DSH_ASSET_BASE；
+#     缓存 config.assetCacheDir；超时 config.assetTimeoutMs。
 #   1 个是路由（anim_design_brief）：把上面几组数据源按「风格 / 镜头 / 特效 / 工艺 / 配色」
 #     揉成一次调用，做前端、界面、海报之前先调它拿参考包。
 #     安装时另写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，

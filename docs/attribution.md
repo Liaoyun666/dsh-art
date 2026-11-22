@@ -63,3 +63,24 @@ BMP / TGA 的位深与 RLE）都是本仓库自己实现的。
 
 原文见 [NOTICE.md](../NOTICE.md) 第 6 节。三个仓库的 SKILL.md、长文档与示例页面没有收录；
 `patterns.json` 里的 CSS 是摘写后的片段，抄进项目前要换成项目自己的 token 名。
+## 外接素材库（第七个数据源，素材不随包发）
+
+这一组特殊：**仓库里没有任何一条素材文件**，插件只做检索、展示授权、下载。
+代码（`lib/assets.js`）是本仓库自己的 MIT 代码；素材的权利仍归各家，插件不转授。
+
+- **[liaoyunart.com](https://liaoyunart.com)**（`liaoyunart`）：自建美术参考图库，聚合 21 个公共来源
+  （The Met、Cleveland、Rijksmuseum、SMK、V&A、Europeana、Wellcome、NASA、Iconify、ambientCG、
+  Poly Haven、Lospec、OpenGameArt、unDraw、PhyloPic、SafeBooru 等），16,907 条。
+  目录里每条都带 `lic`（授权文案下标）与来源页，工具按 CC0 / 署名 / 非商业 / 不明四档标出；
+  **这个库是聚合器，不是权利人**，具体条目以它标的那一条授权为准。
+- **[Iconify](https://iconify.design)**：280 个图标集、55 万+ 图标，授权按集合（多数 MIT / CC BY / Apache-2.0），
+  检索时会一并返回集合许可；SVG 由 API 现取。
+- **[ambientCG](https://ambientcg.com)**：2,939 套 PBR 材质，**CC0**。
+- **[Poly Haven](https://polyhaven.com)**：HDRI / 纹理 / 模型，**CC0**。
+- 只登记入口的九家：Kenney（CC0）、OpenGameArt（逐条）、LottieFiles（逐条）、game-icons（CC BY 3.0）、
+  Google Fonts（OFL / Apache）、Hero Patterns（CC BY 4.0）、Transparent Textures（CC BY 3.0）、
+  Lospec（逐条）、unDraw（品牌条款特殊）——各家的授权写在 `lib/assets.js` 的 `PROVIDERS` 与
+  [assets.md](assets.md) 里，使用前按各家原文核对。
+
+**落地纪律**：做交付物前按每条自己的授权判断，不把「这个库大多 CC0」当成「这张也 CC0」；
+署名类要写出处与许可；非商业不进商业项目；© 或不明只当参考。

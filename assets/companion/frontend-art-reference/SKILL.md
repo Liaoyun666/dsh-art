@@ -35,6 +35,10 @@ PPT / 海报 / 插画 / 配色 / 动效 / 转场 / 图标」这类词，**先取
 - 要能直接跑的动画代码 → `anim_fx_show(id="…")`，要落地就
   `anim_fx_export(ids=[...], dir="<项目里的目录>")`
 - 找实拍/绘画参考图 → `anim_ref_search(query="…", download=true)`（需自建素材库）
+- 要配图 / 图标 / PBR 贴图 / 纹理 / 色板 → 先 `anim_asset_sources` 看有哪几家，
+  再 `anim_asset_search(query="…", category="…")`；挑定一条用 `anim_asset_show(id)`
+  确认授权，要本地文件再 `anim_asset_fetch(id, dir="<项目里的 assets 目录>")`。
+  许可不明或 © 的只当参考看，别直接进交付物。
 
 ## 硬规矩
 

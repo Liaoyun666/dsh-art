@@ -92,3 +92,18 @@ pixelfx 上游的 `gallery/fonts/PatchPixel-Regular.woff2` 是 Patch 自己的�
 
 改数据时连同 `lib/design.js` 的检索逻辑一起改，并跑 `node tools/build-design.mjs`
 重建 `catalog.json`。三个上游的 SKILL.md / 长文档没有收录。
+
+## 7. 外接素材库（第七个数据源，素材不在本仓库）
+
+`anim_asset_*` 五条工具连接的是**外部素材源**，代码是 MIT，素材本体不随本仓库分发：
+
+- **liaoyunart.com**：自建美术参考图库，聚合 21 个公共来源（Met、Cleveland、Rijksmuseum、SMK、V&A、
+  Europeana、Wellcome、NASA、Iconify、ambientCG、Poly Haven、Lospec、OpenGameArt、unDraw、PhyloPic 等）。
+  目录里逐条标授权与来源页；它是**聚合器，不是权利人**。
+- **Iconify**：授权按图标集（多数 MIT / CC BY / Apache-2.0），检索结果里一并给出集合许可。
+- **ambientCG** / **Poly Haven**：**CC0**。
+- 只登记入口、不代抓的九家：Kenney（CC0）、OpenGameArt、LottieFiles、game-icons（CC BY 3.0）、
+  Google Fonts（OFL / Apache）、Hero Patterns（CC BY 4.0）、Transparent Textures（CC BY 3.0）、Lospec、unDraw。
+
+用到交付物里之前，按**每一条自己的授权**判断：CC0 / 公有领域可直接用；署名类必须写出处与许可；
+非商业不进商业项目；© 或授权不明只当参考。详见 [docs/assets.md](docs/assets.md) 与 [docs/attribution.md](docs/attribution.md)。

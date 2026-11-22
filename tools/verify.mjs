@@ -10,11 +10,14 @@
  * （镜像进来的 patch-gg/pixelfx：244 个特效）的索引、查找、导出与真渲染，
  * 以及第四个数据源（本地元素提取）的解码、分割、裁剪、提示词与工具入口，
  * 第五个数据源（video-shotcraft 镜头卡）与前端设计路由 anim_design_brief 的选型逻辑，
- * 以及第六个数据源（设计工艺库：八锚点 / 24 条 CSS 模式 / 15 条审查准则 / 规则集）。
- * 全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
+ * 第六个数据源（设计工艺库：八锚点 / 24 条 CSS 模式 / 15 条审查准则 / 规则集），
+ * 以及第七个数据源（外接素材库：liaoyunart 目录解析 / 授权分级 / 色调 / 多条件检索，
+ * 加四个工具的入口与提示）。全部通过打印 PASS，有任何一条不过就以退出码 1 结束。
  *
  *   node tools/verify.mjs --refs     额外跑联网检查：真的去素材库搜图、取详情、下载一张图。
  *                                    地址取 DSH_REF_BASE / config.refBase；不联网时不要加。
+ *   node tools/verify.mjs --assets   额外跑外接素材库联网检查：拉 liaoyunart 目录、搜一条、
+ *                                    看详情；不加时把地址指到死端口，保证离线也能跑完。
  */
 
 import { execFileSync } from 'node:child_process'
@@ -100,6 +103,19 @@ import {
   resolveSurface,
   tokensOf,
 } from '../lib/brief.js'
+
+import {
+  PROVIDERS,
+  assetFileName,
+  assetTone,
+  indexLiaoCatalog,
+  licenseClass,
+  licenseNote,
+  parseLiaoCatalog,
+  searchLiao,
+  splitAssetId,
+  summarizeAsset,
+} from '../lib/assets.js'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const EXPECTED_TOTAL = 341
@@ -361,7 +377,13 @@ try {
 const registered = []
 const fakeCtx = { tools: { register: (tool) => registered.push(tool) }, logger: { info: () => {} } }
 const { apply } = await import('../lib/index.js')
-apply(fakeCtx, {})
+// 默认离线：把外接素材库地址配到死端口、缓存目录配到临时空目录，工具就走
+// 「目录还没拿到 / 检索失败」那条兜底分支，不碰真目录也不读旧缓存。
+// 要真联网就加 --assets（那一轮不覆盖配置）。
+const OFFLINE_ASSETS = process.argv.includes('--assets')
+  ? null
+  : { assetBase: 'http://127.0.0.1:9', assetCacheDir: join(tmpdir(), 'anim-pack-verify-empty'), assetTimeoutMs: 2000 }
+apply(fakeCtx, OFFLINE_ASSETS ?? {})
 
 const TOOL_NAMES = [
   'anim_design_brief', 'anim_design_anchors', 'anim_design_patterns', 'anim_design_audit',
@@ -371,9 +393,10 @@ const TOOL_NAMES = [
   'anim_extract', 'anim_extract_guide',
   'anim_shot_stats', 'anim_shot_search', 'anim_shot_show', 'anim_shot_preview',
   'anim_shot_export', 'anim_shot_random', 'anim_shot_guide',
+  'anim_asset_sources', 'anim_asset_search', 'anim_asset_show', 'anim_asset_fetch', 'anim_asset_guide',
 ]
 const toolsByName = new Map(registered.map((tool) => [tool.name, tool]))
-check('注册了 31 个工具', registered.length === TOOL_NAMES.length, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
+check('注册了 36 个工具', registered.length === 36 && TOOL_NAMES.length === 36, `实际 ${registered.length}：${registered.map((t) => t.name).join(', ')}`)
 check('工具名齐全', TOOL_NAMES.every((name) => toolsByName.has(name)), TOOL_NAMES.filter((n) => !toolsByName.has(n)).join(', '))
 check(
   '每个工具都有描述与 JSON Schema',
@@ -871,6 +894,147 @@ if (existsSync(companion)) {
   console.log('  · 跳过：伴随技能还没装（node tools/install.mjs 会写）')
 }
 
+// ── 外接素材库：目录解析 / 授权分级 / 色调 / 多条件检索 + 四个工具的入口 ───────
+// 这一组默认离线：apply() 之前已把 DSH_ASSET_BASE 指到死端口，所以只验纯逻辑与兜底提示。
+// 要真联网：node tools/verify.mjs --assets
+
+const ASSETS = process.argv.includes('--assets')
+
+const sampleCatalog = {
+  generatedAt: '2026-11-01T00:00:00.000Z',
+  stats: { total: 4 },
+  licenses: ['CC0 1.0', 'CC BY 4.0', 'CC BY-NC 4.0', '© The Metropolitan Museum of Art'],
+  taxonomy: [
+    { id: 'painting', label: '绘画', group: 'paper', count: 1 },
+    { id: 'material_texture', label: '材质', group: 'media', count: 1 },
+    { id: 'icon_vector', label: '图标', group: 'media', count: 1 },
+    { id: 'web_ui', label: '网页 UI', group: 'modern', count: 1 },
+  ],
+  groups: [
+    { id: 'paper', name: '绘画与纸上' },
+    { id: 'media', name: '材质与图形' },
+    { id: 'modern', name: '现代与风格' },
+  ],
+  sources: [
+    { id: 'met', name: '大都会博物馆', license: 'CC0', count: 2 },
+    { id: 'iconify', name: 'Iconify', license: 'MIT', count: 2 },
+  ],
+  clusters: [{ id: 0, name: '墨与米', size: 1, accent: ['#111111'] }],
+  items: [
+    {
+      id: 'met_1', source: 'met', kind: 'image', title: '水墨 山水 立轴', creator: '佚名', lic: 0,
+      category: 'painting', cluster: 0, palette: ['#111111', '#1a1a1a'], tags: ['ink', 'landscape'],
+      thumb: 'library/met/1/w256.webp', small: 'library/met/1/w560.webp', orig: 'library/met/1/orig.jpg',
+      bytes: 1234, page: 'https://example.org/met/1',
+    },
+    {
+      id: 'amb_1', source: 'met', kind: 'texture', title: 'Wood floor', creator: 'ambientCG', lic: 1,
+      category: 'material_texture', palette: ['#8b5a2b'], tags: ['wood'], bytes: 999999,
+      orig: 'library/met/2/orig.jpg', page: 'https://example.org/amb/1',
+    },
+    { id: 'ico_1', source: 'iconify', kind: 'icon', title: 'rocket', lic: 2, category: 'icon_vector', tags: ['space'] },
+    { id: 'ui_1', source: 'iconify', kind: 'image', title: 'dashboard card', lic: 3, category: 'web_ui', palette: ['#f5f5f5'] },
+  ],
+}
+
+const parsed = parseLiaoCatalog('window.__CATALOG__ = ' + JSON.stringify(sampleCatalog) + ';')
+check('parseLiaoCatalog 剥掉 window.__CATALOG__ 与尾分号', parsed.items?.length === 4, JSON.stringify(parsed).slice(0, 80))
+let parseThrew = ''
+try {
+  parseLiaoCatalog('not a catalog')
+} catch (error) {
+  parseThrew = String(error?.message ?? error)
+}
+check('parseLiaoCatalog 坏输入给中文报错', /没有 JSON 对象/.test(parseThrew), parseThrew)
+
+check('licenseClass 认四档',
+  licenseClass('CC0 1.0') === 'cc0' && licenseClass('CC BY 4.0') === 'attribution' &&
+    licenseClass('CC BY-NC 4.0') === 'noncommercial' && licenseClass('© The Met') === 'unknown' &&
+    licenseClass('') === 'unknown' && licenseClass('rightsstatements.org/vocab/InC/1.0') === 'unknown',
+  [licenseClass('CC0'), licenseClass('CC BY 4.0'), licenseClass('CC BY-NC 4.0'), licenseClass('© x')].join(','))
+check('licenseNote 四档各有说明', ['可商用', '署名', '别用', '参考'].every((word, i) =>
+  licenseNote(['CC0 1.0', 'CC BY 4.0', 'CC BY-NC 4.0', '© The Met'][i]).includes(word)))
+
+check('assetTone 分暗/暖/亮/未知',
+  assetTone(['#111111', '#1a1a1a']) === 'dark' && assetTone(['#8b5a2b']) === 'warm' &&
+    assetTone(['#f5f5f5']) === 'light' && assetTone([]) === 'unknown' && assetTone(['nope']) === 'unknown',
+  [assetTone(['#111111']), assetTone(['#8b5a2b']), assetTone(['#f5f5f5']), assetTone([])].join(','))
+
+const sampleIndex = indexLiaoCatalog(parsed)
+check('indexLiaoCatalog 建好 id 表与三张对照表',
+  sampleIndex.items.length === 4 && sampleIndex.byId.get('met_1')?.id === 'met_1' &&
+    sampleIndex.taxonomy.size === 4 && sampleIndex.sources.size === 2 && sampleIndex.clusters.size === 1)
+const met = sampleIndex.byId.get('met_1')
+check('索引条目补上授权文本 / 分级 / 色调 / 分类名 / 来源名',
+  met.license === 'CC0 1.0' && met.licenseClass === 'cc0' && met.tone === 'dark' &&
+    met.categoryLabel === '绘画' && met.group === 'paper' && met.sourceName === '大都会博物馆' && met.provider === 'liaoyunart',
+  JSON.stringify({ license: met.license, cls: met.licenseClass, tone: met.tone, cat: met.categoryLabel }))
+check('配色聚类名挂在条目上', met.clusterName === '墨与米', String(met.clusterName))
+
+const hit = (opts) => searchLiao(sampleIndex, opts)
+check('searchLiao 中文关键词命中', hit({ query: '水墨' }).total === 1 && hit({ query: '水墨' }).rows[0].item.id === 'met_1')
+check('searchLiao 多个词必须同时命中', hit({ query: 'wood floor' }).total === 1 && hit({ query: 'wood rome' }).total === 0)
+check('searchLiao 分类过滤（id）', hit({ category: 'material_texture' }).rows.every((row) => row.item.category === 'material_texture'))
+check('searchLiao 分类过滤（中文名）', hit({ category: '绘画' }).total === 1, String(hit({ category: '绘画' }).total))
+check('searchLiao 来源 / 类型 / 大区过滤',
+  hit({ source: 'iconify' }).total === 2 && hit({ kind: 'texture' }).total === 1 && hit({ group: 'media' }).total === 2)
+check('searchLiao 色调与聚类过滤',
+  hit({ tone: 'dark' }).total === 1 && hit({ tone: 'light' }).rows[0].item.id === 'ui_1' && hit({ cluster: 0 }).total === 1)
+check('searchLiao 授权过滤：cc0 / open 排除 NC 与 ©',
+  hit({ license: 'cc0' }).total === 1 && hit({ license: 'open' }).total === 2 && hit({ license: 'commercial' }).total === 2,
+  [hit({ license: 'cc0' }).total, hit({ license: 'open' }).total].join('/'))
+check('searchLiao sort=large 按体积倒序', hit({ sort: 'large' }).rows[0].item.id === 'amb_1')
+check('searchLiao limit / offset 翻页', hit({ limit: 2 }).rows.length === 2 && hit({ limit: 2, offset: 2 }).rows.length === 2 &&
+  hit({ limit: 60 }).rows.length === 4)
+check('searchLiao 没命中就是空的，不硬凑', hit({ query: '不存在的东西' }).total === 0)
+
+check('splitAssetId 无前缀默认 liaoyunart', splitAssetId('met_1').provider === 'liaoyunart' && splitAssetId('met_1').key === 'met_1')
+check('splitAssetId 拆出 provider 与前缀内的冒号',
+  splitAssetId('iconify:mdi:rocket').provider === 'iconify' && splitAssetId('iconify:mdi:rocket').key === 'mdi:rocket')
+check('assetFileName 形如 <源>__<key>__<档>.<ext>',
+  assetFileName({ provider: 'liaoyunart', id: 'met_1' }, 'orig', 'https://x/library/met/1/orig.jpg') === 'liaoyunart__met_1__orig.jpg',
+  assetFileName({ provider: 'liaoyunart', id: 'met_1' }, 'orig', 'https://x/library/met/1/orig.jpg'))
+
+const summaryText = summarizeAsset(met, { index: 3 })
+check('summarizeAsset 带序号 / 授权说明 / 主色 / 标签',
+  summaryText.startsWith('3. met_1') && summaryText.includes('授权：') && summaryText.includes('#111111') && summaryText.includes('landscape'),
+  summaryText.slice(0, 120))
+
+check('四个可检索源 + 九个外接位都登记了',
+  PROVIDERS.length === 13 && ['liaoyunart', 'iconify', 'ambientcg', 'polyhaven'].every((id) => PROVIDERS.some((p) => p.id === id && p.mode !== 'link')) &&
+    PROVIDERS.filter((p) => p.mode === 'link').length === 9,
+  PROVIDERS.map((p) => p.id + ':' + p.mode).join(', '))
+
+const assetSourcesOut = await callTool('anim_asset_sources')
+check('anim_asset_sources 报 13 个源并分开集成/外接',
+  assetSourcesOut.includes('13 个登记源') && assetSourcesOut.includes('## 可检索 / 可取图') && assetSourcesOut.includes('## 外接（只登记入口'),
+  assetSourcesOut.slice(0, 120))
+check('anim_asset_sources 外接位给主页', assetSourcesOut.includes('https://kenney.nl/assets'))
+
+if (!ASSETS) {
+  // 这一组只在离线档（地址指到死端口）成立：验的是网络断了时的提示，不是检索结果。
+  check('anim_asset_sources 离线时说清目录没拿到', assetSourcesOut.includes('目录还没拿到'), assetSourcesOut.slice(-200))
+  const assetSearchOut = await callTool('anim_asset_search', { query: '水墨' })
+  check('anim_asset_search 离线给一句中文兜底', assetSearchOut.startsWith('素材检索失败：'), assetSearchOut.slice(0, 160))
+  check('anim_asset_show liaoyunart 离线时给查不到提示',
+    (await callTool('anim_asset_show', { id: 'met_102715' })).includes('查不到这条素材'))
+}
+
+const badProviderOut = await callTool('anim_asset_search', { provider: 'nope' })
+check('anim_asset_search 不认识的源列可选值', badProviderOut.includes('不认识的素材源') && badProviderOut.includes('polyhaven'), badProviderOut.slice(0, 160))
+check('anim_asset_show 没给 id 时给例子', (await callTool('anim_asset_show', {})).includes('要给素材 id'))
+check('anim_asset_show 不认识的前缀给可选前缀',
+  (await callTool('anim_asset_show', { id: 'zzz:1' })).includes('不认识的前缀'))
+check('anim_asset_fetch 没给 id 时给例子', (await callTool('anim_asset_fetch', {})).includes('要给素材 id'))
+
+const assetGuideOut = await callTool('anim_asset_guide')
+check('anim_asset_guide 讲清四步与授权纪律',
+  assetGuideOut.includes('# 外接素材库使用指南') && assetGuideOut.includes('## 四步走') && assetGuideOut.includes('## 授权纪律'),
+  assetGuideOut.slice(0, 80))
+check('anim_asset_guide 给出缓存路径与换地址办法',
+  assetGuideOut.includes('liaoyunart-catalog.json') && assetGuideOut.includes('DSH_ASSET_BASE'), assetGuideOut.slice(0, 400))
+check('anim_asset_guide 与 docs/assets.md 都在', existsSync(join(ROOT, 'docs', 'assets.md')) && existsSync(join(ROOT, 'assets', 'companion', 'frontend-art-reference', 'SKILL.md')))
+
 // ── 联网检查（node tools/verify.mjs --refs）：真的搜图、看详情、下载一张 ────
 // 只有 --refs 且地址不是占位时才跑：DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs
 const LIVE = process.argv.includes('--refs') && !/^(127[.]0[.]0[.]1|localhost)$/.test(new URL(refDefaults.base).hostname)
@@ -913,10 +1077,44 @@ if (LIVE) {
   }
 }
 
+// ── 外接素材库联网（node tools/verify.mjs --assets）：拉目录、搜一条、看详情 ────
+if (ASSETS) {
+  const assetsDir = mkdtempSync(join(tmpdir(), 'anim-pack-assets-'))
+  try {
+    const liveSources = await callTool('anim_asset_sources')
+    check('联网 · anim_asset_sources 拉到 liaoyunart 家底',
+      /[\d,]{5,} 条 \/ \d+ 个来源 \/ \d+ 个分类/.test(liveSources) && liveSources.includes('授权分布'), liveSources.slice(0, 200))
+    check('联网 · 家底里分类 / 来源 / 配色聚类都列全',
+      liveSources.includes('### 分类（category 参数）') && liveSources.includes('### 来源（source 参数）') && liveSources.includes('### 配色聚类（cluster 参数'))
+
+    const inkOut = await callTool('anim_asset_search', { query: 'ink', category: 'painting', limit: 3 })
+    check('联网 · 英文关键词 + 分类能搜到', /# 素材检索 · liaoyunart · [1-9]\d* 条命中/.test(inkOut), inkOut.slice(0, 160))
+    check('联网 · 结果带授权与配色', inkOut.includes('授权：') && inkOut.includes('主色：') || inkOut.includes('标签：'), inkOut.slice(0, 260))
+
+    const cc0Out = await callTool('anim_asset_search', { query: 'wood', license: 'cc0', limit: 2 })
+    check('联网 · 授权过滤 cc0 只给可商用条目', cc0Out.includes('CC0') && !/非商业（NC）/.test(cc0Out.split('下一步')[0] ?? ''), cc0Out.slice(0, 300))
+
+    const firstIdLine = inkOut.split('\n').find((line) => /^\d+\. /.test(line)) || ''
+    const liveId = firstIdLine.replace(/^\d+\. (\S+) .*$/, '$1')
+    const showLive = await callTool('anim_asset_show', { id: liveId, download: true, variant: 'thumb', dir: assetsDir })
+    check('联网 · anim_asset_show 给出元信息与授权', showLive.startsWith('# ' + liveId) && showLive.includes('- 授权：'), showLive.slice(0, 200))
+    const savedLine = showLive.split('\n').find((line) => line.startsWith('- ') && line.includes(assetsDir)) || ''
+    check('联网 · download=true 真的落盘', savedLine.length > 0, savedLine)
+
+    const iconOut = await callTool('anim_asset_search', { provider: 'iconify', query: 'rocket', limit: 3 })
+    check('联网 · iconify 返回 SVG 直链', /# 素材检索 · iconify/.test(iconOut) && iconOut.includes('.svg'), iconOut.slice(0, 200))
+
+    const hdriOut = await callTool('anim_asset_search', { provider: 'polyhaven', kind: 'hdris', limit: 2 })
+    check('联网 · polyhaven 能查 HDRI', /polyhaven/.test(hdriOut) && hdriOut.includes('条命中'), hdriOut.slice(0, 200))
+  } finally {
+    rmSync(assetsDir, { recursive: true, force: true })
+  }
+}
+
 // ── 网页卡片（lib/client.js）────────────────────────────────────────────────
 // 前端 bundle 不参与工具逻辑，但它是插件里最容易静默坏掉的一块：语法错、漏注册、
 // 忘了在 package.json 里声明 dsh.client，浏览器里都只是"没反应"。这里在 Node 里
-// 用假的 loader / React 跑一遍，至少保证它能解析、能注册满 31 个视图。
+// 用假的 loader / React 跑一遍，至少保证它能解析、能注册满 36 个视图。
 {
   const clientPath = join(ROOT, 'lib', 'client.js')
   check('lib/client.js 存在', existsSync(clientPath))
@@ -1028,4 +1226,4 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`  · ${failure}`)
   process.exit(1)
 }
-console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 124 张镜头卡 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}）`)
+console.log(`PASS — ${passed} 项检查全部通过（341 条风格 / 193 张静帧 / 10 个系列 / 244 个特效 / 124 张镜头卡 / ${PROVIDERS.length} 个外接素材源 / ${TOOL_NAMES.length} 个工具${LIVE ? ' / 素材库联网已验' : ''}${ASSETS ? ' / 外接素材库联网已验' : ''}）`)
