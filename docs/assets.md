@@ -55,6 +55,12 @@ anim_asset_search(provider="polyhaven", query="studio", kind="hdris")
 ~~~
 
 - 多个词用空格分隔 = **同时命中**；每个词在标题(3) / 标签(2) / 作者(1.5) / 分类(1) / 来源(1) 里打分。
+- **中文可以直接搜**：目录元数据是英文，插件内置约 110 个中→英同义词（水墨→ink、山水→landscape、
+  材质→material、图标→icon、箭头→arrow…）。同义词组内任一命中即可，组间仍要同时满足；
+  输出里会写一行「中文→英文：水墨→ink」。中文查询一个词都没全命中时，会退一步给「命中一半以上」的条目，
+  开头标「部分命中」——要更准就换词或去掉限定。英文查询不放宽。
+- 结果头部有两行有用的：「本页：第 1–16 条 / 共 433 条；下一页 offset=16」和
+  「本页授权：CC0 12 · 需署名 3 · 非商业 1 · © 或不明 0」——先看这两行再决定要不要翻页。
 - 想配色合得上，传 `tone`（`dark` / `light` / `warm` / `cool` / `neutral`）或 `cluster`；
   色调是从每条素材的主色板算亮度与冷暖得出的，不是人工标注，粗筛够用。
 - `license=cc0` 只要公有领域；`license=open` / `commercial` 排除 NC 与 ©。
@@ -86,7 +92,13 @@ anim_asset_fetch(id="ambientcg:Wood051", variant="large")
 ~~~
 
 默认原图；`variant` 可选 `thumb` / `small` / `large` / `orig`。命中缓存直接复用，
-返回 `localPath`。之后的接法：
+返回 `localPath`。挑好一批就批量落，别一条条调：
+
+~~~text
+anim_asset_fetch(ids=["met_102715", "iconify:mdi:rocket", "ambientcg:Wood051"], variant="small")
+~~~
+
+最多 12 条，逐条报「id → 路径（大小）」或「失败 · id · 原因」，末尾给成功数。之后的接法：
 
 - 当参考图 → 直接把路径交给看图工具；
 - 拆元素 / 出调色板 → `anim_extract(path=localPath)`；
@@ -146,6 +158,14 @@ A：它是按主色板平均亮度/冷暖算的粗标签；要精确就传 `clus
 
 **Q：图标为什么没有缩略图文件？**
 A：Iconify 直接给 SVG 地址，浏览器就能显示；`anim_asset_fetch` 存下来的是 `.svg`。
+
+**Q：中文搜不到东西？**
+A：1.0.1 起内置中→英同义词表，常见美术 / 设计词（水墨、山水、材质、纹理、图标、箭头、色板…）直接搜就行；
+表里没有的词先看输出有没有「中文→英文」那行，没有就换成英文或改用 `category` / `tone` 过滤。
+想扩词就改 `lib/assets.js` 里的 `QUERY_SYNONYMS`。
+
+**Q：要一次存十几张图，怎么不来回调？**
+A：`anim_asset_fetch(ids=[…])`，最多 12 条一批；单条失败不影响其它条。
 
 **Q：能在没有网的环境用吗？**
 A：可以。只要之前拉过一次目录，liaoyunart 的检索与本地缓存过的图都还能用；

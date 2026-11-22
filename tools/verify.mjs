@@ -108,6 +108,7 @@ import {
   PROVIDERS,
   assetFileName,
   assetTone,
+  expandQueryTokens,
   indexLiaoCatalog,
   licenseClass,
   licenseNote,
@@ -820,6 +821,11 @@ const blankBrief = await callTool('anim_design_brief', {})
 check('没写任务也照样给通用包', blankBrief.includes('# 前端设计参考包') && blankBrief.includes('（没写'), blankBrief.slice(0, 200))
 check('brief 输出不臃肿（一条 < 6000 字符）', briefOut.length < 6000, String(briefOut.length))
 
+const assetBrief = await callTool('anim_design_brief', { task: '电商落地页要配图，找点纹理和图标' })
+check('任务提到配图时 brief 把素材库串进下一步',
+  assetBrief.includes('anim_asset_search(query=') && assetBrief.includes('anim_asset_fetch(ids='), assetBrief.slice(-360))
+check('没提配图时 brief 不硬塞素材步骤', !briefOut.includes('anim_asset_fetch(ids='))
+
 check('resolveSurface 认中文场景名', resolveSurface('仪表盘').id === 'dashboard' && resolveSurface('游戏 UI').id === 'game-ui')
 check('resolveSurface 认不出时回 generic', resolveSurface('乱七八糟的东西').id === 'generic')
 const toks = tokensOf('深色科技风 AI 写作落地页')
@@ -974,6 +980,16 @@ check('配色聚类名挂在条目上', met.clusterName === '墨与米', String(
 const hit = (opts) => searchLiao(sampleIndex, opts)
 check('searchLiao 中文关键词命中', hit({ query: '水墨' }).total === 1 && hit({ query: '水墨' }).rows[0].item.id === 'met_1')
 check('searchLiao 多个词必须同时命中', hit({ query: 'wood floor' }).total === 1 && hit({ query: 'wood rome' }).total === 0)
+const zhTokens = expandQueryTokens('水墨 材质')
+check('中文查询自动换英文同义词（组内任一命中）',
+  zhTokens.groups.length === 2 && zhTokens.groups[0].includes('ink') && zhTokens.groups[1].includes('material') &&
+    zhTokens.expanded.join(' ').includes('水墨→ink'),
+  JSON.stringify(zhTokens))
+check('英文查询不换词，保持严格', expandQueryTokens('wood floor').groups.every((group) => group.length === 1))
+check('中文部分命中才兜底：带 relaxed 标记并命中一半以上',
+  hit({ query: '水墨 zzzz' }).relaxed === true && hit({ query: '水墨 zzzz' }).total === 1 &&
+    hit({ query: 'wood rome' }).relaxed === false,
+  JSON.stringify({ zh: hit({ query: '水墨 zzzz' }).total, en: hit({ query: 'wood rome' }).total }))
 check('searchLiao 分类过滤（id）', hit({ category: 'material_texture' }).rows.every((row) => row.item.category === 'material_texture'))
 check('searchLiao 分类过滤（中文名）', hit({ category: '绘画' }).total === 1, String(hit({ category: '绘画' }).total))
 check('searchLiao 来源 / 类型 / 大区过滤',
@@ -1019,6 +1035,13 @@ if (!ASSETS) {
   check('anim_asset_show liaoyunart 离线时给查不到提示',
     (await callTool('anim_asset_show', { id: 'met_102715' })).includes('查不到这条素材'))
 }
+
+check('anim_asset_search 描述写清何时该调（做前端要配图先搜这里）',
+  /第一个调它/.test(toolsByName.get('anim_asset_search').description) &&
+    /配图|图标|贴图/.test(toolsByName.get('anim_asset_search').description))
+check('anim_asset_fetch 描述提批量 ids（少来回调）',
+  toolsByName.get('anim_asset_fetch').description.includes('ids') &&
+    toolsByName.get('anim_asset_fetch').description.includes('12'))
 
 const badProviderOut = await callTool('anim_asset_search', { provider: 'nope' })
 check('anim_asset_search 不认识的源列可选值', badProviderOut.includes('不认识的素材源') && badProviderOut.includes('polyhaven'), badProviderOut.slice(0, 160))
@@ -1106,6 +1129,20 @@ if (ASSETS) {
 
     const hdriOut = await callTool('anim_asset_search', { provider: 'polyhaven', kind: 'hdris', limit: 2 })
     check('联网 · polyhaven 能查 HDRI', /polyhaven/.test(hdriOut) && hdriOut.includes('条命中'), hdriOut.slice(0, 200))
+
+    const zhOut = await callTool('anim_asset_search', { query: '水墨 山水', limit: 3 })
+    check('联网 · 中文查询自动换英文同义词后搜得到',
+      /# 素材检索 · liaoyunart · [1-9]\d* 条命中/.test(zhOut) && zhOut.includes('中文→英文：水墨→ink'),
+      zhOut.slice(0, 220))
+    check('联网 · 检索结果报本页区间与本页授权分布',
+      zhOut.includes('- 本页：第 1–') && zhOut.includes('- 本页授权：CC0'), zhOut.slice(0, 320))
+
+    const batchOut = await callTool('anim_asset_fetch', {
+      ids: ['iconify:mdi:rocket', 'iconify:mdi:home'], variant: 'small', dir: assetsDir,
+    })
+    check('联网 · anim_asset_fetch 批量落盘两条',
+      batchOut.includes('批量落盘 · 2 条') && batchOut.includes('成功 2 / 2 条') && batchOut.includes(assetsDir),
+      batchOut.slice(0, 320))
   } finally {
     rmSync(assetsDir, { recursive: true, force: true })
   }

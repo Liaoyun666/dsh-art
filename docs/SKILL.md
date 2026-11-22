@@ -123,9 +123,11 @@ Transparent Textures / Lospec / unDraw，工具会说明为什么只能外接）
 
 - `anim_asset_sources`：先看 13 家各能做什么；liaoyunart 那一节给规模、分类、来源、配色聚类与授权分布。
 - `anim_asset_search`：关键词 + `category` / `source` / `tone` / `cluster` / `license` / `kind` 收窄；
+  中文直接搜（水墨→ink、材质→material 自动换词），输出头部有「本页区间 / 本页授权分布 / 翻页 offset」；
   `provider: "iconify" | "ambientcg" | "polyhaven" | "all"` 查另外三家。
 - `anim_asset_show`：看授权、主色板、各尺寸直链、来源页；`download: true` 顺手落一张小图。
-- `anim_asset_fetch`：要进项目再下原图 / 贴图 / SVG（`dir` 指到项目的 assets 目录，`variant` 选尺寸）。
+- `anim_asset_fetch`：要进项目再下原图 / 贴图 / SVG（`dir` 指到项目的 assets 目录，`variant` 选尺寸）；
+  挑好一批用 `ids: [...]` 一次落最多 12 条，别一条条调。
 - `anim_asset_guide`：四步走与授权纪律。
 
 授权纪律（做交付物时按这个判）：**CC0 / 公有领域**可直接用；**署名类**（CC BY、OFL、MIT、Apache…）

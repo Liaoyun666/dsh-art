@@ -1,9 +1,9 @@
 {
   "name": "dsh-anim-pack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
-  "description": "美术素材包（V1.0）：341 种代码动画风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）/ 远端美术参考图库 / 本地元素提取 / 124 张 video-shotcraft 镜头配方卡 / 设计工艺库（8 条美学锚点、24 条 CSS 版式模式、15 条审查准则）/ 外接素材库（liaoyunart.com 1.6 万条 + Iconify 图标 + ambientCG、Poly Haven 的 CC0 材质与 HDRI），共 36 个 anim_* 工具。anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计前先调它；anim_asset_sources / search / show / fetch 负责找成品素材、看授权、落盘。",
+  "description": "美术素材包（V1.0.1）：341 种代码动画风格提示词 / 193 张参考静帧 / 244 条像素特效（pixelfx）/ 远端美术参考图库 / 本地元素提取 / 124 张 video-shotcraft 镜头配方卡 / 设计工艺库（8 条美学锚点、24 条 CSS 版式模式、15 条审查准则）/ 外接素材库（liaoyunart.com 1.6 万条 + Iconify 图标 + ambientCG、Poly Haven 的 CC0 材质与 HDRI），共 36 个 anim_* 工具。anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计前先调它；anim_asset_sources / search / show / fetch 负责找成品素材、看授权、落盘。",
   "keywords": [
     "dsh",
     "animation",

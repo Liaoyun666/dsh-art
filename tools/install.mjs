@@ -87,6 +87,8 @@ const BLOCK = `${BLOCK_BEGIN}
 # 可搜）+ Iconify 图标 + ambientCG / Poly Haven 的 CC0 材质与 HDRI；另有 Kenney /
 # LottieFiles / Google Fonts 等九个外接位只登记入口。地址 config.assetBase →
 # DSH_ASSET_BASE，缓存 config.assetCacheDir，超时 config.assetTimeoutMs。
+# 检索支持中文（水墨→ink 这类中英同义词自动换词），anim_asset_fetch 可用 ids 一次
+# 批量落 12 条；结果头部给「本页区间 / 本页授权分布 / 翻页 offset」。
 # 路由：anim_design_brief 一次给出风格/镜头/特效/工艺/配色参考包，做前端设计时先调它；
 # 安装时还会写一份伴随技能 ~/.agents/skills/frontend-art-reference/SKILL.md，
 # 让模型在写页面、界面、海报之前想起这些工具。

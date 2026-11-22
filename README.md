@@ -42,8 +42,8 @@ cd dsh-art
 
 node tools/install.mjs            # 建 junction + 把补丁层登记进 desktop profile
 node tools/install.mjs --status   # 自检：模块能不能加载、七个数据源各有多少条
-node tools/verify.mjs             # 291 项检查（纯离线，不用联网）
-node tools/verify.mjs --assets    # 再加 6 项：真拉 liaoyunart 目录、四家各搜一条、真下载一张
+node tools/verify.mjs             # 298 项检查（纯离线，不用联网）
+node tools/verify.mjs --assets    # 再加 9 项：真拉 liaoyunart 目录、中文检索、批量落盘、四家各搜一条
 ~~~
 
 装完刷新 DSH 页面（profile 是 `patchReload: live`，新工具立刻出现），在会话里说一句
@@ -144,15 +144,21 @@ node tools/verify.mjs --assets    # 再加 6 项：真拉 liaoyunart 目录、�
 | 工具 | 作用 |
 |---|---|
 | `anim_asset_sources` | 13 个登记源的家底：哪些能检索、哪些只给入口、liaoyunart 的规模 / 分类 / 来源 / 配色聚类 / 授权分布 |
-| `anim_asset_search` | 按关键词 + 分类 / 来源 / 分组 / 种类 / 色调 / 聚类 / 授权 / 排序检索；`provider: "all"` 一次查四家 |
+| `anim_asset_search` | 按关键词 + 分类 / 来源 / 分组 / 种类 / 色调 / 聚类 / 授权 / 排序检索；中文词自动换英文同义词（水墨→ink），中文多词可部分命中兜底；结果带本页区间与本页授权分布；`provider: "all"` 一次查四家 |
 | `anim_asset_show` | 一条素材的全部元信息：授权与可用性判断、主色板、各尺寸直链、来源页；`download: true` 顺手落盘 |
-| `anim_asset_fetch` | 把原图 / 贴图 / SVG 下载到指定目录（.part 原子改名，80 MB 上限，命中缓存复用） |
+| `anim_asset_fetch` | 把原图 / 贴图 / SVG 下载到指定目录（.part 原子改名，80 MB 上限，命中缓存复用）；`ids: [...]` 一次批量落最多 12 条 |
 | `anim_asset_guide` | 指南：四步走、授权纪律（做交付物时按这个判）、离线与自建镜像 |
 
 liaoyunart 的目录是一份 11.6 MB 的 `data/catalog.js`，首次拉下来落进
 `~/.dsh/cache/anim-pack-assets/liaoyunart-catalog.json`，之后**离线也能搜**（7 天算新，过期了下次联网顺手刷新）。
 地址按 **`config.assetBase` → 环境变量 `DSH_ASSET_BASE` → `https://liaoyunart.com`** 取，可以指向自己的镜像。
 授权不明的条目工具会直接写「别直接进交付物，只当参考」——这条纪律请当真，[docs/assets.md](docs/assets.md) 里写清楚了怎么判。
+
+**中文检索**：liaoyunart 的标题 / 标签全是英文，直接搜「水墨」「材质」原来会 0 命中。1.0.1 起内置一张
+中→英同义词表（墨→ink、山水→landscape、材质→material、图标→icon、箭头→arrow…约 110 个词）：
+同义词组内任一命中即可、组与组之间仍要同时满足；中文查询一个都没全命中时，退一步给「命中一半以上」的条目并标
+`relaxed`，英文查询保持严格（不会因为放宽而误命中）。挑好一批图用
+`anim_asset_fetch(ids=["…","…"])` 一次落盘（最多 12 条），不用一条条来回调。
 
 ### 设计工艺库（3，定调 / 抄版式 / 交付前自检）
 
@@ -363,7 +369,7 @@ dsh-art/
 │       └── frontend-art-reference/SKILL.md   # 安装时复制到 ~/.agents/skills/ 的伴随技能
 ├── tools/
 │   ├── install.mjs           # 装 / 卸 / 自检（junction + 托管补丁块）
-│   ├── verify.mjs            # 自检（离线 291 项；--assets 再加 6 项联网）
+│   ├── verify.mjs            # 自检（离线 298 项；--assets 再加 9 项联网）
 │   ├── build-fx.mjs          # 从 pixelfx 镜像重建特效索引与预览
 │   ├── build-shots.mjs       # 从 assets/shots/cards 重建镜头卡索引（--check 校验）
 │   ├── build-design.mjs      # 校验设计工艺库并重建计数索引（--check 校验）
@@ -414,7 +420,7 @@ clone 慢是这个原因，不是代码。
 ## 6. 自检
 
 ~~~bash
-node tools/verify.mjs                                      # 离线：291 项（纯逻辑，不联网）
+node tools/verify.mjs                                      # 离线：298 项（纯逻辑，不联网）
 DSH_REF_BASE=http://你的库 node tools/verify.mjs --refs     # 再加 12 项联网（自建参考图库）
 node tools/verify.mjs --assets                              # 再加 6 项联网（外接素材库四家）
 ~~~
@@ -450,7 +456,7 @@ node tools/verify.mjs --assets                              # 再加 6 项联网
 
 - **能用、可维护**：模块边界清楚（catalog / refs / fx / shots / design / assets 各管一个数据源）、零依赖、错误信息是人话、
   导出有防呆（拒绝往库内写）、服务地址不写死。
-- **测试是真的**：291 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
+- **测试是真的**：298 项自检里包含「在临时目录里真导出一个小项目并渲出一张图」，也包含「现场画一张合成图 → 编码 → 解码 → 分割 → 裁剪 → 写报告」的整条提取链路，不只是断言文件存在。
 - **元素提取是本机算的**：一张 720p 图约 0.2–1.1 s，纯 CPU、不联网、零依赖；
   像素画会先认倍率再分析，裁剪按整数倍放大。
 - **设计工艺库是离线 JSON**：8 条锚点 / 24 条模式 / 15 条准则随包发，检索是关键词打分（不是语义），
@@ -493,7 +499,7 @@ Zero runtime dependencies.
 ~~~bash
 git clone https://github.com/Liaoyun666/dsh-art.git && cd dsh-art
 node tools/install.mjs        # junction into the DSH profile + patch entry
-node tools/verify.mjs         # 291 offline checks
+node tools/verify.mjs         # 298 offline checks
 ~~~
 
 Code is MIT. The prompt library under `assets/library/` keeps its own terms (free to use and share, not to be
